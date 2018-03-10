@@ -361,3 +361,85 @@ LANGUAGE.help_cont_being_a_zombie					= [[<p>Tips for this section:
 ]]
 
 -- Place any custom stuff below here...
+
+--[[ Anything that has an \n means a new line: Example
+Hello there.\nWelcome to the server will output as:
+
+Hello there. 
+Welcome to the server
+
+So remember that when translating]]--
+
+-- Redeem Menu
+
+LANGUAGE.redeemer_credit							= "Zombie Survival - created by William \"JetBoom\" Moodhe.             Zombie Survival: Bandits by MrCraigTunstall"
+LANGUAGE.redeemer_save								= "CHANGE TO A HUMAN AND SAVE HUMANITY"
+LANGUAGE.redeemer_kill								= "STAY AS A BANDIT AND CHOOSE TO HELP OR KILL THE HUMANS"
+
+-- Worth Menu
+
+LANGUAGE.worth_title								= "Select Your Survival Loadout"
+LANGUAGE.worth_close								= "Press F2 to re-open the Worth Menu."
+LANGUAGE.worth_worth								= "Worth" 
+LANGUAGE.worth_favtab								= "Favorites"
+LANGUAGE.worth_favtooltip							= "This is your default cart.\nIf you join the game late then you'll spawn with this cart."
+LANGUAGE.worth_favbuy								= "Purchase this saved cart."
+LANGUAGE.worth_favload								= "Load this saved cart."
+LANGUAGE.worth_favremove							= "Remove this cart as your default."
+LANGUAGE.worth_favdelete							= "Delete this saved cart."
+LANGUAGE.worth_favdefault							= "Make this cart your default."
+LANGUAGE.worth_checkout								= "Checkout"
+LANGUAGE.worth_checkouttooltip						= "Self-Explanatory."
+LANGUAGE.worth_random								= "Random Loadout"
+LANGUAGE.worth_randomtooltip						= "Using this will randomly give you a set of items instead of normal checkout.\n Also use this to close the worth menu."
+LANGUAGE.worth_clear								= "Clear Loadout"
+LANGUAGE.worth_cleartooltip							= "Clears all items out of your cart."
+LANGUAGE.worth_saveload								= "Save Loadout"
+LANGUAGE.worth_saveloadtooltip						= "Use this to save your current cart(s) for easy checkout later."
+LANGUAGE.worth_github								= "GitHub"
+LANGUAGE.worth_githubtooltip						= "This will take you to the modified Zombie Survival GitHub page."
+LANGUAGE.worth_forum								= "Forum"
+LANGUAGE.worth_forumtooltip							= "This will take you to voidresonance.com"
+LANGUAGE.worth_steam								= "Steam Group"
+LANGUAGE.worth_steamtooltip							= "This will take you to our Void Resonance's Steam group."
+
+-- Pointshop Menu
+
+LANGUAGE.all_sales                                  = "All sales are final"
+LANGUAGE.the_pointshop                              = "The Points Shop"
+LANGUAGE.for_allapocalypse                          = "For all of your zombie apocalypse needs!"
+LANGUAGE.pts_tospend                                = "Points to spend"
+LANGUAGE.ars_discount                               = "discount for buying between waves!"
+LANGUAGE.ars_tooltip                                = "This shop is armed with the QUIK - Anti-zombie backstab device.\nMove your mouse outside of the shop to quickly close it!"
+LANGUAGE.ars_worth                                  = "Worth Menu"
+LANGUAGE.ars_purchase                               = "Purchase"  
+LANGUAGE.ars_purchaseammo                           = "Purchase ammunition"
+LANGUAGE.ars_pts                                    = "Points"
+
+-- Ressuply Box
+
+LANGUAGE.res_box_ready                              = "Ready"
+LANGUAGE.res_box_seconds                            = "s"
+
+-- PendBoard (End Game)
+
+LANGUAGE.win                                        = "You have won!"
+LANGUAGE.lose                                       = "You have lost."
+LANGUAGE.humans_win                                 = "The humans have survived for now."
+LANGUAGE.zombies_win                                = "The undead army grows stronger."
+LANGUAGE.mentions                                   = "Honorable Mentions"
+
+-- Weapon Titles
+
+LANGUAGE.title_guns                                 = "Guns"
+LANGUAGE.title_ammo                                 = "Ammunition"
+LANGUAGE.title_melee                                 = "Melee Weapons"
+LANGUAGE.title_tools                                 = "Tools"
+LANGUAGE.title_other                                 = "Other"
+LANGUAGE.title_traits                                 = "Traits"
+LANGUAGE.title_returns                              = "Returns"
+
+-- Classes Menu
+
+LANGUAGE.classes_boss                              = "Select desired boss class..."
+LANGUAGE.classes_normal                            = "Back to normal class menu..."
