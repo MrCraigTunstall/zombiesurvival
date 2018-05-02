@@ -164,15 +164,25 @@ function GM:CreateGibs(pos, headoffset)
 	end
 end
 
+function GM:DisallowHumanPickup(pl, entity)
+end
+
 function GM:TryHumanPickup(pl, entity)
-	if self.ZombieEscape or pl.NoObjectPickup or not pl:Alive() or pl:Team() == TEAM_UNDEAD then return end
+	if self.ZombieEscape or pl.NoObjectPickup or not pl:Alive() or pl:Team() ~= TEAM_HUMAN or (entity.NoPickupsTime and CurTime() < entity.NoPickupsTime and entity.NoPickupsOwner ~= pl) then return end
+
+	if gamemode.Call("DisallowHumanPickup", pl, entity) then return end
 
 	if entity:IsValid() and not entity.m_NoPickup then
+		local phys = entity:GetPhysicsObject()
+		if phys:IsValid() and phys:HasGameFlag(FVPHYSICS_PLAYER_HELD) then return end
+
 		local entclass = string.sub(entity:GetClass(), 1, 12)
-		if (entclass == "prop_physics" or entclass == "func_physbox" or entity.HumanHoldable and entity:HumanHoldable(pl)) and not entity:IsNailed() and entity:GetMoveType() == MOVETYPE_VPHYSICS and entity:GetPhysicsObject():IsValid() and entity:GetPhysicsObject():GetMass() <= CARRY_MAXIMUM_MASS and entity:GetPhysicsObject():IsMoveable() and entity:OBBMins():Length() + entity:OBBMaxs():Length() <= CARRY_MAXIMUM_VOLUME then
-			local holder, status = entity:GetHolder()
+		local carrymaxmass = CARRY_MAXIMUM_MASS * (pl.PropCarryCapacityMul or 1)
+		local carrymaxvol = CARRY_MAXIMUM_VOLUME * (pl.PropCarryCapacityMul or 1)
+		if (entclass == "prop_physics" or entclass == "func_physbox" or entity.HumanHoldable and entity:HumanHoldable(pl)) and not entity:IsNailed() and entity:GetMoveType() == MOVETYPE_VPHYSICS and entity:GetPhysicsObject():IsValid() and entity:GetPhysicsObject():GetMass() <= carrymaxmass and entity:GetPhysicsObject():IsMoveable() and entity:OBBMins():Length() + entity:OBBMaxs():Length() <= carrymaxvol then
+			local holder = entity:GetHolder()
 			if not holder and not pl:IsHolding() and CurTime() >= (pl.NextHold or 0)
-			and pl:GetShootPos():Distance(entity:NearestPoint(pl:GetShootPos())) <= 64 and pl:GetGroundEntity() ~= entity then
+			and pl:GetShootPos():DistToSqr(entity:NearestPoint(pl:GetShootPos())) <= 4096 and pl:GetGroundEntity() ~= entity then --64^2
 				local newstatus = ents.Create("status_human_holding")
 				if newstatus:IsValid() then
 					pl.NextHold = CurTime() + 0.25
