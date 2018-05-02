@@ -10,8 +10,9 @@ GM.Credits = {
 	{"Eisiger", "k2deseve@gmail.com", "Zombie kill icons"},
 	{"Austin \"Little Nemo\" Killey", "austin_odyssey@yahoo.com", "Ambient music"},
 	{"Zombie Panic: Source", "http://www.zombiepanic.org/", "Melee weapon sounds"},
-	{"Samuel", "samuel_games@hotmail.com", "Board Kit model"},
-	{"Typhon", "lukas-tinel@hotmail.com", "HUD textures"},
+	{"Samuel", "samuel_games@hotmail.com", "Board Kit models"},
+	{"Typhon", "lukas-tinel@hotmail.com", "Fear-o-meter textures"},
+	{"Benjy, The Darker One, Raox, Scott", "", "Code contributions"},
 
 	{"Mr. Darkness", "", "Russian translation"},
 	{"honsal", "", "Korean translation"},
@@ -20,7 +21,9 @@ GM.Credits = {
 	{"Kradar", "", "Italian translation"},
 	{"Raptor", "", "German translation"},
 	{"The Special Duckling", "", "Danish translation"},
-	{"Box, ptown, Dr. Broly", "", "Spanish translation"}
+	{"ptown, Dr. Broly", "", "Spanish translation"},
+
+	{"Anyone else on GitHub or who I've forgotten", "", "Various contributions"},
 }
 
 GM.Credits2 = {
