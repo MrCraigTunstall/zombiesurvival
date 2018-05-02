@@ -133,6 +133,11 @@ LANGUAGE.last_sigil_destroyed_all_is_lost			= "Los zombies han destruido el últ
 LANGUAGE.last_sigil_destroyed_all_is_lost2			= "No hay chance de escapar..."
 LANGUAGE.prop_obj_exit_h							= "CORRE!"
 LANGUAGE.prop_obj_exit_z							= "DETENLOS!"
+LANGUAGE.sigil_escapestart                          = "Secuencia de escape iniciada"
+LANGUAGE.sigil_escapeboss                           = "Secuencia de jefe iniciada"
+LANGUAGE.sigil_deathfog                             = "Secuencia de humo toxico iniciada"
+LANGUAGE.sigil_yousurvived                          = "Has logrado sobrevivir! Esperando a otros supervivientes..."
+LANGUAGE.sigil_teleporting                          = "Transportando a %s"
 
 -- Message beacon messages
 LANGUAGE.message_beacon_1							= "Reagruparse aquí"
@@ -734,9 +739,13 @@ LANGUAGE.hm_nest_master2                            = "es para %s por conseguir 
 
 -- Weapon Titles
 
-LANGUAGE.title_guns                                 = "Armas"
+LANGUAGE.title_guns                                 = "Pistolas"
+LANGUAGE.title_shotguns                             = "Escopetas"
+LANGUAGE.title_smg                                 = "Subfusiles"
+LANGUAGE.title_assault                               = "Fusiles"
+LANGUAGE.title_rifles                                 = "Rifles"
 LANGUAGE.title_ammo                                 = "Municion"
-LANGUAGE.title_melee                                 = "Armas C a C"
+LANGUAGE.title_melee                                 = "Armas CaC"
 LANGUAGE.title_tools                                 = "Herramientas"
 LANGUAGE.title_other                                 = "Otros"
 LANGUAGE.title_traits                                 = "Tratos"
@@ -859,7 +868,7 @@ LANGUAGE.pl_ghtc                                    = "GOLPE NECROFAGO!"
 LANGUAGE.carrying_prop                              = "Llevando"
 LANGUAGE.stay_from_zombie_spawns                    = "Mantente lejos de los spawn zombie!"
 LANGUAGE.invasion_in                                = "La invacion comenzara en..."
-LANGUAGE.wave_intermission                          = "Intervalo de la oleada:"
+LANGUAGE.wave_intermission                          = "Intervalo:"
 LANGUAGE.wave                                       = "Oleada:"
 LANGUAGE.health                                     = "Salud:"
 
@@ -879,6 +888,13 @@ LANGUAGE.fc_chomp                                   = "CHOMP!"
 -- Credits
 
 LANGUAGE.credits_credits                            = "Creditos Zombie Survival"
+
+-- Tier System
+
+LANGUAGE.dont_have_weapon_x							= "No puedes vender, no tienes un %s"
+LANGUAGE.not_unlocked_yet_unlocked_on_x			= "Esta arma no a sido desbloqueada. Sera desbloqueada al inicio de la oleada %d."
+LANGUAGE.weapon_tier_x								= "Armas de nivel %d desbloqueadas."
+LANGUAGE.sold_x_for_y_points						= "Vendiste %s por %d puntos!"
 
 -- Spray mon
 
