@@ -43,9 +43,6 @@ function GM:IsSpecialPerson(pl, image)
 	elseif pl:IsAdmin() then
 		img = "icons/shield_gray.png"
 		tooltip = "Admin"
-	elseif pl:IsNoxSupporter() then
-		img = "noxiousnet/noxicon.png"
-		tooltip = "Nox Supporter"
 	end
 	
 	if not pl:IsBot() then
