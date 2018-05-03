@@ -5,9 +5,9 @@ CLASS.Help = "controls_fast_zombie"
 
 CLASS.Model = Model("models/player/zombie_fast.mdl") --Model("models/Zombie/Fast.mdl")
 
-CLASS.Wave = 1 / 2
+CLASS.Wave = 3 / 6
 CLASS.Revives = true
-CLASS.Infliction = 0.5 -- We auto-unlock this class if 50% of humans are dead regardless of what wave it is.
+--CLASS.Infliction = 0.5 -- We auto-unlock this class if 50% of humans are dead regardless of what wave it is.
 
 CLASS.Health = 125
 CLASS.Speed = 250
