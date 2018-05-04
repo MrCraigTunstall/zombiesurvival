@@ -34,7 +34,7 @@ AddCSLuaFile("shared/sh_channel.lua")
 AddCSLuaFile("shared/sh_bullets.lua")
 AddCSLuaFile("shared/sh_scoreboardtags.lua")
 AddCSLuaFile("shared/sigilmaps.lua")
-
+AddCSLuaFile("shared/sh_weaponquality.lua")
 
 --[[
 ////////// Client Files //////////

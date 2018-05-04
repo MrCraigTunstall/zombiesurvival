@@ -65,6 +65,7 @@ include("shared/sh_sigils.lua")
 include("shared/sh_channel.lua")
 include("shared/sh_bullets.lua")
 include("shared/sh_scoreboardtags.lua")
+include("shared/sh_weaponquality.lua")
 
 include("misc/noxapi/noxapi.lua")
 

@@ -126,16 +126,12 @@ LANGUAGE.no_free_channel							= "Radio interference from too many already being
 LANGUAGE.x_will_be_y_soon							= "%s станет %s скоро!"
 LANGUAGE.you_will_be_x_soon							= "Вы станете %s скоро!"
 
--- Exit point objectives
-LANGUAGE.exit_destroyed								= "Зараженные уничтожили какой-то выход!"
-LANGUAGE.exit_destroyed_only_one_remain_h			= "Последный остался! Если он будет уничтожен, у вас не останется шанса на побег!"
-LANGUAGE.exit_destroyed_only_one_remain_z			= "Остается последний!"
-LANGUAGE.exit_destroyed_x_remain					= "%d выходов осталось."
-LANGUAGE.last_exit_destroyed_all_is_lost			= "Зараженные уничтожили последний выход."
-LANGUAGE.last_exit_destroyed_all_is_lost2			= "У вас не осталось шансов на побег."
+-- Sigils point objectives
 LANGUAGE.prop_obj_exit_h							= "Спасайтесь!"
 LANGUAGE.prop_obj_exit_z							= "Остановите их!"
 LANGUAGE.sigil_destroyed							= "Зараженные уничтожили сигил!"
+LANGUAGE.last_sigil_destroyed_all_is_lost			= "Зараженные уничтожили последний сигил."
+LANGUAGE.last_sigil_destroyed_all_is_lost2			= "Нет никакой надежды на спасение."
 LANGUAGE.sigil_destroyed_only_one_remain_h			= "Остался только один! Если он будет разрушен, то нибудет никакой надежды на спасение!"
 LANGUAGE.sigil_destroyed_only_one_remain_z			= "Остался один сигил!"
 LANGUAGE.sigil_destroyed_x_remain					= "%d сигила осталось."
@@ -144,7 +140,8 @@ LANGUAGE.sigil_escapeboss                           = "Цикл спасения
 LANGUAGE.sigil_deathfog                             = "Цикл спасения - Туман смерти"
 LANGUAGE.sigil_yousurvived                          = "Вам удалось выжить! Ждем других выживших..."
 LANGUAGE.sigil_teleporting                          = "Телепортация... Пожалуйста, Подождите!"
-LANGUAGE.sigil_teleporting                          = "Телепортация к точке %q"
+LANGUAGE.sigil_teleporting                          = "Телепортация к точке %s"
+
 
 -- Message beacon messages
 LANGUAGE.message_beacon_1							= "Встречаемся здесь"
@@ -534,6 +531,8 @@ LANGUAGE.worth_ghostmode                             = "Режим Призра�
 LANGUAGE.worth_ghostmode2                             = "Вы можете гораздо быстрее проходить сквозь пропы"
 LANGUAGE.worth_fastresupply                             = "Пополнятель"
 LANGUAGE.worth_fastresupply2                             = "Ящики аммуниции пополняются гораздо быстрее."
+LANGUAGE.worth_fastteleport                         = "Телепортер"
+LANGUAGE.worth_fastteleport2                        = "Вы телепортируетесь почти мгновенно."
 LANGUAGE.worth_crateshare                            = "Crate Share"
 LANGUAGE.worth_crateshare2                            = "Позволяет покупать из ящиков на спине другого игрока."
 LANGUAGE.worth_crateshare3                            = "У вас отсутствует улучшение Crate Share!"
@@ -776,7 +775,7 @@ LANGUAGE.hm_nest_master2                            = "У %s, появилось
 
 LANGUAGE.title_guns                                 = "Пистолеты"
 LANGUAGE.title_shotguns                             = "Дробовики"
-LANGUAGE.title_smg                                 = "Пистолеты-пулиметы"
+LANGUAGE.title_smg                                 = "Пистолеты-пулеметы"
 LANGUAGE.title_assault                               = "Штурмовые винтовки"
 LANGUAGE.title_rifles                                 = "Винтовки"
 LANGUAGE.title_ammo                                 = "Амуниция"
