@@ -144,6 +144,7 @@ LANGUAGE.sigil_escapeboss                           = "Цикл спасения
 LANGUAGE.sigil_deathfog                             = "Цикл спасения - Туман смерти"
 LANGUAGE.sigil_yousurvived                          = "Вам удалось выжить! Ждем других выживших..."
 LANGUAGE.sigil_teleporting                          = "Телепортация... Пожалуйста, Подождите!"
+LANGUAGE.sigil_teleporting                          = "Телепортация к точке %q"
 
 -- Message beacon messages
 LANGUAGE.message_beacon_1							= "Встречаемся здесь"
@@ -531,6 +532,11 @@ LANGUAGE.worth_cannibal                             = "Каннибализм"
 LANGUAGE.worth_cannibal2                             = "Теперь вы можете съесть расчлененные части от зомби и людей, чтобы восстановить здоровье.\n Просто прикоснитесь к расчлененной части, чтобы съесть её."
 LANGUAGE.worth_ghostmode                             = "Режим Призрака"
 LANGUAGE.worth_ghostmode2                             = "Вы можете гораздо быстрее проходить сквозь пропы"
+LANGUAGE.worth_fastresupply                             = "Пополнятель"
+LANGUAGE.worth_fastresupply2                             = "Ящики аммуниции пополняются гораздо быстрее."
+LANGUAGE.worth_crateshare                            = "Crate Share"
+LANGUAGE.worth_crateshare2                            = "Позволяет покупать из ящиков на спине другого игрока."
+LANGUAGE.worth_crateshare3                            = "У вас отсутствует улучшение Crate Share!"
 LANGUAGE.worth_allergic                             = "Аллергический"
 LANGUAGE.worth_allergic2                             = "Яд наносит вдвое больше урона в обмен на очки."
 LANGUAGE.worth_weak                                 = "Слабость"
@@ -768,7 +774,11 @@ LANGUAGE.hm_nest_master2                            = "У %s, появилось
 
 -- Weapon Titles
 
-LANGUAGE.title_guns                                 = "Пушки"
+LANGUAGE.title_guns                                 = "Пистолеты"
+LANGUAGE.title_shotguns                             = "Дробовики"
+LANGUAGE.title_smg                                 = "Пистолеты-пулиметы"
+LANGUAGE.title_assault                               = "Штурмовые винтовки"
+LANGUAGE.title_rifles                                 = "Винтовки"
 LANGUAGE.title_ammo                                 = "Амуниция"
 LANGUAGE.title_melee                                 = "Оружие ближнего боя"
 LANGUAGE.title_tools                                 = "Инструменты"

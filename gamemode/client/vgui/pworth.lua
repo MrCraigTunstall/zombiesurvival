@@ -329,7 +329,7 @@ function MakepWorth()
 	local worthlab = EasyLabel(frame, translate.Get("worth_worth")..": "..tostring(WorthRemaining), "ZSHUDFontSmallest", COLOR_LIMEGREEN)
 	worthlab:SetPos(8, frame:GetTall() - worthlab:GetTall() - 50)
 	worthlab:AlignRight(20)
-	worthlab:AlignTop(88)
+	worthlab:AlignTop(60)
 	frame.WorthLab = worthlab
 
 	local checkout = vgui.Create("DButton", frame)
