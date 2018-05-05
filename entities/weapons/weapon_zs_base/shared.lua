@@ -72,6 +72,60 @@ function SWEP:PrimaryAttack()
 	self.IdleAnimation = CurTime() + self:SequenceDuration()
 end
 
+local tempdamagedisplay
+function SWEP:StartDamageDisplay()
+	tempdamagedisplay = {}
+end
+
+function SWEP:EndDamageDisplay()
+	tempdamagedisplay = nil
+end
+
+function SWEP:DoDamageDisplay()
+	if SERVER then
+		for ent, tab in pairs(tempdamagedisplay) do
+			local health = (ent.PropHealth or ent.Heal or (ent.GetNestHealth and ent:GetNestHealth()) or (ent.GetGraveHealth and ent:GetGraveHealth()) or ent:Health())
+			if (tab.Health ~= health) then 
+
+				local overallDamage = tab.Damage or (tab.Health - health)
+
+				GAMEMODE:DisplayDamageIndicator(overallDamage, tab.Pos, tab.Attacker, ent)
+			end
+		end
+	end
+end
+
+SWEP.BulletCallback = GenericBulletCallback
+function SWEP:ZSShootBullet(dmg, numbul, cone)
+	local owner = self.Owner
+
+	if self.BulletDamageFunction then
+		dmg = self:BulletDamageFunction(dmg, numbul, cone)
+	end
+
+	self:SendWeaponAnimation()
+	owner:DoAttackEvent()
+	self:StartBulletKnockback()
+
+	if (not self.LoadDefaultDamageIndicator) then
+		self:StartDamageDisplay()
+	end
+
+	BULLET_NUM = 0
+	BULLET_MAX = self.Primary.NumShots
+	owner:LagCompensation(true)
+	owner:FireBulletsLua(owner:GetShootPos(), owner:GetAimVector(), cone, numbul, dmg, owner, self.Primary.KnockbackScale, self.TracerName or owner:GetTracers() or "", self.BulletCallback, nil, nil, self.MaxDistance)
+	owner:LagCompensation(false)
+	
+	if (not self.LoadDefaultDamageIndicator) then
+		self:DoDamageDisplay()
+		self:EndDamageDisplay()
+	end
+
+	--self:DoBulletKnockback()
+	--self:EndBulletKnockback()
+end
+
 function SWEP:GetWalkSpeed()
 	if self:GetIronsights() then
 		return math.min(self.WalkSpeed, math.max(90, self.WalkSpeed * 0.5))
@@ -200,12 +254,12 @@ function SWEP:EndBulletKnockback()
 	tempknockback = nil
 end
 
-function SWEP:DoBulletKnockback(scale)
+--[[function SWEP:DoBulletKnockback(scale)
 	for ent, prevvel in pairs(tempknockback) do
 		local curvel = ent:GetVelocity()
 		ent:SetVelocity(curvel * -1 + (curvel - prevvel) * scale + prevvel)
 	end
-end
+end]]--
 
 function GenericBulletCallback(attacker, tr, dmginfo)
 	local ent = tr.Entity
@@ -248,8 +302,8 @@ function SWEP:ShootBullets(dmg, numbul, cone)
 		Callback = self.BulletCallback
 	})
 
-	self:DoBulletKnockback(self.Primary.KnockbackScale * 0.05)
-	self:EndBulletKnockback()
+	--self:DoBulletKnockback(self.Primary.KnockbackScale * 0.05)
+	--self:EndBulletKnockback()
 end
 
 local ActIndex = {
