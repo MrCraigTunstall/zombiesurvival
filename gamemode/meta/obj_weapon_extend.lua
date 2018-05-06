@@ -279,14 +279,6 @@ function meta:DrawHitMarkerDots()
 	
 end	
 
-function meta:BaseDrawWeaponSelection(x, y, wide, tall, alpha)
-	--if killicon.Get(self:GetClass()) then
-		killicon.Draw(x + wide * 0.5, y + tall * 0.5, self:GetClass(), 255)
-		draw.SimpleTextBlur(self:GetPrintName(), "ZSHUDFontSmaller", x + wide * 0.5, y + tall * 0.25, COLOR_RED, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-	--[[else
-		draw.SimpleTextBlur(self:GetPrintName(), "ZSHUDFontSmaller", x + wide * 0.5, y + tall * 0.5, COLOR_RED, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-	end]]
-end
 
 local function empty() end
 local function NULLViewModelPosition(self, pos, ang)
