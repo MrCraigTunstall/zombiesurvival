@@ -386,9 +386,10 @@ GM:AddPointShopItem("pstone", ""..translate.Get("worth_stone"), nil, ITEMCAT_OTH
 GM:AddPointShopItem("poxtank", ""..translate.Get("worth_oxygentank"), ""..translate.Get("worth_oxygentank2"), ITEMCAT_OTHER, 5, "weapon_zs_oxygentank")
 GM:AddPointShopItem("grenade", ""..translate.Get("ars_grenade"), nil, ITEMCAT_OTHER, 12, "weapon_zs_grenade")
 GM:AddPointShopItem("molotov", "Molotov", nil, ITEMCAT_OTHER, 20, "weapon_zs_molotov")
+GM:AddPointShopItem("detpck", ""..translate.Get("ars_detpack"), nil, ITEMCAT_OTHER, 30, "weapon_zs_detpack")
 GM:AddPointShopItem("gluongun", "Helios' Gluon Gun", nil, ITEMCAT_OTHER, 200, "weapon_zs_helios")
 GM:AddPointShopItem("empower", ""..translate.Get("craft_empower"), nil, ITEMCAT_OTHER, 230, "weapon_zs_empower")
-GM:AddPointShopItem("detpck", ""..translate.Get("ars_detpack"), nil, ITEMCAT_OTHER, 500, "weapon_zs_detpack")
+GM:AddPointShopItem("detpck", ""..translate.Get("ars_detpack"), nil, ITEMCAT_OTHER, 30, "weapon_zs_detpack")
 
 
 
