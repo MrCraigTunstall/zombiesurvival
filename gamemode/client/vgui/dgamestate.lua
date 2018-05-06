@@ -3,7 +3,7 @@ local PANEL = {}
 function PANEL:Init()
 	self.m_HumanCount = vgui.Create("DTeamCounter", self)
 	self.m_HumanCount:SetTeam(TEAM_HUMAN)
-	self.m_HumanCount:SetImage("zombiesurvival/humanhead")
+	self.m_HumanCount:SetImage("zombiesurvival/kleinerface2.png")
 
 	self.m_ZombieCount = vgui.Create("DTeamCounter", self)
 	self.m_ZombieCount:SetTeam(TEAM_UNDEAD)

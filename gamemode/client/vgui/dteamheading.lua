@@ -59,7 +59,7 @@ function PANEL:SetTeam(teamid)
 
 	if teamid == TEAM_HUMAN then
 		self.m_Icon:SetVisible(true)
-		self.m_Icon:SetImage("zombiesurvival/humanhead")
+		self.m_Icon:SetImage("zombiesurvival/kleinerface2.png")
 		self.m_Icon:SizeToContents()
 		self:InvalidateLayout()
 	elseif teamid == TEAM_UNDEAD then
