@@ -1,6 +1,32 @@
 local meta = FindMetaTable("Entity")
 if not meta then return end
 
+local M_Player = FindMetaTable("Player")
+local P_Team = M_Player.Team
+local E_IsValid = meta.IsValid
+local vector_origin = vector_origin
+local util_SharedRandom = util.SharedRandom
+local util_TraceHull = util.TraceHull
+local util_TraceLine = util.TraceLine
+local TEAM_HUMAN = TEAM_HUMAN
+local TEAM_UNDEAD = TEAM_UNDEAD
+local HITGROUP_HEAD = HITGROUP_HEAD
+local MASK_SHOT = MASK_SHOT
+local pairs = pairs
+local CONTENTS_LIQUID = bit.bor(CONTENTS_WATER, CONTENTS_SLIME)
+local MASK_SHOT_HIT_WATER = bit.bor(MASK_SHOT, CONTENTS_LIQUID)
+local bullet_tr = {}
+local bullet_water_tr = {}
+local temp_angle = Angle(0, 0, 0)
+local temp_ignore_team
+local temp_has_spread
+local method_to_use, base_ang
+local bullet_trace = {mask = MASK_SHOT, output = bullet_tr}
+local temp_shooter = NULL
+local temp_attacker = NULL
+local attacker_player, inflictor_weapon
+local temp_vel_ents = {}
+
 local LASTHITCLIPHULL = false
 local ClipHullBulletsResult
 local ClipHullBulletsReturn = {effects = false, damage = false}
@@ -121,6 +147,25 @@ end
 
 function meta:IsProjectile()
 	return self:GetCollisionGroup() == COLLISION_GROUP_PROJECTILE or self.m_IsProjectile
+end
+
+function meta:SetupGenericProjectile(gravity)
+	self:SetCustomCollisionCheck(true)
+	self:SetCollisionGroup(COLLISION_GROUP_PROJECTILE)
+
+	local phys = self:GetPhysicsObject()
+	if phys:IsValid() then
+		phys:SetMass(1)
+		phys:SetBuoyancyRatio(0.0001)
+		phys:EnableMotion(true)
+		if not gravity then phys:EnableGravity(gravity) end
+		phys:EnableDrag(false)
+		phys:Wake()
+	end
+end
+
+function meta:ProjectileDamageSource()
+	return (self.ProjSource and E_IsValid(self.ProjSource)) and self.ProjSource or self
 end
 
 function meta:ResetBones(onlyscale)
@@ -400,28 +445,34 @@ function meta:IsValidPlayer()
 	return self:IsValid() and self:IsPlayer()
 end
 
-local vector_origin = vector_origin
-local util_SharedRandom = util.SharedRandom
-local util_TraceHull = util.TraceHull
-local util_TraceLine = util.TraceLine
-local TEAM_HUMAN = TEAM_HUMAN
-local TEAM_UNDEAD = TEAM_UNDEAD
-local HITGROUP_HEAD = HITGROUP_HEAD
-local MASK_SHOT = MASK_SHOT
-local pairs = pairs
-local CONTENTS_LIQUID = bit.bor(CONTENTS_WATER, CONTENTS_SLIME)
-local MASK_SHOT_HIT_WATER = bit.bor(MASK_SHOT, CONTENTS_LIQUID)
-local bullet_tr = {}
-local bullet_water_tr = {}
-local temp_angle = Angle(0, 0, 0)
-local temp_ignore_team
-local temp_has_spread
-local method_to_use, base_ang
-local bullet_trace = {mask = MASK_SHOT, output = bullet_tr}
-local temp_shooter = NULL
-local temp_attacker = NULL
-local attacker_player, inflictor_weapon
-local temp_vel_ents = {}
+function meta:IsValidHuman()
+	return E_IsValid(self) and self:IsPlayer() and P_Team(self) == TEAM_HUMAN
+end
+
+function meta:IsValidZombie()
+	return E_IsValid(self) and self:IsPlayer() and P_Team(self) == TEAM_UNDEAD
+end
+
+function meta:IsHuman()
+	return self:IsPlayer() and P_Team(self) == TEAM_HUMAN
+end
+
+function meta:IsZombie()
+	return self:IsPlayer() and P_Team(self) == TEAM_UNDEAD
+end
+
+function meta:IsValidLivingPlayer()
+	return self:IsValidPlayer() and self:Alive()
+end
+
+function meta:IsValidLivingHuman()
+	return self:IsValidHuman() and self:Alive()
+end
+
+function meta:IsValidLivingZombie()
+	return self:IsValidZombie() and self:Alive()
+end
+
 
 local function BaseBulletFilter(ent) 
 	if ent == temp_shooter or ent == temp_attacker or ent.NeverAlive or ent.SpawnProtection or ent.IgnoreBullets or ent:IsPlayer() and ent:Team() == temp_ignore_team then

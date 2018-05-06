@@ -14,6 +14,7 @@ include("client/cl_targetid.lua")
 include("client/cl_postprocess.lua")
 
 include("meta/obj_player_extend_cl.lua")
+include("meta/obj_weapon_extend_cl.lua")
 
 include("client/vgui/dgamestate.lua")
 include("client/vgui/dteamcounter.lua")
@@ -1123,6 +1124,8 @@ function GM:CreateFonts()
 
 	surface.CreateLegacyFont(fontfamily, screenscale * 16, 0, true, false, "ZSDamageResistance", false, true)
 	surface.CreateLegacyFont(fontfamily, screenscale * 16, 0, true, false, "ZSDamageResistanceBlur", false, true)
+	surface.CreateLegacyFont("HL2MP", screenscale * 96, 100, true, false, "zsdeathnoticews", false, false)
+	surface.CreateLegacyFont("csd", screenscale * 96, 100, true, false, "zsdeathnoticecsws", false, false)
 
 	surface.CreateLegacyFont(fontfamily, 32, fontweight, true, false, "ZSScoreBoardTitle", false, true)
 	surface.CreateLegacyFont(fontfamily, 22, fontweight, true, false, "ZSScoreBoardSubTitle", false, true)

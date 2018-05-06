@@ -312,3 +312,66 @@ function tonumbersafe(a)
 
 	return nil
 end
+
+-- Useful macros for the 3 file system
+function INC_SERVER()
+	AddCSLuaFile("shared.lua")
+	AddCSLuaFile("cl_init.lua")
+	include("shared.lua")
+end
+
+function INC_CLIENT()
+	include("shared.lua")
+end
+INC_CLIENT_NO_SHARED = INC_CLIENT
+
+function INC_SERVER_NO_SHARED()
+	AddCSLuaFile("cl_init.lua")
+end
+
+function INC_SERVER_NO_CLIENT()
+	AddCSLuaFile("shared.lua")
+end
+
+-- Just in case you add this by mistake because it does nothing
+function INC_SHARED()
+end
+
+function util.BlastDamageExAlloc(inflictor, attacker, epicenter, radius, damage, damagetype)
+	local dmg
+	local t = {}
+
+	for _, ent in pairs(ents.FindInSphere(epicenter, radius)) do
+		if ent:IsValid() then
+			local nearest = ent:NearestPoint(epicenter)
+			if TrueVisibleFilters(epicenter, nearest, inflictor, attacker, ent)
+				or TrueVisibleFilters(epicenter, ent:EyePos(), inflictor, attacker, ent)
+				or TrueVisibleFilters(epicenter, ent:WorldSpaceCenter(), inflictor, attacker, ent) then
+
+				dmg = ((radius - nearest:Distance(epicenter)) / radius) * damage
+				ent:TakeSpecialDamage(dmg, damagetype, attacker, inflictor, nearest)
+
+				t[ent] = dmg
+			end
+		end
+	end
+
+	return t
+end
+
+function util.BlastAlloc(inflictor, attacker, epicenter, radius)
+	local t = {}
+
+	for _, ent in pairs(ents.FindInSphere(epicenter, radius)) do
+		if ent:IsValid() then
+			local nearest = ent:NearestPoint(epicenter)
+			if TrueVisibleFilters(epicenter, nearest, inflictor, attacker, ent)
+				or TrueVisibleFilters(epicenter, ent:EyePos(), inflictor, attacker, ent)
+				or TrueVisibleFilters(epicenter, ent:WorldSpaceCenter(), inflictor, attacker, ent) then
+				t[#t + 1] = ent
+			end
+		end
+	end
+
+	return t
+end
