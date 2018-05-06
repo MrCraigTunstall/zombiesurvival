@@ -217,6 +217,7 @@ LANGUAGE.class_reaper								= "Reaper"
 LANGUAGE.class_nugget								= "Nugget"
 LANGUAGE.class_bastardzine							= "Bastardzine"
 LANGUAGE.class_zombine								= "Zombine"
+LANGUAGE.class_undertaker							= "The Undertaker"
 
 
 -- Class descriptions
@@ -248,6 +249,7 @@ LANGUAGE.description_reaper							= "Fast as hell an can scare the shit out of h
 LANGUAGE.description_bastardzine                    = "Once nuggets began to roam the earth, they found hosts just like their lower headcrab kin.\n This new breed of zombie is a hybrid of mass chaos, crazy fast and deadly."
 LANGUAGE.description_burster                        = "This infected can explode if he killed."
 LANGUAGE.description_zombine						= "When a head-crab infects a Combine Soldier this horrid zombie is created.\nThis zombie is a threat to barricades mostly an is only unlocked on later waves."
+LANGUAGE.description_undertaker						= "Risen from the grave Undertaker. \nThings didn't change for him - he's still trying to put you into a tomb."
 
 -- Class control schemes
 LANGUAGE.controls_zombie							= "> PRIMARY: Claws\n> SECONDARY: Scream\n> RELOAD: Moan\n> SPRINT: Feign death\n> ON FATAL HIT IN LEGS: Revive / Transform"
@@ -272,6 +274,7 @@ LANGUAGE.controls_giga_gore_child					= "> PRIMARY: Smash\n> SECONDARY: Throw Go
 LANGUAGE.controls_reaper							= "> PRIMARY: Axe\n> RELOAD: Moan"
 LANGUAGE.controls_burster                           = "> PRIMARY: Poison Bomb\n> ON DEATH: Poison Bomb"
 LANGUAGE.controls_zombine							= "> PRIMARY: Claws\n> SECONDARY: Grenade"	
+LANGUAGE.controls_undertaker						= "> PRIMARY: Hit\n> SECONDARY: Throw dart, that can heal zombies and damage humans."
 
 -- The help file... Quite big! I wouldn't blame you if you didn't translate this part.
 LANGUAGE.help_cat_introduction						= "Introduction"
