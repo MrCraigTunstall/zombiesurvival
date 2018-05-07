@@ -18,8 +18,9 @@ hook.Add("OnPlayerChangedTeam", "GunTurret.OnPlayerChangedTeam", RefreshTurretOw
 
 function ENT:Initialize()
 	self:SetModel("models/Combine_turrets/Floor_turret.mdl")
+	self:SetModelScale(self.ModelScale or 1, 0)
 	self:PhysicsInit(SOLID_VPHYSICS)
-
+	self:SetCollisionGroup(COLLISION_GROUP_WORLD)
 	self:SetUseType(SIMPLE_USE)
 
 	local phys = self:GetPhysicsObject()

@@ -508,6 +508,32 @@ function meta:LastHitGroup()
 	return self.m_LastHitGroup or HITGROUP_CHEST
 end
 
+local function HandleShotImpactingWater(damage)
+	-- Trace again with water enabled
+	bullet_trace.mask = MASK_SHOT_HIT_WATER
+	bullet_trace.output = bullet_water_tr
+	util_TraceLine(bullet_trace)
+	bullet_trace.output = bullet_tr
+	bullet_trace.mask = MASK_SHOT
+
+	if bullet_water_tr.AllSolid then return false end
+
+	local contents = util.PointContents(bullet_water_tr.HitPos - bullet_water_tr.HitNormal * 0.1)
+	if bit.band(contents, CONTENTS_LIQUID) == 0 then return false end
+
+	if IsFirstTimePredicted() then
+		local effectdata = EffectData()
+		effectdata:SetOrigin(bullet_water_tr.HitPos)
+		effectdata:SetNormal(bullet_water_tr.HitNormal)
+		effectdata:SetScale(math.Clamp(damage * 0.25, 5, 30))
+		effectdata:SetFlags(bit.band(contents, CONTENTS_SLIME) ~= 0 and 1 or 0)
+		util.Effect("gunshotsplash", effectdata)
+	end
+
+	return true
+end
+
+
 local wspawn = Entity(0)
 local function CheckFHB(tr)
 	local ent = tr.Entity
