@@ -15,13 +15,6 @@ GM.Crafts = {
 		Result = {"weapon_zs_electricshovel"}
 	},
     {
-		Name = "a 'infinity' M249 machine gun",
-		callback = function(enta, entb)
-			return enta:IsWeaponType("weapon_zs_m249") and entb:IsWeaponType("weapon_zs_empower")
-		end,
-		Result = {"weapon_zs_infinitym249"}
-	},
-    {
 		Name = "a 'infinity' plank",
 		callback = function(enta, entb)
 			return enta:IsWeaponType("weapon_zs_plank") and entb:IsWeaponType("weapon_zs_empower")
