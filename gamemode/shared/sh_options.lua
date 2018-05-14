@@ -387,10 +387,9 @@ GM:AddPointShopItem("poxtank", ""..translate.Get("worth_oxygentank"), ""..transl
 GM:AddPointShopItem("grenade", ""..translate.Get("ars_grenade"), nil, ITEMCAT_OTHER, 12, "weapon_zs_grenade")
 GM:AddPointShopItem("molotov", "Molotov", nil, ITEMCAT_OTHER, 20, "weapon_zs_molotov")
 GM:AddPointShopItem("detpck", ""..translate.Get("ars_detpack"), nil, ITEMCAT_OTHER, 30, "weapon_zs_detpack")
+GM:AddPointShopItem("spinfusor", "'Spinfusor' Pulse Disc Launcher", nil, ITEMCAT_OTHER, 175, "weapon_zs_spinfusor")
 GM:AddPointShopItem("gluongun", "Helios' Gluon Gun", nil, ITEMCAT_OTHER, 200, "weapon_zs_helios")
 GM:AddPointShopItem("empower", ""..translate.Get("craft_empower"), nil, ITEMCAT_OTHER, 230, "weapon_zs_empower")
-GM:AddPointShopItem("detpck", ""..translate.Get("ars_detpack"), nil, ITEMCAT_OTHER, 30, "weapon_zs_detpack")
-
 
 
 -- These are the honorable mentions that come at the end of the round.
