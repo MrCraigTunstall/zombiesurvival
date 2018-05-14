@@ -14,7 +14,7 @@ CLASS.CanTaunt = true
 
 CLASS.Points = 50
 
-CLASS.SWEP = "weapon_zs_boomstick"
+CLASS.SWEP = "weapon_zs_infinityboomstick"
 
 CLASS.Model = Model("models/player/riot.mdl")
 

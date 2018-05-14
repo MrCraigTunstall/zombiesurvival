@@ -15,27 +15,6 @@ GM.Crafts = {
 		Result = {"weapon_zs_electricshovel"}
 	},
     {
-		Name = "a 'infinity' handgun",
-		callback = function(enta, entb)
-			return enta:IsWeaponType("weapon_zs_battleaxe") and entb:IsWeaponType("weapon_zs_empower")
-		end,
-		Result = {"weapon_zs_infinity"}
-	},
-    {
-		Name = "a 'infinity' boom stick",
-		callback = function(enta, entb)
-			return enta:IsWeaponType("weapon_zs_boomstick") and entb:IsWeaponType("weapon_zs_empower")
-		end,
-		Result = {"weapon_zs_infinityboomstick"}
-	},
-    {
-		Name = "a 'infinity' desert eagle",
-		callback = function(enta, entb)
-			return enta:IsWeaponType("weapon_zs_deagle") and entb:IsWeaponType("weapon_zs_empower")
-		end,
-		Result = {"weapon_zs_infinitydeagle"}
-	},
-    {
 		Name = "a 'infinity' M249 machine gun",
 		callback = function(enta, entb)
 			return enta:IsWeaponType("weapon_zs_m249") and entb:IsWeaponType("weapon_zs_empower")
