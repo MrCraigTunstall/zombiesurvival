@@ -90,6 +90,7 @@ AddCSLuaFile("meta/obj_player_extend.lua")
 AddCSLuaFile("meta/obj_player_extend_cl.lua")
 AddCSLuaFile("meta/obj_weapon_extend_cl.lua")
 AddCSLuaFile("meta/obj_weapon_extend.lua")
+AddCSLuaFile("meta/obj_entity_extend_cl.lua")
 AddCSLuaFile("meta/obj_entity_extend.lua")
 
 --[[

@@ -980,3 +980,7 @@ function meta:FireBullets(bulletInfo, suppressHostEvents)
 		self:LagCompensation(false)
 	end
 end
+
+function meta:GetPhantomHealth()
+	return self:GetDTFloat(DT_PLAYER_FLOAT_PHANTOMHEALTH)
+end

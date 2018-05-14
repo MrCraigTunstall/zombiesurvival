@@ -13,6 +13,8 @@ include("client/cl_scoreboard.lua")
 include("client/cl_targetid.lua")
 include("client/cl_postprocess.lua")
 
+
+include("meta/obj_entity_extend_cl.lua")
 include("meta/obj_player_extend_cl.lua")
 include("meta/obj_weapon_extend_cl.lua")
 

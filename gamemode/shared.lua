@@ -467,7 +467,9 @@ function GM:OnPlayerHitGround(pl, inwater, hitfloater, speed)
 end
 
 function GM:PlayerCanBeHealed(pl)
-	return true
+	local maxhp = pl:GetMaxHealth()
+
+	return pl:Health() < maxhp or pl:GetPoisonDamage() > 0 or pl:GetBleedDamage() > 0
 end
 
 function GM:PlayerCanPurchase(pl)

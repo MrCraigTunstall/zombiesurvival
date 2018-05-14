@@ -1,6 +1,58 @@
 local meta = FindMetaTable("Entity")
 if not meta then return end
 
+function meta:HealPlayer(pl, amount, pointmul, nobymsg, poisononly)
+	local healed, rmv = 0, 0
+
+	local health, maxhealth = pl:Health(), pl:GetMaxHealth()
+	local missing_health = maxhealth - health
+	local poison = pl:GetPoisonDamage()
+	local bleed = pl:GetBleedDamage()
+
+	local healrec = (pl.HealingReceived or 1)
+	local healmul = self.MedicHealMul or 1
+	local multiplier = healmul + healrec - 1
+	local regamount = healmul * amount
+
+	amount = amount * multiplier
+
+	-- Heal bleed first.
+	if not poisononly and bleed > 0 then
+		rmv = math.min(amount, bleed)
+		pl:AddBleedDamage(-rmv)
+		healed = healed + rmv
+		amount = amount - rmv
+	end
+
+	-- Heal poison next.
+	if poison > 0 and amount > 0 then
+		rmv = math.min(amount, poison)
+		pl:AddPoisonDamage(-rmv)
+		healed = healed + rmv
+		amount = amount - rmv
+	end
+
+	-- Then heal missing health.
+	if not poisononly and missing_health > 0 and amount > 0 then
+		rmv = math.min(amount, missing_health)
+		pl:SetHealth(health + rmv)
+		healed = healed + rmv
+		amount = amount - rmv
+	end
+
+	pointmul = (pointmul or 1) / (math.max(healed, regamount) / regamount)
+
+	if healed > 0 and self:IsPlayer() then
+		gamemode.Call("PlayerHealedTeamMember", self, pl, healed, self:GetActiveWeapon(), pointmul, nobymsg, healed >= 10)
+	end
+
+	return healed
+end
+
+local healthpropscalar = {
+	["models/props_c17/door01_left.mdl"] = 0.7
+}
+
 function meta:GetDefaultBarricadeHealth()
 	local mass = 2
 	if self._OriginalMass then

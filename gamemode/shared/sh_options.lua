@@ -219,6 +219,7 @@ item.NoClassicMode = true
 
 GM:AddStartingItem("stone", ""..translate.Get("worth_stone"), nil, ITEMCAT_OTHER, 0, "weapon_zs_stone")
 GM:AddStartingItem("oxtank", ""..translate.Get("worth_oxygentank"), ""..translate.Get("worth_oxygentank2"), ITEMCAT_OTHER, 1, "weapon_zs_oxygentank")
+GM:AddStartingItem("medxcbomb", "Medic Cloud Bomb", "Explodes in to a cloud of healing gas. Heals 2HP, every second, for 10 seconds.", ITEMCAT_OTHER, 10, "weapon_zs_mediccloudbomb")
 
 -----------
 -- W.TRAITS --
@@ -361,6 +362,8 @@ GM:AddPointShopItem("katana", ""..translate.Get("weapon_katana"), nil, ITEMCAT_M
 ------------
 
 GM:AddPointShopItem("nail", ""..translate.Get("ars_nail"), ""..translate.Get("ars_nail2"), ITEMCAT_TOOLS, 1, nil, 0, true, nil, function(pl) pl:GiveAmmo(1, "GaussEnergy", true) end, "models/crossbow_bolt.mdl").NoClassicMode = true
+GM:AddPointShopItem("msgbeacon", ""..translate.Get("worth_beacon"), nil, ITEMCAT_TOOLS, 1, "weapon_zs_messagebeacon").Countables = "prop_messagebeacon"
+GM:AddPointShopItem("spotlamp", ""..translate.Get("worth_spotlamp"), nil, ITEMCAT_TOOLS, 5, "weapon_zs_spotlamp").Countables = "prop_spotlamp"
 GM:AddPointShopItem("wrench", ""..translate.Get("worth_wrench"), nil, ITEMCAT_TOOLS, 15, "weapon_zs_wrench").NoClassicMode = true
 GM:AddPointShopItem("crphmr", ""..translate.Get("worth_hammer"), nil, ITEMCAT_TOOLS, 20, "weapon_zs_hammer").NoClassicMode = true NoodleArm = true
 GM:AddPointShopItem("arsenalcrate", ""..translate.Get("worth_arsenalcrate"), nil, ITEMCAT_TOOLS, 30, "weapon_zs_arsenalcrate")
@@ -384,6 +387,7 @@ GM:AddPointShopItem("barricadekit", ""..translate.Get("ars_aegis"), nil, ITEMCAT
 
 GM:AddPointShopItem("pstone", ""..translate.Get("worth_stone"), nil, ITEMCAT_OTHER, 3, "weapon_zs_stone")
 GM:AddPointShopItem("poxtank", ""..translate.Get("worth_oxygentank"), ""..translate.Get("worth_oxygentank2"), ITEMCAT_OTHER, 5, "weapon_zs_oxygentank")
+GM:AddPointShopItem("medxcbomb", "Medic Cloud Bomb", "Explodes in to a cloud of healing gas. Heals 2HP, every second, for 10 seconds.", ITEMCAT_OTHER, 5, "weapon_zs_mediccloudbomb")
 GM:AddPointShopItem("grenade", ""..translate.Get("ars_grenade"), nil, ITEMCAT_OTHER, 12, "weapon_zs_grenade")
 GM:AddPointShopItem("molotov", "Molotov", nil, ITEMCAT_OTHER, 20, "weapon_zs_molotov")
 GM:AddPointShopItem("detpck", ""..translate.Get("ars_detpack"), nil, ITEMCAT_OTHER, 30, "weapon_zs_detpack")
