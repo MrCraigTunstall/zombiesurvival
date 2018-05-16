@@ -9,7 +9,7 @@ local function CreateHoveredClassWindow(classtable)
 	end
 
 	HoveredClassWindow = vgui.Create("ClassInfo")
-	HoveredClassWindow:SetSize(ScrW() * 0.5, 128)
+	HoveredClassWindow:SetSize(ScrW() * 0.8, 512)
 	HoveredClassWindow:CenterHorizontal()
 	HoveredClassWindow:MoveBelow(Window, 32)
 	HoveredClassWindow:SetClassTable(classtable)
@@ -19,7 +19,7 @@ function GM:OpenClassSelect(bossmode)
 	if Window and Window:Valid() then Window:Remove() end
 
 	Window = vgui.Create(bossmode and "ClassSelectBoss" or "ClassSelect")
-	Window:SetSize(ScrW(), 480)
+	Window:SetSize(ScrW(), 720)
 	Window:Center()
 
 	Window:SetAlpha(0)
@@ -57,7 +57,7 @@ function PANEL:Init()
 end
 
 function PANEL:PerformLayout()
-	local NumButtonRow = 8
+	local NumButtonRow = 15
 	local NumButtonTotal = #self.ClassButtons
 	local NumButtonRemainder = NumButtonTotal % NumButtonRow
 	local SpacingHorizontal = self:GetWide() / NumButtonRow
@@ -67,10 +67,10 @@ function PANEL:PerformLayout()
 	for i, classbutton in ipairs(self.ClassButtons) do
 		if((NumButtonTotal - i) >= NumButtonRemainder) then
 			classbutton:SetSize(SpacingHorizontal, SpacingVertical)
-			classbutton:SetPos(((i-1) % NumButtonRow) * SpacingHorizontal + SpacingHorizontal * 0.5 - classbutton:GetWide() * 0.5, SpacingVertical * math.floor(i/(NumButtonRow + 1)))
+			classbutton:SetPos(((i-1) % NumButtonRow) * SpacingHorizontal + SpacingHorizontal * 0.2 - classbutton:GetWide() * 0.2, SpacingVertical * math.floor(i/(NumButtonRow + 1)))
 		else
 			classbutton:SetSize(SpacingHorizontalRem, SpacingVertical)
-			classbutton:SetPos(((i-1) % NumButtonRow) * SpacingHorizontalRem + SpacingHorizontalRem * 0.5 - classbutton:GetWide() * 0.5, SpacingVertical * math.floor(i/(NumButtonRow + 1)))
+			classbutton:SetPos(((i-1) % NumButtonRow) * SpacingHorizontalRem + SpacingHorizontalRem * 0.2 - classbutton:GetWide() * 0.2, SpacingVertical * math.floor(i/(NumButtonRow + 1)))
 		end
 	end
 
@@ -125,7 +125,7 @@ function PANEL:Init()
 end
 
 function PANEL:PerformLayout()
-	local NumButtonRow = 8
+	local NumButtonRow = 15
 	local NumButtonTotal = #self.ClassButtons
 	local NumButtonRemainder = NumButtonTotal % NumButtonRow
 	local SpacingHorizontal = self:GetWide() / NumButtonRow
@@ -166,7 +166,7 @@ local PANEL = {}
 
 function PANEL:Init()
 	self.NameLabel = vgui.Create("DLabel", self)
-	self.NameLabel:SetFont("ZSHUDFontSmaller")
+	self.NameLabel:SetFont("ZSHUDFontTiny")
 	self.NameLabel:SetAlpha(255)
 	self.Image = vgui.Create("DImage", self)
 
