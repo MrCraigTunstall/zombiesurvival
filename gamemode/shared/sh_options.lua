@@ -1,16 +1,19 @@
---[[version 1.2
+--[[version 1.3
 You must be running the latest version of ZS:R (being Version 7 - Tier System)
 for this file to be working. 
-Also you need version at least 1.2 of this file for the current ZS:R version
+Also you need version at least 1.3 of this file for the current ZS:R version
 listed or the client can not buy certain items such as ammo types.]]--
 
 GM.ZombieEscapeWeapons = {
-	"weapon_zs_zedeagle",
 	"weapon_zs_zeakbar",
 	"weapon_zs_zesweeper",
 	"weapon_zs_zesmg",
 	"weapon_zs_zestubber",
 	"weapon_zs_zebulletstorm"
+}
+
+GM.ZombieEscapeWeapons2 = {
+	"weapon_zs_zedeagle"
 }
 
 -- Change this if you plan to alter the cost of items or you severely change how Worth works.

@@ -3573,6 +3573,7 @@ function GM:PlayerSpawn(pl)
 			pl:Give("weapon_zs_zeknife")
 			pl:Give("weapon_zs_zegrenade")
 			pl:Give(table.Random(self.ZombieEscapeWeapons))
+			pl:Give(table.Random(self.ZombieEscapeWeapons2))
 		else
 			pl:Give("weapon_zs_fists")
 
