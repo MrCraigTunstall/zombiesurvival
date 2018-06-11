@@ -22,10 +22,12 @@ SWEP.WorldModel = "models/weapons/w_pist_glock18.mdl"
 SWEP.UseHands = true
 
 SWEP.Primary.Sound = Sound("Weapon_Glock.Single")
-SWEP.Primary.Damage = 17 SWEP.Primary.NumShots = 9 
+SWEP.Primary.Damage = 17 
+SWEP.Primary.NumShots = 9 
 SWEP.Primary.Delay = 0.3
 
-SWEP.Primary.ClipSize = 9 SWEP.Primary.Automatic = false
+SWEP.Primary.ClipSize = 9 
+SWEP.Primary.Automatic = false
 SWEP.Primary.Ammo = "pistol"
 GAMEMODE:SetupDefaultClip(SWEP.Primary)
 
