@@ -106,13 +106,6 @@ GM.Crafts = {
 		Result = {"weapon_zs_kongol"}
 	},
     {
-		Name = "a empowered kongol axe",
-		callback = function(enta, entb)
-			return enta:IsWeaponType("weapon_zs_kongol") and entb:IsWeaponType("weapon_zs_empower")
-		end,
-		Result = {"weapon_zs_empoweredkongol"}
-	},
-    {
 		Name = "a volcano arm handgun",
 		callback = function(enta, entb)
 			return enta:IsWeaponType("weapon_zs_infinity") and entb:IsWeaponType("weapon_zs_empower")
