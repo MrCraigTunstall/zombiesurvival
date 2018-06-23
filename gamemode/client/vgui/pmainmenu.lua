@@ -124,10 +124,17 @@ function GM:ShowHelp()
 	menu.Paint = HelpMenuPaint
 	menu.Created = SysTime()
 
-	local header = EasyLabel(menu, self.Name, "ZSHUDFont")
+	local header = EasyLabel(menu, " ", "ZSHUDFont", COLOR_DARKRED)
 	header:SetContentAlignment(8)
 	header:DockMargin(0, ScrH() * 0.25, 0, 64)
 	header:Dock(TOP)
+	
+	local zsrimg = vgui.Create("DImage", menu)	
+	zsrimg:SetSize(512, 256)	
+	zsrimg:SetPos(header:GetTall(), header:GetWide())
+	zsrimg:CenterHorizontal()
+	zsrimg:AlignTop(100)
+	zsrimg:SetImage("zombiesurvival/zsrlogo.png")
 	
 	local but = vgui.Create("DButton", menu)
 	but:SetFont("ZSHUDFontSmaller")
