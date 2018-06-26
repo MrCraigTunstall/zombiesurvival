@@ -996,13 +996,16 @@ function GM:LastHuman(pl)
 		end
 
 		if #player.GetAll() <= 20 then
-		pl:Give("weapon_zs_suicidebomb")
+		 for k, v in pairs(self.LastHumanWeapons) do
+        pl:Give(v)
 		end
+	end
 
 		if #player.GetAll() >= 21 then
-		pl:Give("weapon_zs_boomstick")
-		pl:Give("weapon_zs_suicidebomb")
+		for k, v in pairs(self.LastHumanWeapons2) do
+        pl:Give(v)
 		end
+	end
 
 		LASTHUMAN = true
 

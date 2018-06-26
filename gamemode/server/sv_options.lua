@@ -12,6 +12,17 @@ GM.StartLoadouts = {
 	{"blstr", "pipe", "2sgcp", "3sgcp", "5spd", "10spd"}
 }
 
+-- Lower Last Human weapons. (20 or under connected clients)
+GM.LastHumanWeapons = {
+    "weapon_zs_suicidebomb"
+}
+
+-- Higher Last Human weapons. (21 or higher connected clients)
+GM.LastHumanWeapons2 = {
+    "weapon_zs_boomstick",
+	"weapon_zs_suicidebomb"
+}
+
 GM.RandomProps = {
 	"models/props_junk/wood_crate001a.mdl",
 	"models/props_junk/wood_crate002a.mdl",
