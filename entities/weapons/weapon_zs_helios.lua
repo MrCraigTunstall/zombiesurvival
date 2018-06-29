@@ -46,13 +46,13 @@ if CLIENT then
 	SWEP.ShowDroppedWElements = true
 end
 
-SWEP.WalkSpeed = SPEED_SLOWEST * 0.9
+SWEP.WalkSpeed = SPEED_SLOWEST * 0.4
 SWEP.Base = "weapon_zs_base"
 SWEP.HoldType = "physgun"
 SWEP.ViewModel = "models/weapons/c_physcannon.mdl"
 SWEP.WorldModel = "models/weapons/w_physics.mdl"
 SWEP.UseHands = true
-SWEP.Primary.Damage = 15
+SWEP.Primary.Damage = 12
 SWEP.Primary.NumShots = 1
 SWEP.Primary.Delay = 0.06
 SWEP.Primary.ClipSize = 30
