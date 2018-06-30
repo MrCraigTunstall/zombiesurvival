@@ -10,6 +10,7 @@ function GM:OnSigilDestroyed(ent, dmginfo)
 			if numsigils == 1 then
 				pl:CenterNotify(COLOR_RED, translate.ClientGet(pl, pl:Team() == TEAM_HUMAN and "sigil_destroyed_only_one_remain_h" or "sigil_destroyed_only_one_remain_z"))
 			else
+				pl:EmitSound("zombiesurvival/sigilbreak.mp3", 100, 100)
 				pl:CenterNotify(COLOR_RED, translate.ClientFormat(pl, "sigil_destroyed_x_remain", numsigils))
 			end
 		end
