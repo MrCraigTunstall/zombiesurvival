@@ -203,7 +203,7 @@ function SWEP:MeleeSwing()
 					end
 					gamemode.Call("ScalePlayerDamage", hitent, tr.HitGroup, dmginfo)
 
-					if self.MeleeKnockBack > 0 then
+					if GAMEMODE.MeleeKnockBack and self.MeleeKnockBack > 0 then
 						hitent:ThrowFromPositionSetZ(tr.HitPos, self.MeleeKnockBack, nil, true)
 					end
 					if hitent:IsPlayer() and hitent:WouldDieFrom(damage, dmginfo:GetDamagePosition()) then

@@ -40,6 +40,11 @@ cvars.AddChangeCallback("zs_nospec", function(cvar, oldvalue, newvalue)
 	GAMEMODE.NoSpec = tonumber(newvalue) == 1
 end)
 
+GM.MeleeKnockBack = CreateConVar("zs_meleeknockback", "1", FCVAR_ARCHIVE + FCVAR_NOTIFY, "Enables knockback from melee weapons, 1 to enable, 0 to disable. Enabled by default."):GetBool()
+cvars.AddChangeCallback("zs_meleeknockback", function(cvar, oldvalue, newvalue)
+	GAMEMODE.MeleeKnockBack = tonumber(newvalue) == 1
+end)
+
 GM.BossZombies = CreateConVar("zs_bosszombies", "1", FCVAR_ARCHIVE + FCVAR_NOTIFY, "Summon a boss zombie in the middle of each wave break."):GetBool()
 cvars.AddChangeCallback("zs_bosszombies", function(cvar, oldvalue, newvalue)
 	GAMEMODE.BossZombies = tonumber(newvalue) == 1
