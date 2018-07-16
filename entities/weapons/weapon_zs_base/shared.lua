@@ -1,6 +1,6 @@
 SWEP.Primary.Sound = Sound("Weapon_Pistol.Single")
 SWEP.Primary.Damage = 30
-SWEP.Primary.KnockbackScale = 1
+SWEP.Primary.KnockbackScale = ZS_KNOCKBACKSCALE
 SWEP.Primary.NumShots = 1
 SWEP.Primary.Delay = 0.15
 
