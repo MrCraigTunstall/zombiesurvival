@@ -23,11 +23,11 @@ SWEP.UseHands = true
 
 SWEP.ReloadSound = Sound("Weapon_FAMAS.Clipout")
 SWEP.Primary.Sound = Sound("Weapon_FAMAS.Single")
-SWEP.Primary.Damage = 16
+SWEP.Primary.Damage = 12
 SWEP.Primary.NumShots = 1
-SWEP.Primary.Delay = 0.175
+SWEP.Primary.Delay = 0.260
 
-SWEP.Primary.ClipSize = 22
+SWEP.Primary.ClipSize = 18
 SWEP.Primary.Automatic = true
 SWEP.Primary.Ammo = "ar2"
 GAMEMODE:SetupDefaultClip(SWEP.Primary)
