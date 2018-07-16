@@ -20,10 +20,10 @@ SWEP.HoldType = "shotgun"
 SWEP.ViewModel = "models/weapons/v_supershorty/v_supershorty.mdl"
 SWEP.WorldModel = "models/weapons/w_supershorty.mdl"
 
-SWEP.ReloadDelay = 0.4
+SWEP.ReloadDelay = 0.7
 
 SWEP.Primary.Sound = Sound("Weapon_Shotgun.Single")
-SWEP.Primary.Damage = 12
+SWEP.Primary.Damage = 9
 SWEP.Primary.NumShots = 7
 SWEP.Primary.Delay = 0.8
 
