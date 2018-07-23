@@ -124,13 +124,17 @@ function GM:SpawnRandomSigilProps(pos)
 		prop:IsInWorld()
 		prop:SetPos(pos)
 		prop:SetVelocity(Vector(0, 0, 0))
-		if prop:IsInWorld() == false then
-			while prop:IsInWorld() == false do
-				pos = pos + randompos[math.random(#randompos)]
-				prop:SetPos(pos)
-			end
+		local iterationLimit = 100
+		while prop:IsInWorld() == false and iterationLimit > 0 do
+			iterationLimit = iterationLimit - 1
+			pos = pos + randompos[math.random(#randompos)]
+			prop:SetPos(pos)
 		end
-		prop:Spawn()
+		if iterationLimit > 0 then
+			prop:Spawn()
+		else
+			prop:Remove()
+		end
 	end
 end
 
