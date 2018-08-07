@@ -1,9 +1,4 @@
 	AddCSLuaFile()
-if game.SinglePlayer() == true then
-
-	--Do jack shit
-	
-	else 
 	if CLIENT then
 		SWEP.PrintName = translate.Get("ars_punisher")
 		SWEP.Slot = 2
@@ -26,11 +21,10 @@ if game.SinglePlayer() == true then
 	SWEP.UseHands = true
 
 	SWEP.Primary.Sound = Sound("Weapon_m249.Single")
-	SWEP.Primary.Damage = 15
+	SWEP.Primary.Damage = 30
 	SWEP.Primary.NumShots = 1
-	SWEP.Primary.Delay = 0.05
-
-	SWEP.Primary.ClipSize = 200
+	SWEP.Primary.Delay = 0.2
+	SWEP.Primary.ClipSize = 100
 	SWEP.Primary.Automatic = true
 	SWEP.Primary.Ammo = "ar2"
 	GAMEMODE:SetupDefaultClip(SWEP.Primary)
@@ -44,4 +38,3 @@ if game.SinglePlayer() == true then
 	SWEP.ConeMin = 0.1
 
 	SWEP.IronSightsPos = Vector(0, 0, 0)
-end
