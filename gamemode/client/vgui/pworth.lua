@@ -1,6 +1,6 @@
 hook.Add("SetWave", "CloseWorthOnWave1", function(wave)
 	if wave > 0 then
-		if pWorth and pWorth:Valid() then
+		if pWorth and pWorth:IsValid() then
 			pWorth:Close()
 		end
 
