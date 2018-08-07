@@ -2815,22 +2815,39 @@ function GM:KeyPress(pl, key)
 	if key == IN_USE then
 		if pl:Team() ~= TEAM_UNDEAD and pl:Alive() then
 			if pl:IsCarrying() then
+				pl.status_human_holding:OnRemove()
 				pl.status_human_holding:RemoveNextFrame()
-			else
+				else
 				self:TryHumanPickup(pl, pl:TraceLine(64).Entity)
 			end
 		end
 	elseif key == IN_SPEED then
 		if pl:Alive() then
-			if pl:Team() ~= TEAM_UNDEAD then
+			if pl:Team() == TEAM_HUMAN then
 				pl:DispatchAltUse()
-			elseif pl:Team() == TEAM_UNDEAD then
-				pl:CallZombieFunction("AltUse")
-			end
 		end
+	end
 	elseif key == IN_ZOOM then
-		if pl:Team() == TEAM_HUMAN and pl:Alive() and pl:IsOnGround() or pl:GetVelocity():Length() <= 50 and not self.ZombieEscape then --and pl:GetGroundEntity():IsWorld() then
-			pl:SetBarricadeGhosting(true)
+		if pl:Team() == TEAM_HUMAN and pl:Alive() and not self.ZombieEscape then
+			if pl:IsOnGround() then
+				pl.LastGhostFailureVelocity = nil
+				pl:SetBarricadeGhosting(true)
+			else
+				local plvel = pl:GetVelocity()
+				if pl:GetPhysicsObject():IsPenetrating() then
+					if plvel == vector_origin then
+						pl.LastGhostFailureVelocity = nil
+						pl:SetBarricadeGhosting(true)
+					else
+						pl:SetLocalVelocity(vector_origin)
+					end
+				elseif pl.LastGhostFailureVelocity == plvel then
+					pl.LastGhostFailureVelocity = nil
+					pl:SetBarricadeGhosting(true)
+				else
+					pl.LastGhostFailureVelocity = plvel
+				end
+			end
 		end
 	end
 end

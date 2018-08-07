@@ -216,7 +216,23 @@ function MakepOptions()
 	dropdown:SetText(GAMEMODE.BeatSetZombie == GAMEMODE.BeatSetZombieDefault and "default" or GAMEMODE.BeatSetZombie)
 	list:AddItem(dropdown)
 		
-
+	list:AddItem(EasyLabel(Window, "Prop rotation snap angle", "DefaultFontSmall", color_white))
+	dropdown = vgui.Create("DComboBox", Window)
+	dropdown:SetMouseInputEnabled(true)
+	dropdown:AddChoice("No snap")
+	dropdown:AddChoice("15 degrees")
+	dropdown:AddChoice("30 degrees")
+	dropdown:AddChoice("45 degrees")
+	dropdown.OnSelect = function(me, index, value, data)
+		RunConsoleCommand("zs_proprotationsnap", value == "15 degrees" and 15 or value == "30 degrees" and 30 or value == "45 degrees" and 45 or 0)
+	end
+	
+	dropdown:SetText(GAMEMODE.PropRotationSnap == 15 and "15 degrees"
+		or GAMEMODE.PropRotationSnap == 30 and "30 degrees"
+		or GAMEMODE.PropRotationSnap == 45 and "45 degrees"
+		or "No snap")
+	dropdown:SetTextColor(color_black)
+	list:AddItem(dropdown)	
 	local slider = vgui.Create("DNumSlider", Window)
 	slider:SetDecimals(0)
 	slider:SetMinMax(0, 100)

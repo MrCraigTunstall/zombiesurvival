@@ -391,8 +391,10 @@ function GM:ShouldCollide(enta, entb)
 end
 
 function GM:Move(pl, move)
+local M_Entity = FindMetaTable("Entity")
+local E_GetDTBool = M_Entity.GetDTBool
 	if pl:Team() ~= TEAM_UNDEAD then
-		if pl:GetBarricadeGhosting() then
+		if pl:GetBarricadeGhosting() and not E_GetDTBool(pl, 1) then
 			move:SetMaxSpeed(36)
 			move:SetMaxClientSpeed(36)
 		elseif move:GetForwardSpeed() < 0 then
@@ -407,7 +409,7 @@ function GM:Move(pl, move)
 	end
 	
 	if pl:Team() ~= TEAM_UNDEAD then
-		if pl:GetBarricadeGhosting() and pl.GhostCade then
+		if pl:GetBarricadeGhosting() and pl.GhostCade and not E_GetDTBool(pl, 1) then
 			move:SetMaxSpeed(80)
 			move:SetMaxClientSpeed(80)
 		elseif move:GetForwardSpeed() < 0 then

@@ -459,17 +459,25 @@ function meta:ResetJumpPower(noset)
 	return power
 end
 
-function meta:SetBarricadeGhosting(b)
-	if b and self.NoGhosting then return end
+function meta:SetBarricadeGhosting(b, fullspeed)
+	if self == NULL then return end --???
+
+	if b and self.NoGhosting and not self:GetBarricadeGhosting() then
+		self:SetDTFloat(DT_PLAYER_FLOAT_WIDELOAD, CurTime() + 6)
+	end
+
+	if fullspeed == nil then fullspeed = false end
 
 	self:SetDTBool(0, b)
+	self:SetDTBool(1, b and fullspeed)
+	--self:SetCustomCollisionCheck(b)
 	self:CollisionRulesChanged()
 
 	self:ResetJumpPower()
 end
 
 function meta:GetBarricadeGhosting()
-	return self:GetDTBool(0)
+	return E_GetDTBool(self, 0)
 end
 meta.IsBarricadeGhosting = meta.GetBarricadeGhosting
 
@@ -478,24 +486,36 @@ function meta:ShouldBarricadeGhostWith(ent)
 end
 
 function meta:BarricadeGhostingThink()
-	if self:KeyDown(IN_ZOOM) or self:ActiveBarricadeGhosting() then
-		if self.FirstGhostThink then
-			self:SetLocalVelocity( Vector( 0, 0, 0 ) )
-			self.FirstGhostThink = false
+	if E_GetDTBool(self, 1) then
+		if not self:ActiveBarricadeGhosting() then
+			self:SetBarricadeGhosting(false)
 		end
-		return
+	else
+		if self:KeyDown(IN_ZOOM) or self:ActiveBarricadeGhosting() then
+			if self.FirstGhostThink then
+				self:SetLocalVelocity(vector_origin)
+				self.FirstGhostThink = false
+			end
+
+			return
+		end
+
+		self.FirstGhostThink = true
+		self:SetBarricadeGhosting(false)
 	end
-	self.FirstGhostThink = true
-	self:SetBarricadeGhosting(false)
 end
 
 function meta:ShouldNotCollide(ent)
-	if ent:IsValid() then
-		if ent:IsPlayer() then
-			return self:Team() == ent:Team() or self.NoCollideAll or ent.NoCollideAll
+	if E_IsValid(ent) then
+		if getmetatable(ent) == meta then
+			if P_Team(self) == P_Team(ent) or E_GetTable(self).NoCollideAll or E_GetTable(ent).NoCollideAll then
+				return true
+			end
+
+			return false
 		end
 
-		return self:GetBarricadeGhosting() and ent:IsBarricadeProp() or self:Team() ~= TEAM_UNDEAD and ent:GetPhysicsObject():IsValid() and ent:GetPhysicsObject():HasGameFlag(FVPHYSICS_PLAYER_HELD)
+		return E_GetDTBool(self, 0) and ent:IsBarricadeProp()
 	end
 
 	return false
@@ -604,9 +624,16 @@ function meta:PenetratingMeleeTrace(distance, size, prehit, start, dir)
 end
 
 function meta:ActiveBarricadeGhosting(override)
-	if self:Team() == TEAM_HUMAN and self:Team() == TEAM_REDEEMER and not override or not self:GetBarricadeGhosting() then return false end
+	if P_Team(self) ~= TEAM_HUMAN and not override or not self:GetBarricadeGhosting() then return false end
 
-	for _, ent in pairs(ents.FindInBox(self:WorldSpaceAABB())) do
+	local min, max = self:WorldSpaceAABB()
+	min.x = min.x + 1
+	min.y = min.y + 1
+
+	max.x = max.x - 1
+	max.y = max.y - 1
+
+	for _, ent in pairs(ents.FindInBox(min, max)) do
 		if ent and ent:IsValid() and self:ShouldBarricadeGhostWith(ent) then return true end
 	end
 

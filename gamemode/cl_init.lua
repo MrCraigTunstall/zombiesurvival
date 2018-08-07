@@ -176,11 +176,18 @@ function GM:TopNotify(...)
 end
 
 function GM:_InputMouseApply(cmd, x, y, ang)
-	self.InputMouseX = x
-	self.InputMouseY = y
-
 	if MySelf:KeyDown(IN_WALK) and MySelf:IsHolding() then
-		RunConsoleCommand("_zs_rotateang", self.InputMouseX, self.InputMouseY)
+		self.InputMouseX = math.NormalizeAngle(self.InputMouseX - x * 0.02 * GAMEMODE.PropRotationSensitivity)
+		self.InputMouseY = math.NormalizeAngle(self.InputMouseY - y * 0.02 * GAMEMODE.PropRotationSensitivity)
+
+		local snap = GAMEMODE.PropRotationSnap
+		local snapanglex, snapangley = self.InputMouseX, self.InputMouseY
+		if snap > 0 then
+			snapanglex = Angle(self.InputMouseX, 0, 0):SnapTo("p", snap).p
+			snapangley = Angle(self.InputMouseY, 0, 0):SnapTo("p", snap).p
+		end
+
+		RunConsoleCommand("_zs_rotateang", snapanglex, snapangley)
 		return true
 	end
 end

@@ -89,6 +89,15 @@ cvars.AddChangeCallback("zs_drawpainflash", function(cvar, oldvalue, newvalue)
 	GAMEMODE.DrawPainFlash = tonumber(newvalue) == 1
 end)
 
+GM.PropRotationSnap = math.Clamp(CreateClientConVar("zs_proprotationsnap", 0, true, false):GetInt(), 0, 45)
+cvars.AddChangeCallback("zs_proprotationsnap", function(cvar, oldvalue, newvalue)
+	GAMEMODE.PropRotationSnap = math.Clamp(tonumber(newvalue) or 0, 0, 45)
+end)
+
+GM.PropRotationSensitivity = math.Clamp(CreateClientConVar("zs_proprotationsens", 1, true, false):GetFloat(), 0.1, 4)
+cvars.AddChangeCallback("zs_proprotationsens", function(cvar, oldvalue, newvalue)
+	GAMEMODE.PropRotationSensitivity = math.Clamp(tonumber(newvalue) or 1, 0.1, 4)
+end)
 
 CreateConVar( "cl_playercolor", "0.24 0.34 0.41", { FCVAR_ARCHIVE, FCVAR_USERINFO }, "The value is a Vector - so between 0-1 - not between 0-255" )
 CreateConVar( "cl_weaponcolor", "0.30 1.80 2.10", { FCVAR_ARCHIVE, FCVAR_USERINFO }, "The value is a Vector - so between 0-1 - not between 0-255" )

@@ -88,6 +88,8 @@ function meta:GhostAllPlayersInMe(timeout, allowrepeat)
 		self.GhostedBefore = true
 	end
 
+	if self.PreHoldCollisionGroup and self.PreHoldCollisionGroup == COLLISION_GROUP_DEBRIS_TRIGGER then return end
+
 	local ent = ents.Create("point_propnocollide")
 	if ent:IsValid() then
 		ent:SetPos(self:GetPos())
@@ -98,6 +100,8 @@ function meta:GhostAllPlayersInMe(timeout, allowrepeat)
 		ent:SetTeam(TEAM_HUMAN)
 
 		ent:SetProp(self)
+
+		return ent
 	end
 end
 
