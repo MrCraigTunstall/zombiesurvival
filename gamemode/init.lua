@@ -1504,6 +1504,7 @@ function GM:AttemptHumanDynamicSpawn(pl)
 end
 
 function GM:PlayerInitialSpawn(pl)
+	pl.NextFlashlightSwitch = 0
 	gamemode.Call("PlayerInitialSpawnRound", pl)
 end
 
@@ -3886,7 +3887,15 @@ function GM:PlayerSwitchFlashlight(pl, newstate)
 		return false
 	end
 
-	return pl:Team() ~= TEAM_UNDEAD
+	if pl:Team() == TEAM_HUMAN and not GAMEMODE.FlashLightLimit then 
+	return true
+	elseif
+	pl:Team() == TEAM_HUMAN and CurTime() >= pl.NextFlashlightSwitch then
+		pl.NextFlashlightSwitch = CurTime() + 0.75
+		return true
+	end
+
+	return false
 end
 
 function GM:PlayerStepSoundTime(pl, iType, bWalking)

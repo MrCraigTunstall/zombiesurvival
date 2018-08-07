@@ -40,6 +40,11 @@ cvars.AddChangeCallback("zs_nospec", function(cvar, oldvalue, newvalue)
 	GAMEMODE.NoSpec = tonumber(newvalue) == 1
 end)
 
+GM.FlashLightLimit = CreateConVar("zs_flashlightlimit", "0", FCVAR_ARCHIVE + FCVAR_NOTIFY, "Enables the flash light limit, 1 to enable, 0 to disable. Disabled by default."):GetBool()
+cvars.AddChangeCallback("zs_flashlightlimit", function(cvar, oldvalue, newvalue)
+	GAMEMODE.FlashLightLimit = tonumber(newvalue) == 1
+end)
+
 GM.MeleeKnockBack = CreateConVar("zs_meleeknockback", "1", FCVAR_ARCHIVE + FCVAR_NOTIFY, "Enables knockback from melee weapons, 1 to enable, 0 to disable. Enabled by default."):GetBool()
 cvars.AddChangeCallback("zs_meleeknockback", function(cvar, oldvalue, newvalue)
 	GAMEMODE.MeleeKnockBack = tonumber(newvalue) == 1
