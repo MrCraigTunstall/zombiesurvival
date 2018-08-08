@@ -71,7 +71,7 @@ local function Checkout(tobuy)
 
 		RunConsoleCommand("worthcheckout", unpack(tobuy))
 
-		if pWorth and pWorth:Valid() then
+		if pWorth and pWorth:IsValid() then
 			pWorth:Close()
 		end
 	else
@@ -95,7 +95,7 @@ local function RandDoClick(self)
 
 	RunConsoleCommand("worthrandom")
 
-	if pWorth and pWorth:Valid() then
+	if pWorth and pWorth:IsValid() then
 		pWorth:Close()
 	end
 end
@@ -188,7 +188,7 @@ local function QuickCheckDoClick(self)
 end
 
 function MakepWorth()
-	if pWorth and pWorth:Valid() then
+	if pWorth and pWorth:IsValid() then
 		pWorth:Remove()
 		pWorth = nil
 	end
@@ -205,9 +205,9 @@ function MakepWorth()
 	frame:SetKeyboardInputEnabled(false)
 	frame:SetTitle(" ")
 	frame:SetDraggable(true)
-	if frame.btnClose and frame.btnClose:Valid() then frame.btnClose:SetVisible(true) frame.btnClose:SetTooltip(translate.Get("worth_close")) end
-	if frame.btnMinim and frame.btnMinim:Valid() then frame.btnMinim:SetVisible(false) end
-	if frame.btnMaxim and frame.btnMaxim:Valid() then frame.btnMaxim:SetVisible(false) end
+	if frame.btnClose and frame.btnClose:IsValid() then frame.btnClose:SetVisible(true) frame.btnClose:SetTooltip(translate.Get("worth_close")) end
+	if frame.btnMinim and frame.btnMinim:IsValid() then frame.btnMinim:SetVisible(false) end
+	if frame.btnMaxim and frame.btnMaxim:IsValid() then frame.btnMaxim:SetVisible(false) end
 
 	
 	local headertext = vgui.Create("DLabel", frame)

@@ -1013,7 +1013,7 @@ function GM:ZombieHUD(screenscale)
 end
 
 function GM:RequestedDefaultCart()
-	local defaultcart = GetConVarString("zs_defaultcart")
+	local defaultcart = GetConVar("zs_defaultcart"):GetString()
 	if #defaultcart > 0 then
 		defaultcart = string.lower(defaultcart)
 
@@ -1842,7 +1842,7 @@ function GM:OpenWorth()
 end
 
 function GM:CloseWorth()
-	if pWorth and pWorth:Valid() then
+	if pWorth and pWorth:IsValid() then
 		pWorth:Remove()
 		pWorth = nil
 	end
