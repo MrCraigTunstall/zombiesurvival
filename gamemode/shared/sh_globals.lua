@@ -72,6 +72,9 @@ GM.MaxLegDamage = 3
 GM.UtilityKey = IN_SPEED
 GM.MenuKey = IN_WALK -- I would use the spawn menu but it has no IN_ key assignment.
 
+GM.ExtraHealthPerExtraNail = 75
+GM.MaxNails = 4
+
 -- Cost multiplier for being near an arsenal crate.
 GM.ArsenalCrateMultiplier = 0.8
 GM.ArsenalCrateDiscount = 1 - GM.ArsenalCrateMultiplier
@@ -98,10 +101,11 @@ ZS_KNOCKBACKSCALE = -1
 
 MASK_HOVER = bit.bor(CONTENTS_OPAQUE, CONTENTS_GRATE, CONTENTS_HITBOX, CONTENTS_DEBRIS, CONTENTS_SOLID, CONTENTS_WATER, CONTENTS_SLIME, CONTENTS_WINDOW, CONTENTS_LADDER, CONTENTS_PLAYERCLIP, CONTENTS_MOVEABLE, CONTENTS_DETAIL, CONTENTS_TRANSLUCENT)
 
-GM.BarricadeHealthMin = 100
-GM.BarricadeHealthMax = 5000
-GM.BarricadeHealthMassFactor = 3.5
-GM.BarricadeHealthVolumeFactor = 4.75
+GM.BarricadeHealthMin = 50
+GM.BarricadeHealthMax = 1100 * 0.85
+GM.BarricadeHealthMassFactor = 3 * 0.85
+GM.BarricadeHealthVolumeFactor = 4 * 0.85
+GM.BarricadeRepairCapacity = 1.25
 
 GM.BossZombiePlayersRequired = 1
 

@@ -313,6 +313,39 @@ function tonumbersafe(a)
 	return nil
 end
 
+-- DEPRECATED behavior. CachedInvisibleEntities and filter tables is nonsense. Move to using functions.
+local TrueVisibleTrace = {mask = MASK_SHOT}
+function TrueVisible(posa, posb, filter)
+	local filt = ents.FindByClass("projectile_*")
+	filt = table.Add(filt, SERVER and GAMEMODE.CachedInvisibleEntities or player.GetAll())
+	if filter then
+		filt[#filt + 1] = filter
+	end
+
+	TrueVisibleTrace.start = posa
+	TrueVisibleTrace.endpos = posb
+	TrueVisibleTrace.filter = filt
+	TrueVisibleTrace.mask = MASK_SHOT
+
+	return not util.TraceLine(TrueVisibleTrace).Hit
+end
+
+-- DEPRECATED behavior. CachedInvisibleEntities and filter tables is nonsense. Move to using functions.
+function TrueVisibleFilters(posa, posb, ...)
+	local filt = ents.FindByClass("projectile_*")
+	filt = table.Add(filt, SERVER and GAMEMODE.CachedInvisibleEntities or player.GetAll())
+	if ... ~= nil then
+		filt = table.Add(filt, {...})
+	end
+
+	TrueVisibleTrace.start = posa
+	TrueVisibleTrace.endpos = posb
+	TrueVisibleTrace.filter = filt
+	TrueVisibleTrace.mask = MASK_SHOT
+
+	return not util.TraceLine(TrueVisibleTrace).Hit
+end
+
 -- Useful macros for the 3 file system
 function INC_SERVER()
 	AddCSLuaFile("shared.lua")

@@ -45,45 +45,10 @@ end
 
 function ENT:SetBaseEntity(ent)
 	self:SetDTEntity(0, ent)
-	if not ent:IsWorld() then ent:SetIsNailed(true) end
 end
 
 function ENT:GetBaseEntity()
 	return self:GetDTEntity(0)
-end
-
-function ENT:SetAttachEntity(ent, physbone1, physbone2)
-	self.m_AttachEntity = ent
-
-	if not SERVER then return end
-
-	local baseent = self:GetBaseEntity()
-	if not baseent:IsValid() then return end
-
-	local cons = constraint.Weld(baseent, ent, physbone1 or 0, physbone2 or 0, 0, true)
-	if cons ~= nil then
-		for _, oldcons in pairs(constraint.FindConstraints(baseent, "Weld")) do
-			if oldcons.Ent1 == ent or oldcons.Ent2 == ent then
-				cons = oldcons.Constraint
-				break
-			end
-		end
-	end
-
-	if not ent:IsWorld() then ent:SetIsNailed(true) end
-	cons:DeleteOnRemove(self)
-	self:SetNailConstraint(cons)
-
-	if baseent:IsValid() then
-		baseent:CollisionRulesChanged()
-	end
-	if ent and ent:IsValid() then
-		ent:CollisionRulesChanged()
-	end
-
-	timer.Simple(0.1, function() GAMEMODE:EvaluatePropFreeze() end)
-
-	return cons
 end
 
 function ENT:GetAttachEntity()

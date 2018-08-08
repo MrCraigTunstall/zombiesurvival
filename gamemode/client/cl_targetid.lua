@@ -1,4 +1,5 @@
-local trace = {mask = MASK_SHOT, mins = Vector(-2, -2, -2), maxs = Vector(2, 2, 2), filter = {}}
+local trace = {mask = MASK_SHOT, mins = Vector(-2, -2, -2), maxs = Vector(2, 2, 2)}
+local filter = {}
 local entitylist = {}
 
 local colTemp = Color(255, 255, 255)
@@ -46,23 +47,36 @@ function GM:DrawTargetID(ent, fade)
 	end
 end
 
+GM.TraceTarget = NULL
+
+local function FuncFilterPlayers(ent)
+	return not ent:IsPlayer()
+end
+local function FuncFilterTeam(ent)
+	return not (ent:IsPlayer() and ent:Team() == MySelf:Team())
+end
 function GM:HUDDrawTargetID(teamid)
 	local start = EyePos()
 	trace.start = start
-	trace.endpos = start + EyeAngles():Forward() * 2048
-	trace.filter[1] = MySelf
-	trace.filter[2] = MySelf:GetObserverTarget()
+	trace.endpos = start + EyeVector() * 2048
+	filter[1] = MySelf.TargetIDFilter or MySelf
+	filter[2] = MySelf:GetObserverTarget()
+	trace.filter = filter
 
 	local isspectator = MySelf:IsSpectator()
 
 	local entity = util.TraceHull(trace).Entity
-	if entity:IsValid() and entity:IsPlayer() and (entity:Team() == teamid or isspectator) then
+	self.TraceTarget = entity
+	trace.filter = FuncFilterPlayers
+	self.TraceTargetNoPlayers = util.TraceLine(trace).Entity
+
+	if entity:IsValid() and (entity:IsPlayer() and (entity:Team() == teamid or isspectator) or entity.Sigil) then
 		entitylist[entity] = CurTime()
 	end
 
 	for ent, time in pairs(entitylist) do
-		if ent:IsValid() and ent:IsPlayer() and (ent:Team() == teamid or isspectator) and CurTime() < time + 2 then
-			self:DrawTargetID(ent, 1 - math.Clamp((CurTime() - time) / 2, 0, 1))
+		if ent:IsValidPlayer() and (ent:Team() == teamid or isspectator) and CurTime() < time + 1.5 then
+			self:DrawTargetID(ent, 1 - math.Clamp((CurTime() - time) / 1.5, 0, 1))
 		else
 			entitylist[ent] = nil
 		end

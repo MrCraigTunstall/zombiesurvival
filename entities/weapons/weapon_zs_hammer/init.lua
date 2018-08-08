@@ -134,7 +134,7 @@ function SWEP:SecondaryAttack()
 	for _, nail in pairs(trent:GetNails()) do
 		if nail:GetDeployer() == owner then
 			count = count + 1
-			if count >= 3 then
+			if count >= GAMEMODE.MaxNails then
 				return
 			end
 		end
@@ -149,23 +149,27 @@ function SWEP:SecondaryAttack()
 		return
 	end
 
-	if trent:IsValid() then
-		for _, nail in pairs(ents.FindByClass("prop_nail")) do
-			if nail:GetParent() == trent and nail:GetActualPos():Distance(tr.HitPos) <= 16 then
-				owner:PrintTranslatedMessage(HUD_PRINTCENTER, "too_close_to_another_nail")
-				return
-			end
-		end
-
-		if trent:GetBarricadeHealth() <= 0 and trent:GetMaxBarricadeHealth() > 0 then
-			owner:PrintTranslatedMessage(HUD_PRINTCENTER, "object_too_damaged_to_be_used")
+	for _, nail in pairs(ents.FindByClass("prop_nail")) do
+		if nail:GetParent() == trent and nail:GetActualPos():DistToSqr(tr.HitPos) <= 81 then
+			owner:PrintTranslatedMessage(HUD_PRINTCENTER, "too_close_to_another_nail")
 			return
 		end
 	end
 
-	local aimvec = owner:GetAimVector()
+	if trent:GetBarricadeHealth() <= 0 and trent:GetMaxBarricadeHealth() > 0 then
+		owner:PrintTranslatedMessage(HUD_PRINTCENTER, "object_too_damaged_to_be_used")
+		return
+	end
 
-	local trtwo = util.TraceLine({start = tr.HitPos, endpos = tr.HitPos + aimvec * 24, filter = {owner, trent}, mask = MASK_SOLID})
+	-- Specical case for nailing things a drone is towing
+	local ropeconstraint = constraint.FindConstraint(trent, "Rope")
+	if ropeconstraint then
+		if ropeconstraint.Ent1 and ropeconstraint.Ent1:IsValid() and ropeconstraint.Ent1:GetClass() == "prop_drone" then return end
+		if ropeconstraint.Ent2 and ropeconstraint.Ent2:IsValid() and ropeconstraint.Ent2:GetClass() == "prop_drone" then return end
+	end
+
+	local aimvec = owner:GetAimVector()
+	local trtwo = util.TraceLine({start = tr.HitPos, endpos = tr.HitPos + aimvec * 24, filter = table.Add({owner, trent}, GAMEMODE.CachedInvisibleEntities), mask = MASK_SOLID})
 
 	if trtwo.HitSky then return end
 
@@ -181,7 +185,7 @@ function SWEP:SecondaryAttack()
 			return
 		end
 
-		if ent and ent:IsValid() and (ent.NoNails or ent:IsNailed() and (#ent.Nails >= 8 or ent:GetPropsInContraption() >= GAMEMODE.MaxPropsInBarricade)) then return end
+		if ent and ent:IsValid() and (ent:IsProjectile() or ent.NoNails or ent:IsNailed() and (#ent.Nails >= 8 or ent:GetPropsInContraption() >= GAMEMODE.MaxPropsInBarricade)) then return end
 
 		if ent:GetBarricadeHealth() <= 0 and ent:GetMaxBarricadeHealth() > 0 then
 			owner:PrintTranslatedMessage(HUD_PRINTCENTER, "object_too_damaged_to_be_used")
@@ -210,8 +214,6 @@ function SWEP:SecondaryAttack()
 		self:SetNextPrimaryFire(CurTime() + 1)
 		self:TakePrimaryAmmo(1)
 
-		trent:EmitSound("weapons/melee/crowbar/crowbar_hit-"..math.random(4)..".ogg")
-
 		local nail = ents.Create("prop_nail")
 		if nail:IsValid() then
 			nail:SetActualOffset(tr.HitPos, trent)
@@ -224,6 +226,8 @@ function SWEP:SecondaryAttack()
 			cons:DeleteOnRemove(nail)
 
 			gamemode.Call("OnNailCreated", trent, ent, nail)
+
+			nail:EmitSound(string.format("weapons/melee/crowbar/crowbar_hit-%d.ogg", math.random(4)))
 		end
 	end
 end

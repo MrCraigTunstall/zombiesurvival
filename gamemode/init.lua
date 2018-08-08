@@ -1702,10 +1702,12 @@ function GM:EvaluatePropFreeze(ent, neighbors)
 	neighbors = neighbors or {}
 	table.insert(neighbors, ent)
 
+	local baseent, attachent
+
 	for _, nail in pairs(ent:GetNails()) do
 		if nail:IsValid() then
-			local baseent = nail:GetBaseEntity()
-			local attachent = nail:GetAttachEntity()
+			baseent = nail:GetBaseEntity()
+			attachent = nail:GetAttachEntity()
 			if baseent:IsValid() and not baseent:IsWorld() and not table.HasValue(neighbors, baseent) then
 				self:EvaluatePropFreeze(baseent, neighbors)
 			end
