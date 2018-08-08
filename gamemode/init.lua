@@ -2248,31 +2248,22 @@ function GM:EntityTakeDamage(ent, dmginfo)
 	-- We need to stop explosive chains team killing.
 	if inflictor:IsValid() then
 		local dmgtype = dmginfo:GetDamageType()
-		if dmgtype == DMG_BLAST or dmgtype == DMG_BURN or dmgtype == DMG_SLOWBURN then
-			if ent:IsPlayer() then
-				if inflictor.LastExplosionTeam == ent:Team() and inflictor.LastExplosionAttacker ~= ent and inflictor.LastExplosionTime and CurTime() < inflictor.LastExplosionTime + 10 then -- Player damaged by physics object explosion / fire.
-					dmginfo:SetDamage(0)
-					dmginfo:ScaleDamage(0)
-					return
-				end
-			elseif inflictor ~= ent and string.sub(ent:GetClass(), 1, 12) == "prop_physics" and string.sub(inflictor:GetClass(), 1, 12) == "prop_physics" then -- Physics object damaged by physics object explosion / fire.
-				ent.LastExplosionAttacker = inflictor.LastExplosionAttacker
-				ent.LastExplosionTeam = inflictor.LastExplosionTeam
-				ent.LastExplosionTime = CurTime()
+		if ent:IsPlayer() and (dmgtype == DMG_ALWAYSGIB or dmgtype == DMG_BURN or dmgtype == DMG_SLOWBURN) and string.sub(inflictor:GetClass(), 1, 12) == "prop_physics" then -- We'll assume a barrel did this damage to a player
+			if inflictor.LastDamagedByTeam == ent:Team() and inflictor.LastDamagedBy ~= ent then -- A team member is trying to screw with us
+				dmginfo:SetDamage(0)
+				dmginfo:ScaleDamage(0)
+				return
 			end
-		elseif inflictor:IsPlayer() and string.sub(ent:GetClass(), 1, 12) == "prop_physics" then -- Physics object damaged by player.
-			if inflictor:Team() ~= TEAM_UNDEAD then
-				local phys = ent:GetPhysicsObject()
-				if phys:IsValid() and phys:HasGameFlag(FVPHYSICS_PLAYER_HELD) and inflictor:GetCarry() ~= ent or ent._LastDropped and CurTime() < ent._LastDropped + 3 and ent._LastDroppedBy ~= inflictor then -- Human player damaged a physics object while it was being carried or recently carried. They weren't the carrier.
-					dmginfo:SetDamage(0)
-					dmginfo:ScaleDamage(0)
-					return
+		elseif string.sub(ent:GetClass(), 1, 12) == "prop_physics" then -- Physics object damaged by...
+			if inflictor:IsPlayer() then
+				ent.LastDamagedByTeam = inflictor:Team()
+				ent.LastDamagedBy = inflictor
+			elseif (dmgtype == DMG_ALWAYSGIB or dmgtype == DMG_BURN or dmgtype == DMG_SLOWBURN) and string.sub(inflictor:GetClass(), 1, 12) == "prop_physics" then -- A barrel damaging a barrel. Probably.
+				if inflictor.LastDamagedByTeam then
+					ent.LastDamagedByTeam = inflictor.LastDamagedByTeam
+					ent.LastDamagedBy = inflictor.LastDamagedBy
 				end
 			end
-
-			ent.LastExplosionAttacker = inflictor
-			ent.LastExplosionTeam = inflictor:Team()
-			ent.LastExplosionTime = CurTime()
 		end
 	end
 
