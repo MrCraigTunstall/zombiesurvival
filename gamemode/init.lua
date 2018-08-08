@@ -2819,6 +2819,8 @@ function GM:KeyPress(pl, key)
 		if pl:Alive() then
 			if pl:Team() == TEAM_HUMAN then
 				pl:DispatchAltUse()
+			elseif pl:Team() == TEAM_UNDEAD then
+				pl:CallZombieFunction("AltUse")
 		end
 	end
 	elseif key == IN_ZOOM then
