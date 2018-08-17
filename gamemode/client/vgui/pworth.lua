@@ -24,47 +24,6 @@ end
 
 local WorthRemaining = 0
 local WorthButtons = {}
-local function CartDoClick(self, silent, force)
-	local id = self.ID
-	local tab = FindStartingItem(id)
-	if not tab then return end
-
-	if self.On then
-		self.On = nil
-		self:SetImage("icon16/cart_add.png")
-		if not silent then
-			surface.PlaySound("buttons/button18.wav")
-		end
-		self:SetTooltip("Add to cart") -- not used and not needed to translate
-		WorthRemaining = WorthRemaining + tab.Worth
-	else
-		if WorthRemaining < tab.Worth and not force then
-			surface.PlaySound("buttons/button8.wav")
-			return
-		end
-		self.On = true
-		self:SetImage("icon16/cart_delete.png")
-		if not silent then
-			surface.PlaySound("buttons/button17.wav")
-		end
-		self:SetTooltip("Remove from cart") -- not used and not needed to translate
-		WorthRemaining = WorthRemaining - tab.Worth
-	end
-
-	pWorth.WorthLab:SetText("Worth: ".. WorthRemaining) -- not used and not needed to translate
-	if WorthRemaining <= 0 then
-		pWorth.WorthLab:SetTextColor(COLOR_RED)
-		pWorth.WorthLab:InvalidateLayout()
-	elseif WorthRemaining <= GAMEMODE.StartingWorth * 0.25 then
-		pWorth.WorthLab:SetTextColor(COLOR_YELLOW)
-		pWorth.WorthLab:InvalidateLayout()
-	else
-		pWorth.WorthLab:SetTextColor(COLOR_LIMEGREEN)
-		pWorth.WorthLab:InvalidateLayout()
-	end
-	pWorth.WorthLab:SizeToContents()
-end
-
 local function Checkout(tobuy)
 	if tobuy and #tobuy > 0 then
 		gamemode.Call("SuppressArsenalUpgrades", 1)

@@ -5,6 +5,7 @@ include("shared.lua")
 
 function ENT:Initialize()
 	self:DrawShadow(false)
+	self:SetRenderFX(kRenderFxDistort)
 
 	self:SetModel("models/d3/other/concrete_obelisc/concrete_obelisc.mdl")
 	self:PhysicsInit(SOLID_VPHYSICS)

@@ -155,5 +155,5 @@ function ENT:DrawTranslucent()
 	particle:SetColor(r * 255, g * 255, b * 255)
 	particle:SetCollide(true)
 
-	emitter:Finish()
+	emitter:Finish() emitter = nil collectgarbage("step", 64)
 end

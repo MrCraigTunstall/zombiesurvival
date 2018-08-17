@@ -2,6 +2,8 @@ GM.Name		=	"Zombie Survival"
 GM.Author	=	"William \"JetBoom\" Moodhe"
 GM.Email	=	"williammoodhe@gmail.com"
 GM.Website	=	"http://www.noxiousnet.com"
+GM.Version = 7 -- don't touch.
+GM.SubVersion = "Zombie Survival Redemption" -- don't touch here too.
 
 -- No, adding a gun doesn't make your name worth being here.
 GM.Credits = {
