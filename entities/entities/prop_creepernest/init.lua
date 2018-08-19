@@ -36,10 +36,12 @@ function ENT:BuildUp()
 		self.BuildsThisTick = 0
 	end
 
+	if self:GetNestLastDamaged() + 1 > CurTime() then return end
+
 	if self.BuildsThisTick < 3 then
 		self.BuildsThisTick = self.BuildsThisTick + 1
 
-		self:SetNestHealth(math.min(self:GetNestHealth() + FrameTime() * self:GetNestMaxHealth() * 0.025, self:GetNestMaxHealth()))
+		self:SetNestHealth(math.min(self:GetNestHealth() + FrameTime() * self:GetNestMaxHealth() * 0.2, self:GetNestMaxHealth()))
 	end
 end
 
