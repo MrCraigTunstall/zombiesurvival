@@ -14,6 +14,9 @@ CLASS.JumpPower = 220
 
 CLASS.Points = 4
 
+CLASS.NoFallDamage = true		
+CLASS.NoFallSlowdown = true
+
 CLASS.VoicePitch = 0.55
 
 CLASS.PainSounds = {Sound("npc/barnacle/barnacle_pull1.wav"), Sound("npc/barnacle/barnacle_pull2.wav"), Sound("npc/barnacle/barnacle_pull3.wav"), Sound("npc/barnacle/barnacle_pull4.wav")}
@@ -44,7 +47,8 @@ end
 
 function CLASS:Move(pl, mv)
 	local wep = pl:GetActiveWeapon()
-	if wep:IsValid() and wep.IsInAttackAnim and (wep:IsInAttackAnim() or wep:GetHoldingRightClick()) then
+	
+	if wep and IsValid(wep) and wep.IsInAttackAnim and (wep:IsInAttackAnim() or (wep.GetHoldingRightClick and wep:GetHoldingRightClick())) then
 		mv:SetMaxSpeed(0)
 		mv:SetMaxClientSpeed(0)
 
@@ -59,11 +63,11 @@ end
 
 function CLASS:CalcMainActivity(pl, velocity)
 	local wep = pl:GetActiveWeapon()
-	if wep:IsValid() and wep.IsInAttackAnim then
+	if wep and IsValid(wep) and wep.IsInAttackAnim then
 		if wep:IsInAttackAnim() then
 			pl.CalcSeqOverride = 14
 			return true
-		elseif wep:GetHoldingRightClick() then
+		elseif IsValid(wep) and (wep.GetHoldingRightClick and wep:GetHoldingRightClick()) then
 			pl.CalcSeqOverride = 21
 			return true
 		end
@@ -88,13 +92,13 @@ function CLASS:UpdateAnimation(pl, velocity, maxseqgroundspeed)
 	pl:FixModelAngles(velocity)
 
 	local wep = pl:GetActiveWeapon()
-	if wep:IsValid() and wep.IsInAttackAnim then
+		if wep and IsValid(wep) and wep.IsInAttackAnim then
 		if wep:IsInAttackAnim() then
 			pl:SetPlaybackRate(0)
 			pl:SetCycle((1 - (wep:GetAttackAnimTime() - CurTime()) / wep.Primary.Delay))
 
 			return true
-		elseif wep:GetHoldingRightClick() then
+			elseif IsValid(wep) and (wep.GetHoldingRightClick and wep:GetHoldingRightClick()) then
 			pl:SetPlaybackRate(0)
 
 			local delta = CurTime() - wep:GetRightClickStart()
