@@ -1,340 +1,193 @@
+-- Custom Class Menu by Mka0207 and neithque.
+-- Altered to use class icons etc.
 CreateClientConVar("zs_bossclass", "", true, true)
 
-local Window
-local HoveredClassWindow
+local draw_SimpleText = draw.SimpleText
+local draw_RoundedBox = draw.RoundedBox
+local surface_SetDrawColor = surface.SetDrawColor
+local surface_SetMaterial = surface.SetMaterial
+local surface_DrawTexturedRect = surface.DrawTexturedRect
+local ScrW = ScrW
+local ScrH = ScrH
 
-local function CreateHoveredClassWindow(classtable)
-	if HoveredClassWindow and HoveredClassWindow:Valid() then
-		HoveredClassWindow:Remove()
+local function SortDamage(weapon)
+	for index, slot in pairs( weapons.GetStored( weapon ) ) do
+		if index == "MeleeDamage" then
+			return ", DMG : "..slot
+		elseif index == "PounceDamage" then
+			return ", DMG : "..slot
+		elseif index == "PhysicsForce" then
+			return ", FORCE : "..slot
+		end
 	end
-
-	HoveredClassWindow = vgui.Create("ClassInfo")
-	HoveredClassWindow:SetSize(ScrW() * 0.8, 256)
-	HoveredClassWindow:CenterHorizontal()
-	HoveredClassWindow:MoveBelow(Window, 32)
-	HoveredClassWindow:SetClassTable(classtable)
+	
+	return ""
 end
 
+ZombieFont1 = "ZSHUDFontSmall"
 function GM:OpenClassSelect(bossmode)
-	if Window and Window:Valid() then Window:Remove() end
 
-	Window = vgui.Create(bossmode and "ClassSelectBoss" or "ClassSelect")
-	Window:SetSize(ScrW(), 560)
-	Window:Center()
+	local classImagesMaterials = {}
 
-	Window:SetAlpha(0)
-	Window:AlphaTo(255, 0.75)
+	if not IsValid(zombieFrame) then
+		local zombieTable = {}
+		topFrame = vgui.Create("DPanel" )
+		topFrame:SetSkin("Default")
+		topFrame:SetPos(0,0)
+		topFrame:SetSize(ScrW(),ScrH()*0.1)
+		function topFrame:Paint()
+			draw_RoundedBox( 0, 0, 0, w, h, Color( 0, 0, 0, 200 ) )
+		end
+		
+		local topFrameP = vgui.Create("DPanel", topFrame)
+		topFrameP:SetPos(0, 0)
+		topFrameP:SetSize(topFrame:GetWide(), topFrame:GetTall())
+		topFrameP.Paint = function(self)
+			draw_SimpleText("UNDEAD CLASSES", ZombieFont1,topFrame:GetWide()*0.3, 30, Color(186,186,186), TEXT_ALIGN_LEFT)
+			draw_SimpleText("Choose the class you want to respawn as.", ZombieFont1,topFrame:GetWide()*0.3, 50, Color(146,146,146), TEXT_ALIGN_LEFT )
+		end
 
-	Window:MakePopup()
+		zombieFrame = vgui.Create("DPanel" )
+		zombieFrame:SetSkin("Default")
+		zombieFrame:SetPos(0, ScrH()*0.2)
+		zombieFrame:SetSize(ScrW(),ScrH()*0.6)
+		zombieFrame:MakePopup()
+		function zombieFrame:Paint()
+			draw_RoundedBox( 0, 0, 0, w, h, Color( 0, 0, 0, 200 ) )
+		end
 
-	PlayMenuOpenSound()
+		normalZombieScrollPanel = vgui.Create( "DScrollPanel", zombieFrame )
+		normalZombieScrollPanel:SetSize(zombieFrame:GetWide()-10, zombieFrame:GetTall()-50 )
+		normalZombieScrollPanel:SetPos(10, 50)
+		normalZombieScrollPanel:Show()
+
+		bossZombieScrollPanel = vgui.Create( "DScrollPanel", zombieFrame )
+		bossZombieScrollPanel:SetSize(zombieFrame:GetWide()-10, zombieFrame:GetTall()-50 )
+		bossZombieScrollPanel:SetPos(10, 50)
+		bossZombieScrollPanel:Hide()
+
+		local normalButton = vgui.Create( "DButton", zombieFrame )
+		normalButton:SetSize( 120, 30 )
+		normalButton:SetPos( zombieFrame:GetWide()/2-120, 10 )
+		normalButton:SetText( "Normal Classes" )
+		normalButton.DoClick = function()
+			bossZombieScrollPanel:Hide()	
+			normalZombieScrollPanel:Show()
+		end
+
+		local bossButton = vgui.Create( "DButton", zombieFrame )
+		bossButton:SetSize( 120, 30 )
+		bossButton:SetPos( zombieFrame:GetWide()/2, 10 )
+		bossButton:SetText( "Boss Classes" )
+		bossButton.DoClick = function()
+			normalZombieScrollPanel:Hide()
+			bossZombieScrollPanel:Show()
+		end
+
+		--[[local mutationButton = vgui.Create( "DButton", zombieFrame )
+		mutationButton:SetSize( 120, 30 )
+		mutationButton:SetPos( zombieFrame:GetWide()/2+120, 10 )
+		mutationButton:SetText( "Mutations" )
+		mutationButton.DoClick = function()
+			zombieFrame:Remove()
+			topFrame:Remove()
+			MakepMutationShop()
+		end]]--
+
+
+		local classNameC = {}
+		for k, v in pairs( GAMEMODE.ZombieClasses ) do
+			if isnumber(k) and k == v.Index and not table.HasValue(classNameC,v.Name) then
+				table.insert(classNameC,v.Name)
+				
+				if not v.Boss and not v.Hidden or v.CanUse and v:CanUse(MySelf) then
+					if classImagesMaterials[k] == nil and v.Icon then
+						classImagesMaterials[k] = Material(v.Icon,"noclamp")
+					end
+
+					local nButton = vgui.Create( "DButton", normalZombieScrollPanel )
+					nButton:SetSize( normalZombieScrollPanel:GetWide(), 100 )
+					nButton:SetPos(0,10)
+					nButton:SetText( "" )
+					nButton:Dock(TOP)
+					nButton:SetToolTip(translate.Get(v.Description))
+					local colorOffs = 0
+					nButton.Paint = function( self, w, h )
+						if self:IsHovered() then
+							colorOffs = 40
+						else
+							colorOffs = 0
+						end
+						if gamemode.Call("IsClassUnlocked", v.Index) or LocalPlayer():GetZombieClass() == v.Index then
+							draw_RoundedBox( 6,w*0.3, 0, 72, 72, Color(27+colorOffs,187+colorOffs,4+colorOffs) )
+							draw_SimpleText( v.Name, ZombieFont1, w*0.3+100, 10, Color(23+colorOffs,180+colorOffs,6+colorOffs), TEXT_ALIGN_LEFT )
+						else
+							draw_RoundedBox( 6,w*0.3, 0, 72, 72, Color(187+colorOffs,27+colorOffs,4+colorOffs) )
+							draw_SimpleText( v.Name.." ("..translate.Format("unlocked_on_wave_x", v.Wave)..")", ZombieFont1, w*0.3+100, 10, Color(180+colorOffs,23+colorOffs,6+colorOffs), TEXT_ALIGN_LEFT )
+						end
+						if v.Help then
+							draw_SimpleText( translate.Get(v.Help), "Default", w*0.3+100, 50, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
+						end
+						draw_SimpleText( "HP : "..v.Health..", SPEED : "..v.Speed..SortDamage(v.SWEP), "Default", w*0.3+100, 35, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
+						if classImagesMaterials[k] then
+							surface_SetDrawColor( 255, 255, 255, 255 )
+							surface_SetMaterial(classImagesMaterials[k])
+							surface_DrawTexturedRect( w*0.3+4, 4, 64, 64 )
+						end					
+					end
+					nButton.DoClick = function()
+						RunConsoleCommand("zs_class", v.Name, GAMEMODE.SuicideOnChangeClass and "1" or "0")
+						surface.PlaySound("buttons/button15.wav")
+
+						zombieFrame:Remove()
+						topFrame:Remove()
+					end
+
+				end
+
+				if v.Boss then
+					if classImagesMaterials[k] == nil and v.Icon then
+						classImagesMaterials[k] = Material(v.Icon,"noclamp")
+					end
+					
+					local bButton = vgui.Create( "DButton", bossZombieScrollPanel )
+					bButton:SetSize( bossZombieScrollPanel:GetWide(), 100 )
+					bButton:SetPos(0,10)
+					bButton:SetText( "" )
+					bButton:Dock(TOP)
+					bButton:SetToolTip(translate.Get(v.Description))
+					bButton.Paint = function( self, w, h )
+						if self:IsHovered() then
+							colorOffs = 40
+						else
+							colorOffs = 0
+						end
+						draw_RoundedBox( 6,w*0.3, 0, 72, 72, Color(27+colorOffs,187+colorOffs,4+colorOffs) )
+						draw_SimpleText( v.Name, ZombieFont1, w*0.3+100, 10, Color(23+colorOffs,180+colorOffs,6+colorOffs), TEXT_ALIGN_LEFT )
+						if v.Help then
+							draw_SimpleText( translate.Get(v.Help), "Default", w*0.3+100, 50, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
+						end
+						draw_SimpleText( "HP : "..v.Health..", SPEED : "..v.Speed..SortDamage(v.SWEP), "Default", w*0.3+100, 35, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
+						if classImagesMaterials[k] then
+							surface_SetDrawColor( 255, 255, 255, 255 )
+							surface_SetMaterial(classImagesMaterials[k])
+							surface_DrawTexturedRect( w*0.3+4, 4, 64, 64 )
+						end									
+					end
+					bButton.DoClick = function()
+						RunConsoleCommand("zs_bossclass", v.Name)
+						GAMEMODE:CenterNotify(translate.Format("boss_class_select", v.Name))
+						
+						surface.PlaySound("buttons/button15.wav")
+						zombieFrame:Remove()
+						topFrame:Remove()
+					end
+				end
+			end
+		end
+	end
 end
-
-local PANEL = {}
 
 local function BossTypeDoClick(self)
 	GAMEMODE:OpenClassSelect(true)
 end
-
-function PANEL:Init()
-	self.ClassButtons = {}
-
-	for i = 1, #GAMEMODE.ZombieClasses do
-		local classtab = GAMEMODE.ZombieClasses[i]
-		if classtab and not classtab.Hidden or classtab.CanUse and classtab:CanUse(MySelf) then
-			local button = vgui.Create("ClassButton", self)
-			button:SetClassTable(classtab)
-
-			table.insert(self.ClassButtons, button)
-		end
-	end
-
-	local button = EasyButton(self, translate.Get("boss_selection"), 120, 10)
-	self.ClassTypeButton = button
-	button.DoClick = BossTypeDoClick
-	self.ClassTypeButton:SetFont("ZSHUDFontSmall") 
-	self:InvalidateLayout()
-end
-
-function PANEL:PerformLayout()
-	local NumButtonRow = 12
-	local NumButtonTotal = #self.ClassButtons
-	local NumButtonRemainder = NumButtonTotal % NumButtonRow
-	local SpacingHorizontal = self:GetWide() / NumButtonRow
-	local SpacingHorizontalRem = self:GetWide() / NumButtonRemainder
-	local SpacingVertical = self:GetTall()/ math.max(1, math.ceil(NumButtonTotal/NumButtonRow))
- 
-	for i, classbutton in ipairs(self.ClassButtons) do
-		if((NumButtonTotal - i) >= NumButtonRemainder) then
-			classbutton:SetSize(SpacingHorizontal, SpacingVertical)
-			classbutton:SetPos(((i-1) % NumButtonRow) * SpacingHorizontal + SpacingHorizontal * 0.4 - classbutton:GetWide() * 0.4, SpacingVertical * math.floor(i/(NumButtonRow + 1)))
-		else
-			classbutton:SetSize(SpacingHorizontalRem, SpacingVertical)
-			classbutton:SetPos(((i-1) % NumButtonRow) * SpacingHorizontalRem + SpacingHorizontalRem * 0.4 - classbutton:GetWide() * 0.4, SpacingVertical * math.floor(i/(NumButtonRow + 1)))
-		end
-	end
-
-	self.ClassTypeButton:CenterHorizontal()
-	self.ClassTypeButton:AlignTop(4)
-end
-
-local texUpEdge = surface.GetTextureID("gui/gradient_up")
-local texDownEdge = surface.GetTextureID("gui/gradient_down")
-function PANEL:Paint()
-	local wid, hei = self:GetSize()
-	local edgesize = 32
-
-	DisableClipping(true)
-	surface.SetDrawColor(color_black_alpha220)
-	surface.DrawRect(0, 0, wid, hei)
-	surface.SetTexture(texUpEdge)
-	surface.DrawTexturedRect(0, -edgesize, wid, edgesize)
-	surface.SetTexture(texDownEdge)
-	surface.DrawTexturedRect(0, hei, wid, edgesize)
-	DisableClipping(false)
-
-	return true
-end
-
-vgui.Register("ClassSelect", PANEL, "Panel")
-
-local PANEL = {}
-
-local function ClassTypeDoClick(self)
-	GAMEMODE:OpenClassSelect(false)
-end
-
-function PANEL:Init()
-	self.ClassButtons = {}
-
-	for i = 1, #GAMEMODE.ZombieClasses do
-		local classtab = GAMEMODE.ZombieClasses[i]
-		if classtab and classtab.Boss then
-			local button = vgui.Create("ClassButton", self)
-			button:SetClassTable(classtab)
-
-			table.insert(self.ClassButtons, button)
-		end
-	end
-
-	local button = EasyButton(self, translate.Get("normal_selection"), 120, 10)
-	self.ClassTypeButton = button
-	button.DoClick = ClassTypeDoClick
-	self.ClassTypeButton:SetFont("ZSHUDFontSmall")
-	self:InvalidateLayout()
-end
-
-function PANEL:PerformLayout()
-	local NumButtonRow = 12
-	local NumButtonTotal = #self.ClassButtons
-	local NumButtonRemainder = NumButtonTotal % NumButtonRow
-	local SpacingHorizontal = self:GetWide() / NumButtonRow
-	local SpacingHorizontalRem = self:GetWide() / NumButtonRemainder
-	local SpacingVertical = self:GetTall()/ math.max(1, math.ceil(NumButtonTotal/NumButtonRow))
- 
-	for i, classbutton in ipairs(self.ClassButtons) do
-		if((NumButtonTotal - i) >= NumButtonRemainder) then
-			classbutton:SetSize(SpacingHorizontal, SpacingVertical)
-			classbutton:SetPos(((i-1) % NumButtonRow) * SpacingHorizontal + SpacingHorizontal * 0.5 - classbutton:GetWide() * 0.5, SpacingVertical * math.floor(i/(NumButtonRow + 1)))
-		else
-			classbutton:SetSize(SpacingHorizontalRem, SpacingVertical)
-			classbutton:SetPos(((i-1) % NumButtonRow) * SpacingHorizontalRem + SpacingHorizontalRem * 0.5 - classbutton:GetWide() * 0.5, SpacingVertical * math.floor(i/(NumButtonRow + 1)))
-		end
-	end
-
-	self.ClassTypeButton:AlignLeft(4)
-	self.ClassTypeButton:AlignTop(4)
-end
-
-function PANEL:Paint()
-	local wid, hei = self:GetSize()
-	local edgesize = 32
-
-	DisableClipping(true)
-	surface.SetDrawColor(color_black_alpha220)
-	surface.DrawRect(0, 0, wid, hei)
-	surface.SetTexture(texUpEdge)
-	surface.DrawTexturedRect(0, -edgesize, wid, edgesize)
-	surface.SetTexture(texDownEdge)
-	surface.DrawTexturedRect(0, hei, wid, edgesize)
-	DisableClipping(false)
-end
-
-vgui.Register("ClassSelectBoss", PANEL, "Panel")
-
-local PANEL = {}
-
-function PANEL:Init()
-	self.NameLabel = vgui.Create("DLabel", self)
-	self.NameLabel:SetFont("ZSHUDFontTiny")
-	self.NameLabel:SetAlpha(255)
-	self.Image = vgui.Create("DImage", self)
-
-	self:InvalidateLayout()
-end
-
-function PANEL:PerformLayout()
-	local imgsize = math.min(self:GetWide(), self:GetTall()) * 0.75
-	self.Image:SetSize(imgsize, imgsize)
-	self.Image:Center()
-
-	self.NameLabel:SizeToContents()
-	self.NameLabel:CenterHorizontal()
-	self.NameLabel:AlignBottom()
-end
-
-function PANEL:SetClassTable(classtable)
-	self.ClassTable = classtable
-
-	self.NameLabel:SetText(translate.Get(classtable.TranslationName))
-	self.Image:SetImage(classtable.Icon)
-
-	self:InvalidateLayout()
-end
-
-function PANEL:Paint()
-	return true
-end
-
-function PANEL:OnCursorEntered()
-	self.NameLabel:SetAlpha(255)
-
-	CreateHoveredClassWindow(self.ClassTable)
-end
-
-function PANEL:OnCursorExited()
-	self.NameLabel:SetAlpha(180)
-
-	if HoveredClassWindow and HoveredClassWindow:Valid() and HoveredClassWindow.ClassTable == self.ClassTable then
-		HoveredClassWindow:Remove()
-	end
-end
-
-function PANEL:DoClick()
-	if self.ClassTable then
-		if self.ClassTable.Boss then
-			RunConsoleCommand("zs_bossclass", self.ClassTable.Name)
-			GAMEMODE:CenterNotify(translate.Format("boss_class_select", self.ClassTable.Name))
-		else
-			RunConsoleCommand("zs_class", self.ClassTable.Name, GAMEMODE.SuicideOnChangeClass and "1" or "0")
-		end
-	end
-
-	surface.PlaySound("buttons/button15.wav")
-
-	Window:Remove()
-end
-
-function PANEL:Think()
-	if not self.ClassTable then return end
-
-	local enabled = LocalPlayer():GetZombieClass() == self.ClassTable.Index and 2 or gamemode.Call("IsClassUnlocked", self.ClassTable.Index) and 1 or 0
-	if enabled ~= self.LastEnabledState then
-		self.LastEnabledState = enabled
-
-		if enabled == 2 then
-			self.NameLabel:SetTextColor(COLOR_GREEN)
-			self.Image:SetImageColor(color_white)
-		elseif enabled == 1 then
-			self.NameLabel:SetTextColor(COLOR_GRAY)
-			self.Image:SetImageColor(color_white)
-		else
-			self.NameLabel:SetTextColor(COLOR_DARKRED)
-			self.Image:SetImageColor(COLOR_RED)
-		end
-	end
-end
-
-vgui.Register("ClassButton", PANEL, "Button")
-
-local PANEL = {}
-
-function PANEL:Init()
-	self.NameLabel = vgui.Create("DLabel", self)
-	self.NameLabel:SetFont("ZSHUDFontSmaller")
-
-	self.DescLabels = self.DescLabels or {}
-
-	self:InvalidateLayout()
-end
-
-function PANEL:SetClassTable(classtable)
-	self.ClassTable = classtable
-
-	self.NameLabel:SetText(translate.Get(classtable.TranslationName))
-	self.NameLabel:SizeToContents()
-
-	self:CreateDescLabels()
-
-	self:InvalidateLayout()
-end
-
-function PANEL:RemoveDescLabels()
-	for _, label in pairs(self.DescLabels) do
-		label:Remove()
-	end
-
-	self.DescLabels = {}
-end
-
-function PANEL:CreateDescLabels()
-	self:RemoveDescLabels()
-
-	self.DescLabels = {}
-
-	local classtable = self.ClassTable
-	if not classtable or not classtable.Description then return end
-
-	local lines = string.Explode("\n", translate.Get(classtable.Description))
-	if classtable.Wave and classtable.Wave > 0 then
-		table.insert(lines, 1, "("..translate.Format("unlocked_on_wave_x", classtable.Wave)..")")
-	end
-
-	if classtable.Help then
-		table.insert(lines, " ")
-		table.Add(lines, string.Explode("\n", translate.Get(classtable.Help)))
-	end
-
-	for _, line in ipairs(lines) do
-		local label = vgui.Create("DLabel", self)
-		label:SetText(line)
-		label:SetFont("ZSHUDFontTiny")
-		label:SizeToContents()
-		table.insert(self.DescLabels, label)
-	end
-end
-
-function PANEL:PerformLayout()
-	self.NameLabel:SizeToContents()
-	self.NameLabel:CenterHorizontal()
-
-	local maxw = self.NameLabel:GetWide()
-	for _, label in pairs(self.DescLabels) do
-		maxw = math.max(maxw, label:GetWide())
-	end
-	self:SetWide(maxw + 64)
-	self:CenterHorizontal()
-
-	for i, label in ipairs(self.DescLabels) do
-		label:MoveBelow(self.DescLabels[i - 1] or self.NameLabel)
-		label:CenterHorizontal()
-	end
-
-	local lastlabel = self.DescLabels[#self.DescLabels] or self.NameLabel
-	local x, y = lastlabel:GetPos()
-	self:SetTall(y + lastlabel:GetTall())
-end
-
-function PANEL:Think()
-	if not Window or not Window:Valid() or not Window:IsVisible() then
-		self:Remove()
-	end
-end
-
-function PANEL:Paint(w, h)
-	derma.SkinHook("Paint", "Frame", self, w, h)
-
-	return true
-end
-
-vgui.Register("ClassInfo", PANEL, "Panel")
