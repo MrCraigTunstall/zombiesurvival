@@ -146,7 +146,7 @@ function meta:NearestBone(pos)
 end
 
 function meta:IsProjectile()
-	return self:GetCollisionGroup() == COLLISION_GROUP_PROJECTILE or self.m_IsProjectile
+	return self:GetCollisionGroup() == COLLISION_GROUP_PROJECTILE or self.AlwaysProjectile
 end
 
 function meta:SetupGenericProjectile(gravity)
