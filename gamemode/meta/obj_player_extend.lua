@@ -462,9 +462,7 @@ end
 function meta:SetBarricadeGhosting(b, fullspeed)
 	if self == NULL then return end --???
 
-	if b and self.NoGhosting and not self:GetBarricadeGhosting() then
-		self:SetDTFloat(DT_PLAYER_FLOAT_WIDELOAD, CurTime() + 6)
-	end
+	if b and self.NoGhosting then return end
 
 	if fullspeed == nil then fullspeed = false end
 
