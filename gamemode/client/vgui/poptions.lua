@@ -31,8 +31,71 @@ function MakepOptions()
 	list:SetPos(12, y)
 	list:SetPadding(8)
 	list:SetSpacing(4)
+	
+	local propertysheet = vgui.Create( "DPropertySheet", pOptions )
+	propertysheet:SetSize(550, 525)
+	propertysheet:SetPos(25, 50)
+	propertysheet:SetPadding(1)
+	propertysheet.Paint = function()
+		for k, v in pairs(propertysheet.Items) do
+			if (!v.Tab) then continue end
+			
+			v.Tab.Paint = function(self,w,h)
+				--draw.RoundedBox(0, 0, 0, w, h, Color(100,100,100, 100))
+			end
+		end
+	end
 
-	gamemode.Call("AddExtraOptions", list, Window)
+	local gameplay_list = vgui.Create("DPanelList", propertysheet)
+	gameplay_list:EnableVerticalScrollbar()
+	gameplay_list:EnableHorizontal(false)
+	gameplay_list:SetSize(propertysheet:GetSize())
+	gameplay_list:SetPos(propertysheet:GetPos())
+	gameplay_list:SetPadding(8)
+	gameplay_list:SetSpacing(4)
+	propertysheet:AddSheet( "Gameplay", gameplay_list, "icon16/bomb.png" )
+	
+	local weapon_options = vgui.Create("DPanelList", propertysheet)
+	weapon_options:EnableVerticalScrollbar()
+	weapon_options:EnableHorizontal(false)
+	weapon_options:SetSize(propertysheet:GetSize())
+	weapon_options:SetPos(propertysheet:GetPos())
+	weapon_options:SetPadding(8)
+	weapon_options:SetSpacing(4)
+	propertysheet:AddSheet( "Weapon", weapon_options, "icon16/gun.png" )
+	
+	local hud_options = vgui.Create("DPanelList", propertysheet)
+	hud_options:EnableVerticalScrollbar()
+	hud_options:EnableHorizontal(false)
+	hud_options:SetSize(propertysheet:GetSize())
+	hud_options:SetPos(propertysheet:GetPos())
+	hud_options:SetPadding(8)
+	hud_options:SetSpacing(4)
+	propertysheet:AddSheet( "Visual", hud_options, "icon16/eye.png" )
+	
+	local sound_options = vgui.Create("DPanelList", propertysheet)
+	sound_options:EnableVerticalScrollbar()
+	sound_options:EnableHorizontal(false)
+	sound_options:SetSize(propertysheet:GetSize())
+	sound_options:SetPos(propertysheet:GetPos())
+	sound_options:SetPadding(8)
+	sound_options:SetSpacing(4)
+	propertysheet:AddSheet( "Sound", sound_options, "icon16/sound.png" )
+	
+	local player_options = vgui.Create("DPanelList", propertysheet)
+	player_options:EnableVerticalScrollbar()
+	player_options:EnableHorizontal(false)
+	player_options:SetSize(propertysheet:GetSize())
+	player_options:SetPos(propertysheet:GetPos())
+	player_options:SetPadding(8)
+	player_options:SetSpacing(4)
+	propertysheet:AddSheet( "Player", player_options, "icon16/user_go.png" )
+
+	gamemode.Call("AddExtraOptions", gameplay_list, Window)
+	gamemode.Call("AddExtraOptions", weapon_options, Window)
+	gamemode.Call("AddExtraOptions", sound_options, Window)
+	gamemode.Call("AddExtraOptions", player_options, Window)
+	gamemode.Call("AddExtraOptions", hud_options, Window)
 
 	local check = vgui.Create("DCheckBoxLabel", Window)
 	check:SetText(translate.Get("options_old_hud"))
