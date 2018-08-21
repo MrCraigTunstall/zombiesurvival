@@ -804,6 +804,10 @@ LANGUAGE.wb_maxaccu                                = "Punteria maxima"
 LANGUAGE.normal_selection                           = "Devuelta al menu de clases normales..." 
 LANGUAGE.boss_selection                             = "Selecciona una clase jefe que desees..."
 LANGUAGE.classes_and                                = "y"
+LANGUAGE.classes_undeadclasses 						= "CLASES DE NO-MUERTOS"
+LANGUAGE.classes_chooseresawn 						= "Elige la clase con la que quieras aparecer."
+LANGUAGE.classes_hp 								= "Salud"
+LANGUAGE.classes_speed 								= "Velocidad"
 
 -- Options
 

@@ -86,8 +86,8 @@ function GM:OpenClassSelect(bossmode)
 		end
 
 		--[[local mutationButton = vgui.Create( "DButton", zombieFrame )
-		mutationButton:SetSize( 120, 30 )
-		mutationButton:SetPos( zombieFrame:GetWide()/2+120, 10 )
+		mutationButton:SetSize( 320, 30 )
+		mutationButton:SetPos( zombieFrame:GetWide()/2+400, 10 )
 		mutationButton:SetText( "Mutations" )
 		mutationButton.DoClick = function()
 			zombieFrame:Remove()
