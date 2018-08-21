@@ -43,10 +43,11 @@ function GM:OpenClassSelect(bossmode)
 		topFrameP:SetPos(0, 0)
 		topFrameP:SetSize(topFrame:GetWide(), topFrame:GetTall())
 		topFrameP.Paint = function(self)
-			draw_SimpleText("UNDEAD CLASSES", ZombieFont1,topFrame:GetWide()*0.3, 30, Color(186,186,186), TEXT_ALIGN_LEFT)
-			draw_SimpleText("Choose the class you want to respawn as.", ZombieFont1,topFrame:GetWide()*0.3, 50, Color(146,146,146), TEXT_ALIGN_LEFT )
+			draw_SimpleText(translate.Get("classes_undeadclasses"), ZombieFont1,topFrame:GetWide()*0.3, 30, Color(186,186,186), TEXT_ALIGN_LEFT)
+			draw_SimpleText(translate.Get("classes_chooseresawn"), ZombieFont1,topFrame:GetWide()*0.3, 50, Color(146,146,146), TEXT_ALIGN_LEFT )
 		end
 
+		
 		zombieFrame = vgui.Create("DPanel" )
 		zombieFrame:SetSkin("Default")
 		zombieFrame:SetPos(0, ScrH()*0.2)
@@ -67,18 +68,18 @@ function GM:OpenClassSelect(bossmode)
 		bossZombieScrollPanel:Hide()
 
 		local normalButton = vgui.Create( "DButton", zombieFrame )
-		normalButton:SetSize( 120, 30 )
-		normalButton:SetPos( zombieFrame:GetWide()/2-120, 10 )
-		normalButton:SetText( "Normal Classes" )
+		normalButton:SetSize( 320, 30 )
+		normalButton:SetPos( zombieFrame:GetWide()/2-420, 10 )
+		normalButton:SetText(translate.Get("normal_selection"))
 		normalButton.DoClick = function()
 			bossZombieScrollPanel:Hide()	
 			normalZombieScrollPanel:Show()
 		end
 
 		local bossButton = vgui.Create( "DButton", zombieFrame )
-		bossButton:SetSize( 120, 30 )
+		bossButton:SetSize( 320, 30 )
 		bossButton:SetPos( zombieFrame:GetWide()/2, 10 )
-		bossButton:SetText( "Boss Classes" )
+		bossButton:SetText(translate.Get("boss_selection"))
 		bossButton.DoClick = function()
 			normalZombieScrollPanel:Hide()
 			bossZombieScrollPanel:Show()
@@ -97,8 +98,8 @@ function GM:OpenClassSelect(bossmode)
 
 		local classNameC = {}
 		for k, v in pairs( GAMEMODE.ZombieClasses ) do
-			if isnumber(k) and k == v.Index and not table.HasValue(classNameC,v.Name) then
-				table.insert(classNameC,v.Name)
+			if isnumber(k) and k == v.Index and not table.HasValue(classNameC,v.TranslationName) then
+				table.insert(classNameC,v.TranslationName)
 				
 				if not v.Boss and not v.Hidden or v.CanUse and v:CanUse(MySelf) then
 					if classImagesMaterials[k] == nil and v.Icon then
@@ -120,15 +121,15 @@ function GM:OpenClassSelect(bossmode)
 						end
 						if gamemode.Call("IsClassUnlocked", v.Index) or LocalPlayer():GetZombieClass() == v.Index then
 							draw_RoundedBox( 6,w*0.3, 0, 72, 72, Color(27+colorOffs,187+colorOffs,4+colorOffs) )
-							draw_SimpleText( v.Name, ZombieFont1, w*0.3+100, 10, Color(23+colorOffs,180+colorOffs,6+colorOffs), TEXT_ALIGN_LEFT )
+							draw_SimpleText( translate.Get(v.TranslationName), ZombieFont1, w*0.3+100, 10, Color(23+colorOffs,180+colorOffs,6+colorOffs), TEXT_ALIGN_LEFT )
 						else
 							draw_RoundedBox( 6,w*0.3, 0, 72, 72, Color(187+colorOffs,27+colorOffs,4+colorOffs) )
-							draw_SimpleText( v.Name.." ("..translate.Format("unlocked_on_wave_x", v.Wave)..")", ZombieFont1, w*0.3+100, 10, Color(180+colorOffs,23+colorOffs,6+colorOffs), TEXT_ALIGN_LEFT )
+							draw_SimpleText( translate.Get(v.TranslationName).." ("..translate.Format("unlocked_on_wave_x", v.Wave)..")", ZombieFont1, w*0.3+100, 10, Color(180+colorOffs,23+colorOffs,6+colorOffs), TEXT_ALIGN_LEFT )
 						end
 						if v.Help then
 							draw_SimpleText( translate.Get(v.Help), "Default", w*0.3+100, 50, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
 						end
-						draw_SimpleText( "HP : "..v.Health..", SPEED : "..v.Speed..SortDamage(v.SWEP), "Default", w*0.3+100, 35, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
+						draw_SimpleText("HP : "..v.Health..", SPEED : "..v.Speed..SortDamage(v.SWEP), "Default", w*0.3+100, 35, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
 						if classImagesMaterials[k] then
 							surface_SetDrawColor( 255, 255, 255, 255 )
 							surface_SetMaterial(classImagesMaterials[k])
@@ -163,7 +164,7 @@ function GM:OpenClassSelect(bossmode)
 							colorOffs = 0
 						end
 						draw_RoundedBox( 6,w*0.3, 0, 72, 72, Color(27+colorOffs,187+colorOffs,4+colorOffs) )
-						draw_SimpleText( v.Name, ZombieFont1, w*0.3+100, 10, Color(23+colorOffs,180+colorOffs,6+colorOffs), TEXT_ALIGN_LEFT )
+						draw_SimpleText( translate.Get(v.TranslationName), ZombieFont1, w*0.3+100, 10, Color(23+colorOffs,180+colorOffs,6+colorOffs), TEXT_ALIGN_LEFT )
 						if v.Help then
 							draw_SimpleText( translate.Get(v.Help), "Default", w*0.3+100, 50, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
 						end
