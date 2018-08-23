@@ -36,20 +36,28 @@ ITEMCAT_MUTATIONS = 13
 ITEMCAT_MUTATIONS_BOSS = 14
 
 GM.ItemCategories = {
-	[ITEMCAT_WORTHGUNS] = ""..translate.Get("title_worthguns"),
-	[ITEMCAT_HANDGUNS] = ""..translate.Get("title_guns"),
-	[ITEMCAT_SHOTGUNS] = ""..translate.Get("title_shotguns"),
-	[ITEMCAT_SMG]	 = ""..translate.Get("title_smg"),
-	[ITEMCAT_ASSAULTS]	 = ""..translate.Get("title_assault"),
-	[ITEMCAT_RIFLES]	 = ""..translate.Get("title_rifles"),
-	[ITEMCAT_AMMO]		 = ""..translate.Get("title_ammo"),
-	[ITEMCAT_MELEE]		 = ""..translate.Get("title_melee"),
-	[ITEMCAT_TOOLS]		 = ""..translate.Get("title_tools"),
-	[ITEMCAT_OTHER]		 = ""..translate.Get("title_other"),
-	[ITEMCAT_TRAITS]	 = ""..translate.Get("title_traits"),
-	[ITEMCAT_RETURNS]	 = ""..translate.Get("title_returns"),
-	[ITEMCAT_MUTATIONS]	 = ""..translate.Get("title_classm"),
+	[ITEMCAT_WORTHGUNS]			= ""..translate.Get("title_worthguns"),
+	[ITEMCAT_HANDGUNS]			= ""..translate.Get("title_guns"),
+	[ITEMCAT_SHOTGUNS]			= ""..translate.Get("title_shotguns"),
+	[ITEMCAT_SMG]				= ""..translate.Get("title_smg"),
+	[ITEMCAT_ASSAULTS]			= ""..translate.Get("title_assault"),
+	[ITEMCAT_RIFLES]			= ""..translate.Get("title_rifles"),
+	[ITEMCAT_AMMO]				= ""..translate.Get("title_ammo"),
+	[ITEMCAT_MELEE]				= ""..translate.Get("title_melee"),
+	[ITEMCAT_TOOLS]				= ""..translate.Get("title_tools"),
+	[ITEMCAT_OTHER]				= ""..translate.Get("title_other"),
+	[ITEMCAT_TRAITS]			= ""..translate.Get("title_traits"),
+	[ITEMCAT_RETURNS]			= ""..translate.Get("title_returns"),
+	[ITEMCAT_MUTATIONS]			= ""..translate.Get("title_classm"),
 	[ITEMCAT_MUTATIONS_BOSS]	= ""..translate.Get("title_bossm")
+}
+
+GM.SellableCategories = {
+	[ITEMCAT_HANDGUNS]	= true,
+	[ITEMCAT_SHOTGUNS]	= true,
+	[ITEMCAT_SMG]		= true,
+	[ITEMCAT_ASSAULTS]	= true,
+	[ITEMCAT_RIFLES]	= true
 }
 
 --[[
