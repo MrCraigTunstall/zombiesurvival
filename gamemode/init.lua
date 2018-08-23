@@ -2866,7 +2866,7 @@ function GM:PlayerHurt(victim, attacker, healthremaining, damage)
 				if myteam == TEAM_UNDEAD then
 					if otherteam == TEAM_HUMAN then
 						attacker:AddLifeHumanDamage(damage)
-						attacker:AddTokens(math.ceil(damage * 1))
+						attacker:AddTokens(math.ceil(damage * 3))
 					end
 				elseif myteam == TEAM_HUMAN and otherteam == TEAM_UNDEAD then
 					victim.DamagedBy[attacker] = (victim.DamagedBy[attacker] or 0) + damage
