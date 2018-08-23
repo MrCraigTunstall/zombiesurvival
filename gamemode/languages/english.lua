@@ -855,6 +855,7 @@ LANGUAGE.wb_maxaccu                                = "Maximum accuracy"
 
 LANGUAGE.normal_selection                           = "Back to normal class menu..."
 LANGUAGE.boss_selection                             = "Select desired boss class..."
+LANGUAGE.mutations_selection                        = "Mutations"
 LANGUAGE.classes_and                                = "and"
 LANGUAGE.classes_undeadclasses                      = "UNDEAD CLASSES"
 LANGUAGE.classes_chooseresawn                       = "Choose the class you want to respawn as."

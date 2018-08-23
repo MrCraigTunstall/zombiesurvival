@@ -85,15 +85,15 @@ function GM:OpenClassSelect(bossmode)
 			bossZombieScrollPanel:Show()
 		end
 
-		--[[local mutationButton = vgui.Create( "DButton", zombieFrame )
-		mutationButton:SetSize( 320, 30 )
+		local mutationButton = vgui.Create( "DButton", zombieFrame )
+		mutationButton:SetSize(320, 30)
 		mutationButton:SetPos( zombieFrame:GetWide()/2+400, 10 )
-		mutationButton:SetText( "Mutations" )
+		mutationButton:SetText(translate.Get("mutations_selection"))
 		mutationButton.DoClick = function()
 			zombieFrame:Remove()
 			topFrame:Remove()
 			MakepMutationShop()
-		end]]--
+		end
 
 
 		local classNameC = {}
