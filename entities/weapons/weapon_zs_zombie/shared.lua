@@ -292,22 +292,24 @@ end
 
 function SWEP:StopMoaning()
 	if not self:IsMoaning() then return end
-	self:SetMoaning(false)
-	self.Owner:SetWalkSpeed(140)
-
-	self:StopMoaningSound()
+	if not self.Owner.m_Zombie_MoanGuard then
+		self:SetMoaning(false)
+		self.Owner:ResetSpeed()
+		self:StopMoaningSound()
+	end
 end
 
 function SWEP:StartMoaning()
+	if not self.Owner.m_Zombie_Moan then return end
 	if self:IsMoaning() or IsValid(self.Owner.Revive) or IsValid(self.Owner.FeignDeath) then return end
 	self:SetMoaning(true)
-	
-	self.Owner:SetWalkSpeed(200)
 
 	self:SetMoanHealth(self.Owner:Health())
+	self.Owner:SetWalkSpeed( self.Owner:GetMaxSpeed() * 1.6 )
 
 	self:StartMoaningSound()
 end
+
 
 function SWEP:Deploy()
 	self.IdleAnimation = CurTime() + self:SequenceDuration()

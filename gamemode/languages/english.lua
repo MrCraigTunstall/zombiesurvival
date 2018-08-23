@@ -614,6 +614,18 @@ LANGUAGE.ars_50meds2                                = "50 extra power for the Me
 LANGUAGE.ars_grenade                                = "Grenade"
 LANGUAGE.ars_detpack                                = "Detonation Pack"
 
+-- Shop Items (zombie shop)
+-- Normal Mutations
+LANGUAGE.zshop_alphazomb                                = "Alpha Zombie"
+LANGUAGE.zshop_alphazomb2                                = "Increases survivability by increasing maximum health by 50."
+LANGUAGE.zshop_zombsprint                                = "Zombie Sprint"
+LANGUAGE.zshop_zombsprint2                                = "As a Zombie, gain the ability to sprint, toggle R to start sprinting."
+LANGUAGE.zshop_zombguard                               = "Zombie Guard"
+LANGUAGE.zshop_zombguard2                               = "As a Zombie, taking damage while sprinting no longer breaks your speed."
+-- Boss Mutations
+LANGUAGE.zshop_bossphysicshazard                               = "Physics Hazard"
+LANGUAGE.zshop_bossphysicshazard2                               = "As a Shade, physics strength is tripled for the ultimate carnage."
+
 -- Craft Weapons 
 
 LANGUAGE.craft_electricshovel                       = "Electric Shovel"
@@ -788,6 +800,7 @@ LANGUAGE.hm_nest_master2                            = "goes to %s for having %d 
 
 -- Weapon Titles
 
+LANGUAGE.title_worthguns                            = "Weaponry"
 LANGUAGE.title_guns                                 = "Hand Guns"
 LANGUAGE.title_shotguns                             = "Shotguns"
 LANGUAGE.title_smg                                 = "SMG"
@@ -799,8 +812,10 @@ LANGUAGE.title_tools                                 = "Tools"
 LANGUAGE.title_other                                 = "Other"
 LANGUAGE.title_traits                                 = "Traits"
 LANGUAGE.title_returns                              = "Returns"
+LANGUAGE.title_classm                              = "Class Mutations"
+LANGUAGE.title_bossm                              = "Boss Mutations"
 
--- MainMenu (F1 menu)
+-- Main Menu (F1 menu)
 
 LANGUAGE.mm_pm_selection                           = "Player model selection"
 LANGUAGE.mm_pm_color                               = "Player color"
@@ -963,3 +978,11 @@ LANGUAGE.sold_x_for_y_points						= "Sold %s for %d points!"
 
 LANGUAGE.spray_spraycant                            = "You can't place your spray here."
 LANGUAGE.spray_sprayedby                            = "Sprayed by:"
+
+-- Mutations
+
+LANGUAGE.you_dont_have_enough_btokens				= "You don't have enough damage tokens!"
+LANGUAGE.purchased_x_for_y_btokens					= "Purchased %s for %d damage tokens!"
+LANGUAGE.cant_buy_mutations							= "You can't use the Mutation Shop right now!"
+LANGUAGE.mutationstokens							= "Tokens"
+LANGUAGE.mutationsdamagetokens						= "Damage Tokens"

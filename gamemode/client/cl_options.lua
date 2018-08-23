@@ -2,6 +2,7 @@ GM.BeatSetHumanDefault = "zsrhuman"
 GM.BeatSetZombieDefault = "zsrzombie"
 
 GM.ItemCategoryIcons = {
+	[ITEMCAT_WORTHGUNS] = "icon16/gun.png",
 	[ITEMCAT_HANDGUNS] = "icon16/gun.png",
 	[ITEMCAT_SHOTGUNS] = "icon16/gun.png",
 	[ITEMCAT_SMG] = "icon16/gun.png",
@@ -12,7 +13,9 @@ GM.ItemCategoryIcons = {
 	[ITEMCAT_TOOLS] = "icon16/wrench.png",
 	[ITEMCAT_OTHER] = "icon16/world.png",
 	[ITEMCAT_TRAITS] = "icon16/user_add.png",
-	[ITEMCAT_RETURNS] = "icon16/user_delete.png"
+	[ITEMCAT_RETURNS] = "icon16/user_delete.png",
+	[ITEMCAT_MUTATIONS] = "icon16/pill.png",
+	[ITEMCAT_MUTATIONS_BOSS] = "icon16/pill_add.png"
 }
 GM.LifeStatsLifeTime = 5
 

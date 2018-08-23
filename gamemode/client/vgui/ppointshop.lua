@@ -215,8 +215,7 @@ function GM:OpenPointsShop()
 
 	local isclassic = GAMEMODE:IsClassicMode()
 
-	for catid, cat in ipairs(GAMEMODE.ItemCategories) do
-		local catname = cat.Name
+	for catid, catname in ipairs(GAMEMODE.ItemCategories) do
 		local hasitems = false
 		for i, tab in ipairs(GAMEMODE.Items) do
 			if tab.Category == catid and tab.PointShop then
@@ -241,7 +240,6 @@ function GM:OpenPointsShop()
 					itempan.ID = tab.Signature or i
 					itempan.Think = ItemPanelThink
 					list:AddItem(itempan)
-
 					local mdlframe = vgui.Create("DPanel", itempan)
 					mdlframe:SetSize(32, 32)
 					mdlframe:SetPos(4, 4)
@@ -272,7 +270,7 @@ function GM:OpenPointsShop()
 					pricelab:SetColor(COLOR_GRAY)
 					itempan.m_PriceLabel = pricelab
 
-					local sellbutton = vgui.Create("DImageButton", itempan)
+					--[[local sellbutton = vgui.Create("DImageButton", itempan)
 					local points = math.floor(tab.Worth/4)
 					if self.ItemCategories[tab.Category].Sellable then
 						sellbutton:SetImage("icon16/information.png")
@@ -285,7 +283,7 @@ function GM:OpenPointsShop()
 					else
 						sellbutton:SetDisabled(true)
 						sellbutton:SetImageVisible(false)
-					end
+					end]]--
 					
 					local saleprice = EasyLabel(itempan, tostring(math.ceil(tab.Worth * GAMEMODE.ArsenalCrateMultiplier)), "ZSHUDFontTiny")
 					saleprice:SetPos(itempan:GetWide() - 24 - pricelab:GetWide() - saleprice:GetWide(), 4)
@@ -308,12 +306,13 @@ function GM:OpenPointsShop()
 					local button = vgui.Create("DImageButton", itempan)
 					button:SetImage("icon16/lorry_add.png")
 					button:SizeToContents()
-					if self.ItemCategories[tab.Category].Sellable then
+					--[[if self.ItemCategories[tab.Category].Sellable then
 						button:CopyPos(sellbutton)
-						button:MoveLeftOf(sellbutton, 2)
+						button:MoveLeft``Of(sellbutton, 2)
 					else
 						button:SetPos(itempan:GetWide() - 20 - button:GetWide(), itempan:GetTall() - 20)
-					end
+					end]]--
+					button:SetPos(itempan:GetWide() - 20 - button:GetWide(), itempan:GetTall() - 20)
 					button:SetTooltip(translate.Get("ars_purchase").." "..name)
 					button.ID = itempan.ID
 					button.DoClick = PurchaseDoClick

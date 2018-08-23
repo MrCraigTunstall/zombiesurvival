@@ -62,6 +62,27 @@ function FindItem(id)
 	return t
 end
 
+--Mutation
+function FindMutation(id)
+	if not id then return end
+
+	local t
+
+	local num = tonumber(id)
+	if num then
+		t = GAMEMODE.Mutations[num]
+	else
+		for i, tab in pairs(GAMEMODE.Mutations) do
+			if tab.Signature == id then
+				t = tab
+				break
+			end
+		end
+	end
+
+	if t and t.MutationShop then return t end
+end
+
 function TrueVisible(posa, posb, filter)
 	local filt = ents.FindByClass("projectile_*")
 	filt = table.Add(filt, player.GetAll())

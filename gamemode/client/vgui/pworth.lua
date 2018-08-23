@@ -265,25 +265,35 @@ function MakepWorth()
 		list:AddItem(cartpan)
 	end
 
-	for catid, cat in ipairs(GAMEMODE.ItemCategories) do
-		local catname = cat.Name
-		local list = vgui.Create("DPanelList", propertysheet)
-		list:SetPaintBackground(false)
-		propertysheet:AddSheet(catname, list, GAMEMODE.ItemCategoryIcons[catid], false, false)
-		list:EnableVerticalScrollbar(true)
-		list:SetWide(propertysheet:GetWide() - 16)
-		list:SetSpacing(5)
-		list:SetPadding(0)
-
+	for catid, catname in ipairs(GAMEMODE.ItemCategories) do
+		local hasitems = false
 		for i, tab in ipairs(GAMEMODE.Items) do
 			if tab.Category == catid and tab.WorthShop then
-				local button = vgui.Create("ZSWorthButton")
-				button:SetWorthID(i)
-				list:AddItem(button)
-				WorthButtons[i] = button
+				hasitems = true
+				break
 			end
 		end
-	end
+
+		if hasitems then
+			local list = vgui.Create("DPanelList", propertysheet)
+			list:SetPaintBackground(false)
+			propertysheet:AddSheet(catname, list, GAMEMODE.ItemCategoryIcons[catid], false, false)
+			list:EnableVerticalScrollbar(true)
+			list:SetWide(propertysheet:GetWide() - 16)
+			list:SetSpacing(2)
+			list:SetPadding(2)
+
+			for i, tab in ipairs(GAMEMODE.Items) do
+				if tab.Category == catid and tab.WorthShop then
+					local button = vgui.Create("ZSWorthButton")
+					button:SetWorthID(i)
+					list:AddItem(button)
+					WorthButtons[i] = button
+					
+				end
+			end
+		end		
+	end	
 
 	local worthlab = EasyLabel(frame, translate.Get("worth_worth")..": "..tostring(WorthRemaining), "ZSHUDFontSmallest", COLOR_LIMEGREEN)
 	worthlab:SetPos(8, frame:GetTall() - worthlab:GetTall() - 50)

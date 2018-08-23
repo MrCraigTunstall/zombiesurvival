@@ -1,7 +1,7 @@
---[[version 1.3
-You must be running the latest version of ZS:R (being Version 7 - Tier System)
+--[[version 1.4
+You must be running the latest version of ZS:R (being Version 8 - Mutation System)
 for this file to be working. 
-Also you need version at least 1.3 of this file for the current ZS:R version
+Also you need version at least 1.4 of this file for the current ZS:R version
 listed or the client can not buy certain items such as ammo types.]]--
 
 GM.ZombieEscapeWeapons = {
@@ -20,30 +20,36 @@ GM.ZombieEscapeWeapons2 = {
 -- Having separate cart files allows people to have separate loadouts for different servers.
 GM.CartFile = "zsrmct.txt"
 
-ITEMCAT_HANDGUNS = 1
-ITEMCAT_SHOTGUNS = 2
-ITEMCAT_SMG = 3
-ITEMCAT_ASSAULTS = 4
-ITEMCAT_RIFLES = 5
-ITEMCAT_AMMO = 6
-ITEMCAT_MELEE = 7
-ITEMCAT_TOOLS = 8
-ITEMCAT_OTHER = 9
-ITEMCAT_TRAITS = 10
-ITEMCAT_RETURNS = 11
+ITEMCAT_WORTHGUNS = 1
+ITEMCAT_HANDGUNS = 2
+ITEMCAT_SHOTGUNS = 3
+ITEMCAT_SMG = 4
+ITEMCAT_ASSAULTS = 5
+ITEMCAT_RIFLES = 6
+ITEMCAT_AMMO = 7
+ITEMCAT_MELEE = 8
+ITEMCAT_TOOLS = 9
+ITEMCAT_OTHER = 10
+ITEMCAT_TRAITS = 11
+ITEMCAT_RETURNS = 12
+ITEMCAT_MUTATIONS = 13
+ITEMCAT_MUTATIONS_BOSS = 14
 
 GM.ItemCategories = {
-	[ITEMCAT_HANDGUNS]	= {Name = ""..translate.Get("title_guns"),		Sellable = true},
-	[ITEMCAT_SHOTGUNS]	= {Name = ""..translate.Get("title_shotguns"),	Sellable = true},
-	[ITEMCAT_SMG]		= {Name = ""..translate.Get("title_smg"),		Sellable = true},
-	[ITEMCAT_ASSAULTS]	= {Name = ""..translate.Get("title_assault"),	Sellable = true},
-	[ITEMCAT_RIFLES]	= {Name = ""..translate.Get("title_rifles"),	Sellable = true},
-	[ITEMCAT_AMMO]		= {Name = ""..translate.Get("title_ammo"),		Sellable = false},
-	[ITEMCAT_MELEE]		= {Name = ""..translate.Get("title_melee"),		Sellable = true},
-	[ITEMCAT_TOOLS]		= {Name = ""..translate.Get("title_tools"),		Sellable = false},
-	[ITEMCAT_OTHER]		= {Name = ""..translate.Get("title_other"),		Sellable = false},
-	[ITEMCAT_TRAITS]	= {Name = ""..translate.Get("title_traits"),	Sellable = false},
-	[ITEMCAT_RETURNS]	= {Name = ""..translate.Get("title_returns"),	Sellable = false}
+	[ITEMCAT_WORTHGUNS] = ""..translate.Get("title_worthguns"),
+	[ITEMCAT_HANDGUNS] = ""..translate.Get("title_guns"),
+	[ITEMCAT_SHOTGUNS] = ""..translate.Get("title_shotguns"),
+	[ITEMCAT_SMG]	 = ""..translate.Get("title_smg"),
+	[ITEMCAT_ASSAULTS]	 = ""..translate.Get("title_assault"),
+	[ITEMCAT_RIFLES]	 = ""..translate.Get("title_rifles"),
+	[ITEMCAT_AMMO]		 = ""..translate.Get("title_ammo"),
+	[ITEMCAT_MELEE]		 = ""..translate.Get("title_melee"),
+	[ITEMCAT_TOOLS]		 = ""..translate.Get("title_tools"),
+	[ITEMCAT_OTHER]		 = ""..translate.Get("title_other"),
+	[ITEMCAT_TRAITS]	 = ""..translate.Get("title_traits"),
+	[ITEMCAT_RETURNS]	 = ""..translate.Get("title_returns"),
+	[ITEMCAT_MUTATIONS]	 = ""..translate.Get("title_classm"),
+	[ITEMCAT_MUTATIONS_BOSS]	= ""..translate.Get("title_bossm")
 }
 
 --[[
@@ -68,6 +74,18 @@ end
 
 function GM:AddPointShopItem(signature, name, desc, category, points, worth, wave, unlocked, infliction, callback, model)
 	return self:AddItem("ps_"..signature, name, desc, category, points, worth, callback, model, false, true, wave, unlocked, infliction)
+end
+
+GM.Mutations = {}
+function GM:AddMutation(signature, name, desc, category, worth, swep, callback, model, worthshop, mutationshop)
+	local tab = {Signature = signature, Name = name, Description = desc, Category = category, Worth = worth or 0, SWEP = swep, Callback = callback, Model = model, WorthShop = worthshop, MutationShop = mutationshop}
+	self.Mutations[#self.Mutations + 1] = tab
+
+	return tab
+end
+
+function GM:AddMutationItem(signature, name, desc, category, brains, worth, callback, model)
+	return self:AddMutation(signature, name, desc, category, brains, worth, callback, model, false, true)
 end
 
 -- Weapons are registered after the gamemode.
@@ -129,35 +147,18 @@ GM.AmmoResupply["pulse"] = GM.AmmoCache["pulse"]
 -- Worth --
 -----------
 
-GM:AddStartingItem("pshtr", ""..translate.Get("worth_peashooter"), nil, ITEMCAT_HANDGUNS, 15, "weapon_zs_peashooter")
-GM:AddStartingItem("btlax", ""..translate.Get("worth_battleaxe"), nil, ITEMCAT_HANDGUNS, 15, "weapon_zs_battleaxe")
-GM:AddStartingItem("owens", ""..translate.Get("worth_owens"), nil, ITEMCAT_HANDGUNS, 15, "weapon_zs_owens")
-GM:AddStartingItem("z9000", ""..translate.Get("worth_z9000"), nil, ITEMCAT_HANDGUNS, 20, "weapon_zs_z9000")
-
------------
+GM:AddStartingItem("pshtr", ""..translate.Get("worth_peashooter"), nil, ITEMCAT_WORTHGUNS, 15, "weapon_zs_peashooter")
+GM:AddStartingItem("btlax", ""..translate.Get("worth_battleaxe"), nil, ITEMCAT_WORTHGUNS, 15, "weapon_zs_battleaxe")
+GM:AddStartingItem("owens", ""..translate.Get("worth_owens"), nil, ITEMCAT_WORTHGUNS, 15, "weapon_zs_owens")
+GM:AddStartingItem("z9000", ""..translate.Get("worth_z9000"), nil, ITEMCAT_WORTHGUNS, 20, "weapon_zs_z9000")
 -- W.SHOTGUNS --
------------
-
-GM:AddStartingItem("blstr", ""..translate.Get("worth_blaster"), nil, ITEMCAT_SHOTGUNS, 25, "weapon_zs_blaster")
-
------------
+GM:AddStartingItem("blstr", ""..translate.Get("worth_blaster"), nil, ITEMCAT_WORTHGUNS, 25, "weapon_zs_blaster")
 -- W.SMG --
------------
-
-GM:AddStartingItem("tossr", ""..translate.Get("worth_tosser"), nil, ITEMCAT_SMG, 20, "weapon_zs_tosser")
-
------------
+GM:AddStartingItem("tossr", ""..translate.Get("worth_tosser"), nil, ITEMCAT_WORTHGUNS, 20, "weapon_zs_tosser")
 -- W.RIFLES --
------------
-
-GM:AddStartingItem("stbbr", ""..translate.Get("worth_stubber"), nil, ITEMCAT_RIFLES, 25, "weapon_zs_stubber")
-
-
------------
+GM:AddStartingItem("stbbr", ""..translate.Get("worth_stubber"), nil, ITEMCAT_WORTHGUNS, 25, "weapon_zs_stubber")
 -- W.ASSAULTS --
------------
-
-GM:AddStartingItem("crklr", ""..translate.Get("worth_crackler"), nil, ITEMCAT_ASSAULTS, 25, "weapon_zs_crackler")
+GM:AddStartingItem("crklr", ""..translate.Get("worth_crackler"), nil, ITEMCAT_WORTHGUNS, 25, "weapon_zs_crackler")
 
 -----------
 -- W.AMMO --
@@ -397,6 +398,15 @@ GM:AddPointShopItem("detpck", ""..translate.Get("ars_detpack"), nil, ITEMCAT_OTH
 GM:AddPointShopItem("spinfusor", "'Spinfusor' Pulse Disc Launcher", nil, ITEMCAT_OTHER, 175, "weapon_zs_spinfusor")
 GM:AddPointShopItem("gluongun", "Helios' Gluon Gun", nil, ITEMCAT_OTHER, 200, "weapon_zs_helios")
 GM:AddPointShopItem("empower", ""..translate.Get("craft_empower"), nil, ITEMCAT_OTHER, 230, "weapon_zs_empower")
+
+-- Class Mutations
+GM:AddMutationItem("m_zombie_health", ""..translate.Get("zshop_alphazomb"), ""..translate.Get("zshop_alphazomb2"), ITEMCAT_MUTATIONS, 50, nil, function(pl) pl:SetMaxHealth(pl:GetMaxHealth() + 50) pl:SetHealth(pl:Health() + 50) end, "models/items/healthkit.mdl")    
+GM:AddMutationItem("m_zombie_moan", ""..translate.Get("zshop_zombsprint"), ""..translate.Get("zshop_zombsprint2"), ITEMCAT_MUTATIONS, 15, nil, function(pl) pl.m_Zombie_Moan = true end, "models/player/zombie_classic.mdl")
+GM:AddMutationItem("m_zombie_moanguard", ""..translate.Get("zshop_zombguard"), ""..translate.Get("zshop_zombguard2"), ITEMCAT_MUTATIONS, 80, nil, function(pl) pl.m_Zombie_MoanGuard = true end, "models/player/zombie_classic.mdl")
+
+-- Boss Mutations
+GM:AddMutationItem("m_shade_damage", ""..translate.Get("zshop_bossphysicshazard"), ""..translate.Get("zshop_bossphysicshazard2"), ITEMCAT_MUTATIONS_BOSS, 550, nil, function(pl) pl.m_Shade_Force = true end, "models/player/zombie_classic.mdl")
+
 
 
 -- These are the honorable mentions that come at the end of the round.

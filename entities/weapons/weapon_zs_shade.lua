@@ -11,6 +11,8 @@ end
 
 SWEP.Primary.Automatic = false
 SWEP.Secondary.Automatic = false
+SWEP.PhysicsForce = 3500
+SWEP.MutationMultiplier = 6000
 
 function SWEP:Initialize()
 	self:HideWorldModel()
@@ -21,7 +23,7 @@ end
 
 function SWEP:PrimaryAttack()
 	if CurTime() <= self:GetNextPrimaryFire() then return end
-	self:SetNextSecondaryFire(CurTime() + 0.65)
+	self:SetNextSecondaryFire(CurTime() + 1.5)
 
 	for _, ent in pairs(ents.FindByClass("env_shadecontrol")) do
 		if ent:IsValid() and ent:GetOwner() == self.Owner then
@@ -33,7 +35,12 @@ function SWEP:PrimaryAttack()
 
 				local filt = team.GetPlayers(TEAM_UNDEAD)
 				table.insert(filt, obj)
-				local vel = (self.Owner:TraceLine(10240, MASK_SOLID, filt).HitPos - obj:LocalToWorld(obj:OBBCenter())):GetNormalized() * 1000
+				
+				if self.Owner.m_Shade_Force then
+					vel = (self.Owner:TraceLine(10240, MASK_SOLID, filt).HitPos - obj:LocalToWorld(obj:OBBCenter())):GetNormalized() * self.MutationMultiplier
+				else
+					vel = (self.Owner:TraceLine(10240, MASK_SOLID, filt).HitPos - obj:LocalToWorld(obj:OBBCenter())):GetNormalized() * self.PhysicsForce
+				end
 
 				local phys = obj:GetPhysicsObject()
 				if phys:IsValid() and phys:IsMoveable() and phys:GetMass() <= 300 then

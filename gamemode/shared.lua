@@ -2,7 +2,7 @@ GM.Name		=	"Zombie Survival"
 GM.Author	=	"William \"JetBoom\" Moodhe"
 GM.Email	=	"williammoodhe@gmail.com"
 GM.Website	=	"http://www.noxiousnet.com"
-GM.Version = 7 -- don't touch.
+GM.Version = 8 -- don't touch.
 GM.SubVersion = "Zombie Survival Redemption" -- don't touch here too.
 
 -- No, adding a gun doesn't make your name worth being here.
@@ -478,6 +478,10 @@ end
 
 function GM:PlayerCanPurchase(pl)
 	return pl:Team() ~= TEAM_UNDEAD and self:GetWave() > 0 and pl:Alive() and pl:NearArsenalCrate()
+end
+
+function GM:ZombieCanPurchase(pl)
+	return pl:Team() == TEAM_UNDEAD and self:GetWave() > 0
 end
 
 local TEAM_SPECTATOR = TEAM_SPECTATOR

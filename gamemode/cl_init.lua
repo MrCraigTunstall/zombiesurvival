@@ -38,6 +38,7 @@ include("client/vgui/pweapons.lua")
 include("client/vgui/pendboard.lua")
 include("client/vgui/pworth.lua")
 include("client/vgui/ppointshop.lua")
+include("client/vgui/pmutationshop.lua")
 include("client/vgui/dpingmeter.lua")
 include("client/vgui/dsidemenu.lua")
 include("client/vgui/changeteam.lua")
@@ -52,6 +53,8 @@ include("client/cl_extras.lua")
 include("zombieescape/cl_zombieescape.lua")
 
 w, h = ScrW(), ScrH()
+
+UsedMutations = {}
 
 MySelf = MySelf or NULL
 hook.Add("InitPostEntity", "GetLocal", function()
@@ -2102,6 +2105,14 @@ net.Receive("zs_endround", function(length)
 	local nextmap = net.ReadString()
 
 	gamemode.Call("EndRound", winner, nextmap)
+end)
+
+-- Mutations Net
+net.Receive("zs_mutations_table", function(len)
+	local mutationstable = net.ReadTable()
+	if mutationstable then
+		UsedMutations = mutationstable
+	end
 end)
 
 -- Temporary fix

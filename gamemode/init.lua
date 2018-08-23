@@ -78,6 +78,7 @@ AddCSLuaFile("client/vgui/pweapons.lua")
 AddCSLuaFile("client/vgui/pendboard.lua")
 AddCSLuaFile("client/vgui/pworth.lua")
 AddCSLuaFile("client/vgui/ppointshop.lua")
+AddCSLuaFile("client/vgui/pmutationshop.lua")
 AddCSLuaFile("client/vgui/changeteam.lua")
 AddCSLuaFile("client/vgui/zshealtharea.lua")
 
@@ -273,6 +274,7 @@ function GM:AddNetworkStrings()
 	util.AddNetworkString("zs_weapontiers")
 	util.AddNetworkString("zs_spectate")
 	util.AddNetworkString("zs_weaponlocks")
+	util.AddNetworkString("zs_mutations_table")
 end
 
 function GM:IsClassicMode()
@@ -308,6 +310,8 @@ end
 function GM:ShowTeam(pl)
 	if pl:Team() ~= TEAM_UNDEAD and not self.ZombieEscape then
 		pl:SendLua(self:GetWave() > 0 and "GAMEMODE:OpenPointsShop()" or "MakepWorth()")
+		elseif pl:Team() == TEAM_UNDEAD then
+		pl:SendLua("MakepMutationShop()")
 	end
 end
 
@@ -1277,10 +1281,15 @@ function GM:RestartGame()
 		pl:SetFrags(0)
 		pl:SetDeaths(0)
 		pl:SetPoints(0)
+		pl:SetTokens(0)
 		pl:ChangeTeam(TEAM_HUMAN)
 		pl:DoHulls()
 		pl:SetZombieClass(self.DefaultZombieClass)
 		pl.DeathClass = nil
+		pl.UsedMutations = {}
+		net.Start("zs_mutations_table")
+		net.WriteTable(pl.UsedMutations)
+		net.Send(pl)
 		timer.Destroy("AddPoints_" .. pl:SteamID()) -- Destroy Redeemer points.
 	end
 end
@@ -1585,8 +1594,13 @@ function GM:PlayerInitialSpawnRound(pl)
 	pl.FastResupply = nil
 	pl.FastTeleport = nil
 	pl.CrateShare = nil
-
-
+	
+	--Normal Mutations (Z-Shop)
+	pl.m_Zombie_Moan = nil
+	pl.m_Zombie_MoanGuard = nil
+	
+	-- Boss Mutations (Z-Shop)
+	pl.m_Shade_Force = nil
 
 	local uniqueid = pl:UniqueID()
 
@@ -2055,6 +2069,83 @@ concommand.Add("zs_pointsshopsell", function(sender, command, arguments)
         sender:PrintTranslatedMessage(HUD_PRINTTALK, "sold_x_for_y_points", itemtab.Name, cost)
         sender:SendLua("surface.PlaySound(\"ambient/levels/labs/coinslot1.wav\")")
     end
+end)
+
+concommand.Add("zs_mutationshop_click", function(sender, command, arguments)
+	if not (sender:IsValid() and sender:IsConnected()) or #arguments == 0 then return end
+
+	--[[for _, pl in pairs(player.GetAll(TEAM_HUMAN)) do
+		if LASTHUMAN then
+		sender:CenterNotify(COLOR_RED, translate.ClientGet(sender, "cant_buy_mutations"))
+		sender:SendLua("surface.PlaySound(\"buttons/button10.wav\")")
+		return
+		end
+	end]]
+	
+	if not gamemode.Call("ZombieCanPurchase", sender) then
+		sender:CenterNotify(COLOR_RED, translate.ClientGet(sender, "cant_buy_mutations"))
+		sender:SendLua("surface.PlaySound(\"buttons/button10.wav\")")
+		return
+	end
+
+	local cost
+	local hasalready = {}
+	local tokens = sender:GetTokens()
+
+	for _, id in pairs(arguments) do
+		local tab = FindMutation(id)
+		if tab and not hasalready[id] then
+			if tab.Worth and tab.Callback then
+				cost = tab.Worth
+				hasalready[id] = true
+				tab.Callback(sender)
+				sender:TakeTokens(cost)
+				sender:PrintTranslatedMessage(HUD_PRINTTALK, "purchased_x_for_y_btokens", tab.Name, cost )
+				sender:SendLua("surface.PlaySound(\"ambient/levels/labs/coinslot1.wav\")")
+				sender.UsedMutations = sender.UsedMutations or { }
+				table.insert( sender.UsedMutations, tab.Signature )
+				--print( sender.UsedMutations, tab.Signature ) --DEBUG
+				--print( cost ) --DEBUG
+			end
+		end
+	end
+
+	if cost > tokens then return end
+	
+	local itemtab
+	local id = arguments[1]
+	local num = tonumber(id)
+	
+	if num then
+		itemtab = GAMEMODE.Mutations[num]
+	else
+		for i, tab in pairs(GAMEMODE.Mutations) do
+			if tab.Signature == id then
+				itemtab = tab
+				break
+			end
+		end
+	end
+	
+	--[[if itemtab.Worth then
+	
+		local tokens = sender:GetTokens()
+		local cost = itemtab.Worth
+		
+		cost = math.ceil(cost)
+										-- FIX THIS LATER
+		if tokens < cost  then
+			sender:CenterNotify(COLOR_RED, translate.ClientGet(sender, "you_dont_have_enough_btokens"))
+			sender:SendLua("surface.PlaySound(\"buttons/button10.wav\")")
+			return
+		end
+	
+	end]]
+	
+	net.Start("zs_mutations_table")
+		net.WriteTable(sender.UsedMutations)
+	net.Send(sender)
+
 end)
 
 concommand.Add("worthrandom", function(sender, command, arguments)
@@ -2775,6 +2866,7 @@ function GM:PlayerHurt(victim, attacker, healthremaining, damage)
 				if myteam == TEAM_UNDEAD then
 					if otherteam == TEAM_HUMAN then
 						attacker:AddLifeHumanDamage(damage)
+						attacker:AddTokens(math.ceil(damage * 1))
 					end
 				elseif myteam == TEAM_HUMAN and otherteam == TEAM_UNDEAD then
 					victim.DamagedBy[attacker] = (victim.DamagedBy[attacker] or 0) + damage

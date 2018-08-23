@@ -206,6 +206,14 @@ function meta:GetPoints()
 	return self:GetDTInt(1)
 end
 
+function meta:SetTokens(pts)
+	self:SetNWInt('btokens', pts)	
+end	
+
+function meta:GetTokens()
+	return self:GetNWInt('btokens', pts)
+end
+
 function meta:SetPalsy(onoff, nosend)
 	self.m_Palsy = onoff
 	if SERVER and not nosend then
