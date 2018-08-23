@@ -20,7 +20,7 @@ the link below.
 
 ## Current Features
 
-### Version 7 - Tier System:
+### Version 8 - Mutation System:
 
 - Basic bandit redeem system with client & server convar.
 - Custom Sigil with mapper support.
