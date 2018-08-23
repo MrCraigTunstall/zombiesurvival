@@ -2055,7 +2055,7 @@ concommand.Add("zs_pointsshopsell", function(sender, command, arguments)
 
     if not itemtab then return end
 
-    if itemtab.SWEP and GAMEMODE.ItemCategories[itemtab.Category].Sellable then
+    if itemtab.SWEP and GAMEMODE.SellableCategories[itemtab.Category] then
         if not sender:HasWeapon(itemtab.SWEP) then
             sender:CenterNotify(COLOR_RED, translate.ClientFormat(sender, "dont_have_weapon_x", itemtab.Name))
             sender:SendLua("surface.PlaySound(\"buttons/button10.wav\")")

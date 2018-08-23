@@ -57,7 +57,8 @@ GM.SellableCategories = {
 	[ITEMCAT_SHOTGUNS]	= true,
 	[ITEMCAT_SMG]		= true,
 	[ITEMCAT_ASSAULTS]	= true,
-	[ITEMCAT_RIFLES]	= true
+	[ITEMCAT_RIFLES]	= true,
+	[ITEMCAT_MELEE]		= true
 }
 
 --[[
