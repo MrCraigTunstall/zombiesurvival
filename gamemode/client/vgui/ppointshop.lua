@@ -270,9 +270,9 @@ function GM:OpenPointsShop()
 					pricelab:SetColor(COLOR_GRAY)
 					itempan.m_PriceLabel = pricelab
 
-					--[[local sellbutton = vgui.Create("DImageButton", itempan)
+					local sellbutton = vgui.Create("DImageButton", itempan)
 					local points = math.floor(tab.Worth/4)
-					if self.ItemCategories[tab.Category].Sellable then
+					if self.SellableCategories[tab.Category] then
 						sellbutton:SetImage("icon16/information.png")
 						sellbutton:SizeToContents()
 						sellbutton:SetPos(itempan:GetWide() - 20 - sellbutton:GetWide(), itempan:GetTall() - 20)
@@ -283,7 +283,7 @@ function GM:OpenPointsShop()
 					else
 						sellbutton:SetDisabled(true)
 						sellbutton:SetImageVisible(false)
-					end]]--
+					end
 					
 					local saleprice = EasyLabel(itempan, tostring(math.ceil(tab.Worth * GAMEMODE.ArsenalCrateMultiplier)), "ZSHUDFontTiny")
 					saleprice:SetPos(itempan:GetWide() - 24 - pricelab:GetWide() - saleprice:GetWide(), 4)
@@ -306,13 +306,12 @@ function GM:OpenPointsShop()
 					local button = vgui.Create("DImageButton", itempan)
 					button:SetImage("icon16/lorry_add.png")
 					button:SizeToContents()
-					--[[if self.ItemCategories[tab.Category].Sellable then
+					if self.SellableCategories[tab.Category] then
 						button:CopyPos(sellbutton)
-						button:MoveLeft``Of(sellbutton, 2)
+						button:MoveLeftOf(sellbutton, 2)
 					else
 						button:SetPos(itempan:GetWide() - 20 - button:GetWide(), itempan:GetTall() - 20)
-					end]]--
-					button:SetPos(itempan:GetWide() - 20 - button:GetWide(), itempan:GetTall() - 20)
+					end
 					button:SetTooltip(translate.Get("ars_purchase").." "..name)
 					button.ID = itempan.ID
 					button.DoClick = PurchaseDoClick
