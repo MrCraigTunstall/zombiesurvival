@@ -803,6 +803,7 @@ LANGUAGE.wb_maxaccu                                = "Punteria maxima"
 
 LANGUAGE.normal_selection                           = "Devuelta al menu de clases normales..." 
 LANGUAGE.boss_selection                             = "Selecciona una clase jefe que desees..."
+LANGUAGE.mutations_selection                        = "Mutaciones"
 LANGUAGE.classes_and                                = "y"
 LANGUAGE.classes_undeadclasses 						= "CLASES DE NO-MUERTOS"
 LANGUAGE.classes_chooseresawn 						= "Elige la clase con la que quieras aparecer."
@@ -921,3 +922,11 @@ LANGUAGE.sold_x_for_y_points						= "Vendiste %s por %d puntos!"
 
 LANGUAGE.spray_spraycant                            = "No puedes colocar tu spray aqui."
 LANGUAGE.spray_sprayedby                            = "Pintado por:"
+
+-- Mutations
+
+LANGUAGE.you_dont_have_enough_btokens				= "No tienes suficientes puntos de daño!"
+LANGUAGE.purchased_x_for_y_btokens					= "Compraste %s por %d puntos de daño!"
+LANGUAGE.cant_buy_mutations							= "No puedes usar la tienda de mutaciones ahora mismo!"
+LANGUAGE.mutationstokens							= "Puntos"
+LANGUAGE.mutationsdamagetokens						= "Puntos de daño"
