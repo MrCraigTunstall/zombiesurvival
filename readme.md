@@ -2,6 +2,11 @@
 
 This is an experimental modification of the original Zombie Survival gamemode for Garry's Mod by JetBoom.
 
+## Helpful links
+
+* [Discord](https://discord.gg/0n9FJ3xt1jN7i3ZU) - Official support
+* [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=1357369797) - Workshop version
+
 ## About
 
 Over the years I kept on getting countless requests to rebuild and bring
