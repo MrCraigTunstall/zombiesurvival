@@ -31,6 +31,6 @@ function ENT:Use(activator, caller)
 	if gamemode.Call("PlayerCanPurchase", caller) and activator.CrateShare then
 		caller:SendLua(GAMEMODE:GetWave() > 0 and "GAMEMODE:OpenPointsShop()" or "MakepWorth()")
 		else
-		caller:CenterNotify(COLOR_RED, translate.ClientGet(caller, "worth_crateshare3"))
+		--caller:CenterNotify(COLOR_RED, translate.ClientGet(caller, "worth_crateshare3"))
 	end
-end
+--end

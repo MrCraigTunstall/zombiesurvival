@@ -3,15 +3,15 @@ function MakepOptions()
 
 	if pOptions then
 		pOptions:SetAlpha(0)
-		pOptions:AlphaTo(255, 0.5, 0)
+		pOptions:AlphaTo(255, 0.15, 0)
 		pOptions:SetVisible(true)
 		pOptions:MakePopup()
 		return
 	end
 
 	local Window = vgui.Create("DFrame")
-	local wide = math.min(ScrW(), 500)
-	local tall = math.min(ScrH(), 580)
+	local wide = math.min(ScrW(), 600)
+	local tall = math.min(ScrH(), 675)
 	Window:SetSize(wide, tall)
 	Window:Center()
 	Window:SetTitle(" ")
@@ -22,7 +22,7 @@ function MakepOptions()
 
 	local label = EasyLabel(Window, translate.Get("options_options"), "ZSHUDFont", color_white)
 	label:SetPos(wide * 0.5 - label:GetWide() * 0.5, y)
-	y = y + label:GetTall() + 8
+	y = y + label:GetTall() + 16
 
 	local list = vgui.Create("DPanelList", pOptions)
 	list:EnableVerticalScrollbar()
@@ -41,7 +41,6 @@ function MakepOptions()
 			if (!v.Tab) then continue end
 			
 			v.Tab.Paint = function(self,w,h)
-				--draw.RoundedBox(0, 0, 0, w, h, Color(100,100,100, 100))
 			end
 		end
 	end
