@@ -33,4 +33,4 @@ function ENT:Use(activator, caller)
 		else
 		--caller:CenterNotify(COLOR_RED, translate.ClientGet(caller, "worth_crateshare3"))
 	end
---end
+end
