@@ -864,6 +864,7 @@ LANGUAGE.classes_speed                      		= "SPEED"
 -- Options
 
 LANGUAGE.options_options                            = "Options"
+LANGUAGE.options_no_discord                  		= "Don't show the official Discord link in chat"
 LANGUAGE.options_no_ars_crate                  		= "Don't show arsenal crates through walls"
 LANGUAGE.options_old_hud                  			= "Enable Health Bar HUD (requires re-joining)"
 LANGUAGE.options_no_resupply                  		= "Don't show resupply boxes through walls"
@@ -971,7 +972,7 @@ LANGUAGE.credits_credits                            = "Zombie Survival Credits"
 -- Tier System
 
 LANGUAGE.dont_have_weapon_x							= "Can't sell, you do not have a %s"
-LANGUAGE.not_unlocked_yet_unlocked_on_x			= "That weapon is not unlocked yet. It will be unlocked at the start of wave %d."
+LANGUAGE.not_unlocked_yet_unlocked_on_x				= "That weapon is not unlocked yet. It will be unlocked at the start of wave %d."
 LANGUAGE.weapon_tier_x								= "Weapon tier %d unlocked."
 LANGUAGE.sold_x_for_y_points						= "Sold %s for %d points!"
 
@@ -987,3 +988,9 @@ LANGUAGE.purchased_x_for_y_btokens					= "Purchased %s for %d damage tokens!"
 LANGUAGE.cant_buy_mutations							= "You can't use the Mutation Shop right now!"
 LANGUAGE.mutationstokens							= "Tokens"
 LANGUAGE.mutationsdamagetokens						= "Damage Tokens"
+
+-- Discord / misc
+
+LANGUAGE.post_discord_init_text						= "Hey there! This gamemode has an official Discord.\nYou can be part of it by following this link - \nhttps://discord.me/voidresonance"
+LANGUAGE.post_discord_init_text2					= "You can disable this message with the console command\nzs_nodiscord 1"
+

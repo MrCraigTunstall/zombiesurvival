@@ -1410,6 +1410,13 @@ function GM:PlayerReady(pl)
 	gamemode.Call("PlayerReadyRound", pl)
 end
 
+hook.Add("PlayerReady", "post_discord_link", function(pl)
+	if pl:GetInfo("zs_nodiscord") ~= "1" then
+	pl:PrintTranslatedMessage(HUD_PRINTTALK, "post_discord_init_text")
+	pl:PrintTranslatedMessage(HUD_PRINTTALK, "post_discord_init_text2") 
+	end 
+end)
+
 function GM:PlayerReadyRound(pl)
 	if not pl:IsValid() then return end
 

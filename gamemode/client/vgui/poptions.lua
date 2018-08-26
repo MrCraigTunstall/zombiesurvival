@@ -97,6 +97,12 @@ function MakepOptions()
 	gamemode.Call("AddExtraOptions", hud_options, Window)
 
 	local check = vgui.Create("DCheckBoxLabel", Window)
+	check:SetText(translate.Get("options_no_discord"))
+	check:SetConVar("zs_nodiscord")
+	check:SizeToContents()
+	list:AddItem(check)
+	
+	local check = vgui.Create("DCheckBoxLabel", Window)
 	check:SetText(translate.Get("options_old_hud"))
 	check:SetConVar("zs_classichud")
 	check:SizeToContents()
