@@ -5,21 +5,13 @@ include("shared.lua")
 
 function ENT:Initialize()
 	self:DrawShadow(false)
-	self:SetModelScale(0.5, 0)
+	self:SetModelScale(0.4, 0)
 
-	self:SetModel(Model("models/Items/item_item_crate.mdl"))
-	self:PhysicsInit(SOLID_VPHYSICS)
+	self:SetModel("models/Items/item_item_crate.mdl")
+	self:SetMoveType(MOVETYPE_NONE)
 	self:SetUseType(SIMPLE_USE)
-	
-	local phys = self:GetPhysicsObject()
-	if phys:IsValid() then
-		phys:SetMass(50)
-		phys:EnableMotion(false)
-		phys:Wake()
-	end
-	
-	self:SetCollisionGroup(COLLISION_GROUP_WORLD) 		
-	self:CollisionRulesChanged()  
+	self:PhysicsInitSphere(3)
+	self:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
 end
 
 function ENT:Think()

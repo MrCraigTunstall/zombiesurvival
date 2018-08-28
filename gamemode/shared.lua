@@ -541,7 +541,7 @@ end
 
 function GM:FindUseEntity(pl, ent)
 	if not ent:IsValid() then
-		local e = pl:TraceLine(90, MASK_SOLID, pl:GetMeleeFilter()).Entity
+		local e = pl:TraceLine(90, MASK_SOLID, pl:GetDynamicTraceFilter()).Entity
 		if e:IsValid() then return e end
 	end
 

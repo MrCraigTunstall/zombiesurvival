@@ -485,19 +485,6 @@ local function BaseBulletFilter(ent)
 	return true
 end
 
-local wspawn = Entity(0)
-local function CheckFHB(tr)
-	local ent = tr.Entity
-	
-	if ent == wspawn then
-		return
-	end
-
-	if ent.FHB and ent:IsValid() then
-		tr.Entity = ent:GetParent()
-	end
-end
-
 function meta:SetLastHitGroup(group)
 
 	self.m_LastHitGroup = group

@@ -591,6 +591,45 @@ function meta:MeleeTrace(distance, size, filter, start)
 	return self:TraceHull(distance, MASK_SOLID, size, filter, start)
 end
 
+local temp_attacker = NULL
+local temp_attacker_team = -1
+local temp_pen_ents = {}
+local temp_override_team
+
+local function MeleeTraceFilter(ent)
+	if ent == temp_attacker
+	or E_GetTable(ent).IgnoreMelee
+	or getmetatable(ent) == meta and P_Team(ent) == temp_attacker_team
+	or not temp_override_team and ent.IgnoreMeleeTeam and ent.IgnoreMeleeTeam == temp_attacker_team
+	or temp_pen_ents[ent] then
+		return false
+	end
+
+	return true
+end
+
+local function DynamicTraceFilter(ent)
+	if ent.IgnoreTraces or ent:IsPlayer() then
+		return false
+	end
+
+	return true
+end
+
+local function MeleeTraceFilterFFA(ent)
+	if temp_pen_ents[ent] then
+		return false
+	end
+
+	return ent ~= temp_attacker
+end
+
+local melee_trace = {filter = MeleeTraceFilter, mask = MASK_SOLID, mins = Vector(), maxs = Vector()}
+
+function meta:GetDynamicTraceFilter()
+	return DynamicTraceFilter
+end
+
 function meta:PenetratingMeleeTrace(distance, size, prehit, start, dir)
 	start = start or self:GetShootPos()
 	dir = dir or self:GetAimVector()
