@@ -1,5 +1,6 @@
 -- Translated by Mr. Darkness (http://www.noxiousnet.com/forums/index.php?action=profile;u=6296)
--- Updated for VRS by Nyanpasu (https://steamcommunity.com/profiles/76561198158864042)
+
+-- Updated 08\28\18
 
 translate.AddLanguage("ru", "Russian")
 
@@ -855,6 +856,7 @@ LANGUAGE.classes_speed                      		= "СКОРОСТЬ"
 -- Options
 
 LANGUAGE.options_options                            = "Настройки"
+LANGUAGE.options_no_discord                  		= "Не показывать официальную ссылку на Discord в чате"
 LANGUAGE.options_no_ars_crate                  		= "Не показывать арсенальные ящики сквозь стены"
 LANGUAGE.options_old_hud                  			= "Включить панель здоровья в Интерфейсе (требует повторного присоединения)"
 LANGUAGE.options_no_resupply                  		= "Не показывать ящики аммуниции через стены"
@@ -976,3 +978,9 @@ LANGUAGE.purchased_x_for_y_btokens					= "Вами было куплен %s за
 LANGUAGE.cant_buy_mutations							= "Вы не можете использовать магазин мутаций в данный момент!"
 LANGUAGE.mutationstokens							= "Жетонов"
 LANGUAGE.mutationsdamagetokens						= "Жетоны Урона"
+
+-- Discord / misc
+
+ LANGUAGE.post_discord_init_text						= "Привет! Этот режим игры имеет официальный сервер в Discord.\nВы можете стать его частью, пройдя по этой ссылке - \nhttps://discord.me/voidresonance"
+ LANGUAGE.post_discord_init_text2					= "Это сообщение можно отключить с помощью консольной команды\nzs_nodiscord 1"
+
