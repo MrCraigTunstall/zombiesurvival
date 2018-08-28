@@ -4045,8 +4045,8 @@ net.Receive("zs_spectate", function(len, ply)
 
 		if ply:OldAlive() then
 			local zombieclass = ply:GetZombieClassTable()
-			local damagetype = bit.bor( DMG_ENERGYBEAM, DMG_DISSOLVE )
-			if ply:Team() == TEAM_UNDEAD and zombieclass.Revives then damagetype = bit.bor( DMG_ENERGYBEAM, DMG_DISSOLVE, DMG_CRUSH ) end
+			local damagetype = bit.bor(DMG_ENERGYBEAM, DMG_DISSOLVE)
+			if ply:Team() == TEAM_UNDEAD and zombieclass.Revives then damagetype = bit.bor(DMG_ENERGYBEAM, DMG_DISSOLVE, DMG_CRUSH) end
 			ply:TakeSpecialDamage(ply:Health(), damagetype, ply:GetLastAttacker() or ply, nil)
 		end
 	elseif ply:Team() == TEAM_SPECTATOR and GAMEMODE:GetWave() <= 0 then
@@ -4071,7 +4071,7 @@ net.Receive("zs_spectate", function(len, ply)
 	ply:ChangeTeam(index)
 	
 	if not gamemode.Call("PlayerIsAdmin", ply) and index == TEAM_SPECTATOR then
-		ply.SpecCoolDown = RealTime() + 300
+		ply.SpecCoolDown = RealTime() + GAMEMODE.SpectatorCoolDown
 		GAMEMODE.PreviouslySpec[ply:SteamID()] = ply.SpecCoolDown
 	end
 end)

@@ -512,6 +512,9 @@ GM.MaxSigils = GM:GetSigilsPerMap(game.GetMap()) or GM.SigilFallBack
 -- Max number of waves per game.
 GM.NumberOfWaves = 6
 
+-- Second(s) for spectator change cooldown.
+GM.SpectatorCoolDown = 10
+
 -- Time resupply takes to recharge.
 GM.ResupplyTime = 60
 
