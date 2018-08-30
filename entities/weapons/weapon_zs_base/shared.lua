@@ -30,6 +30,15 @@ SWEP.IronSightsPos = Vector(0, 0, 0)
 
 SWEP.EmptyWhenPurchased = true
 
+SWEP.Recoil = 0
+
+SWEP.ReloadSpeed = 1.0
+SWEP.FireAnimSpeed = 1.0
+
+SWEP.IdleActivity = ACT_VM_IDLE
+
+SWEP.Weight = 5
+
 function SWEP:Initialize()
 	if not self:IsValid() then return end --???
 
@@ -281,30 +290,20 @@ function SWEP:SendWeaponAnimation()
 	self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
 end
 
-SWEP.BulletCallback = GenericBulletCallback
 function SWEP:ShootBullets(dmg, numbul, cone)
-	local owner = self.Owner
-	--owner:MuzzleFlash()
+	local owner = self:GetOwner()
 	self:SendWeaponAnimation()
 	owner:DoAttackEvent()
+	if self.Recoil > 0 then
+		local r = math.Rand(0.8, 1)
+		owner:ViewPunch(Angle(r * -self.Recoil, 0, (1 - r) * (math.random(2) == 1 and -1 or 1) * self.Recoil))
+	end
 
-	self:StartBulletKnockback()
-		owner:FireBullets({
-		Num = numbul,
-		Src = owner:GetShootPos(),
-		Dir = owner:GetAimVector(),
-		Spread = Vector(cone, cone, cone),
-		Tracer = 1,
-		TracerName = self.TracerName,
-		AmmoType = self.Primary.Ammo,
-		Force = dmg * 0.1,
-		Damage = dmg,
-		Callback = self.BulletCallback
-	})
-
-	--self:DoBulletKnockback(self.Primary.KnockbackScale * 0.05)
-	--self:EndBulletKnockback()
+	owner:LagCompensation(true)
+	owner:FireBulletsLua(owner:GetShootPos(), owner:GetAimVector(), cone, numbul, dmg, nil, self.Primary.KnockbackScale, self.TracerName, self.BulletCallback, self.Primary.HullSize, nil, self.Primary.MaxDistance, nil, self)
+	owner:LagCompensation(false)
 end
+
 
 local ActIndex = {
 	[ "pistol" ] 		= ACT_HL2MP_IDLE_PISTOL,
