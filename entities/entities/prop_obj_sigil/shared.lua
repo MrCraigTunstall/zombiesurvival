@@ -9,6 +9,9 @@ ENT.ModelScale = 1
 ENT.m_NoNailUnfreeze = true
 ENT.NoNails = true
 ENT.IsBarricadeObject = true
+ENT.IgnoreBullets = true
+ENT.IgnoreMelee = true
+ENT.IgnoreTraces = true
 
 AccessorFuncDT(ENT, "SigilHealthBase", "Float", 0)
 AccessorFuncDT(ENT, "SigilHealthRegen", "Float", 1)
