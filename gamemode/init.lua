@@ -1605,6 +1605,7 @@ function GM:PlayerInitialSpawnRound(pl)
 	--Normal Mutations (Z-Shop)
 	pl.m_Zombie_Moan = nil
 	pl.m_Zombie_MoanGuard = nil
+	pl.m_Zombie_Health = nil
 	
 	-- Boss Mutations (Z-Shop)
 	pl.m_Shade_Force = nil
@@ -3733,6 +3734,9 @@ function GM:PlayerSpawn(pl)
 	pl:SetWeaponColor(wcol)
 
 	pl.m_PreHurtHealth = pl:Health()
+	if pl:Team() == TEAM_UNDEAD and pl.m_Zombie_Health then
+	pl:SetMaxHealth(pl:GetMaxHealth() + 50) pl:SetHealth(pl:Health() + 50)
+	end
 end
 
 function GM:SetWave(wave)
