@@ -4022,6 +4022,10 @@ concommand.Add("zs_class", function(sender, command, arguments)
 	end
 end)
 
+hook.Add("PlayerSpray", "DisablePlayerSpray", function(ply)
+	return !ply:IsAdmin()
+end)
+
 net.Receive("zs_spectate", function(len, ply)
 	if not IsValid(ply) then return end
 
