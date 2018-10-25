@@ -5,219 +5,379 @@ end
 
 local pPlayerModel
 local function SwitchPlayerModel(self)
-	surface.PlaySound("buttons/button14.wav")
 	RunConsoleCommand("cl_playermodel", self.m_ModelName)
-	chat.AddText(COLOR_LIMEGREEN, translate.Get("mm_pm_messg").." "..tostring(self.m_ModelName))
 
-	pPlayerModel:Close()
+	net.Start( "zs_update_playermodel", false )
+	net.WriteString( self.m_ModelName )
+	net.SendToServer()
+
+	chat.AddText(COLOR_LIMEGREEN, translate.Get("mm_pm_messg").." "..tostring(self.m_ModelName))
+	surface.PlaySound("buttons/button14.wav")
+
+	pPlayerModel:Hide()
 end
+
+local function StatCenterMouse(self)
+	local x, y = self:GetPos()
+	local w, h = self:GetSize()
+	gui.SetMousePos(x + w * 0.5, y + h * 0.5)
+end
+
+local function DoMainThink(pPlayerModel)
+
+	if pPlayerModel and pPlayerModel:Valid() and pPlayerModel:IsVisible() then
+		local mx, my = gui.MousePos()
+		local x, y = pPlayerModel:GetPos()
+		if mx < x - 16 or my < y - 16 or mx > x + pPlayerModel:GetWide() + 16 or my > y + pPlayerModel:GetTall() + 16 then
+			pPlayerModel:SetVisible(false)
+			surface.PlaySound("npc/dog/dog_idle3.wav")
+		end
+	end
+
+end
+
+local BlurScreen = Material( 'pp/blurscreen' )
 function MakepPlayerModel()
 	if pPlayerModel and pPlayerModel:Valid() then pPlayerModel:Remove() end
 
 	PlayMenuOpenSound()
 
-	local numcols = 8
-	local wid = numcols * 68 + 24
-	local hei = 400
+	local numcols = 7
+	local wid2 = numcols * 68 + 24
+	local wid = math.min(ScrW(), 600)
+	local hei = math.min(ScrH(), 675)
+	local y = 8
 
-	pPlayerModel = vgui.Create("DFrame")
-	pPlayerModel:SetSkin("Default")
-	pPlayerModel:SetTitle(translate.Get("mm_pm_selection"))
+	pPlayerModel = vgui.Create("DEXRoundedPanel")
+	--Window:SetSkin("Default")
 	pPlayerModel:SetSize(wid, hei)
 	pPlayerModel:Center()
-	pPlayerModel:SetDeleteOnClose(true)
+	pPlayerModel:SetColor(Color( 0, 0, 0, 200 ))
+	pPlayerModel:SetBorderRadius(8)
+	pPlayerModel:SetCurve(false)
+	pPlayerModel.Paint = function(self, w, h)
+		local x, y = self:LocalToScreen(0,0)
+		// Background Blur
+		if render.SupportsPixelShaders_2_0() then
+			DisableClipping( true )
+			surface.SetMaterial( BlurScreen )	
+			surface.SetDrawColor( 255, 255, 255, 255 )
+			render.SetScissorRect( x, y, x+w, y+h, true )
+			for i=0.33, 1.33, 0.33 do
+				BlurScreen:SetFloat( '$blur', 5 * i )
+				BlurScreen:Recompute()
+				if ( render ) then render.UpdateScreenEffectTexture() end
+				surface.DrawTexturedRect( x * -1, y * -1, ScrW(), ScrH() )
+			end
+			render.SetScissorRect( 0, 0, 0, 0, false )
+			DisableClipping( false )
+		end
+		
+		draw.RoundedBoxEx(self:GetBorderRadius(), 0, 0, w, h, self:GetColor(), self:GetCurveTopLeft(), self:GetCurveTopRight(), self:GetCurveBottomLeft(), self:GetCurveBottomRight())
+		surface.SetDrawColor( 100, 100, 100, 100 )
+		surface.DrawRect( 0, 0, w, 40 )
+		
+		draw.DrawText( "Player Models", 'ZS3D2DFontSuperTiny2', self:GetWide() * 0.5, 8, Color(255,255,255,200), TEXT_ALIGN_CENTER )
+	end
+	
+	local but = vgui.Create("DButton", pPlayerModel)
+	but:SetFont("ZS3D2DFontSuperTiny2")
+	but:SetColor(COLOR_WHITE)
+	but:SetText("Back")
+	but:SetSize( 80, 45 )
+	but:Center()
+	but:AlignBottom(15)
+	but.DoClick = function() pPlayerModel:Hide() GAMEMODE:ShowHelp() end
+	but.Paint = function(self, w, h) 
+		if self.Hovered then
+			surface.SetDrawColor( 231, 76, 60, 255 )
+		else
+			surface.SetDrawColor( 192, 57, 43, 255 )
+		end
+		surface.DrawRect( 0, 0, but:GetWide(), but:GetTall() )
+	end
+
+	--[[pFrame = vgui.Create("DEXRoundedPanel", pPlayerModel)
+	pFrame:SetBorderRadius(8)
+	pFrame:SetCurve(true)
+	pFrame:StretchToParent(10, 10, 10, 10)
+	pFrame:SetColor(COLOR_GRAY)]]
 
 	local list = vgui.Create("DPanelList", pPlayerModel)
-	list:StretchToParent(8, 24, 8, 8)
+	list:StretchToParent(8, 45, 8, 65)
 	list:EnableVerticalScrollbar()
 
 	local grid = vgui.Create("DGrid", pPlayerModel)
 	grid:SetCols(numcols)
-	grid:SetColWide(68)
-	grid:SetRowHeight(68)
-	
+	grid:SetColWide(80)
+	grid:SetRowHeight(80)
+
 	for name, mdl in pairs(player_manager.AllValidModels()) do
+
 		local button = vgui.Create("SpawnIcon", grid)
-		button:SetPos(0, 0)
-		button:SetModel(mdl)
-		button.m_ModelName = name
-		button.OnMousePressed = SwitchPlayerModel
+		local donatoronly = vgui.Create("DImage", button)
+		
+		if GAMEMODE.DonatorModels[string.lower(mdl)] then
+			button:SetPos(0, 0)
+			button:SetModel(mdl)
+			button.m_ModelName = name
+			donatoronly:SetVisible(true)
+			donatoronly:SetSize(16, 16)
+			donatoronly:AlignTop(5)
+			donatoronly:AlignRight(5)
+			donatoronly:SizeToContents()
+			donatoronly:SetImage("icon16/heart.png")
+			local tooltip = ""
+			tooltip = "Exclusive Donator Character!"
+				if MySelf:IsDonator() then
+					button.OnMousePressed = SwitchPlayerModel
+				else
+					button.OnMousePressed = function()
+					chat.AddText(COLOR_RED, "You must be a donator to use this model, type !donate.")
+					pPlayerModel:Hide()
+				end
+			end
+			button:SetTooltip(tooltip)
+		else
+			button:SetPos(0, 0)
+			button:SetModel(mdl)
+			button:SetTooltip(string.lower(mdl))
+			button.m_ModelName = name
+			donatoronly:SetVisible(false)
+			button.OnMousePressed = SwitchPlayerModel
+			local WhiteListed_IDS = { ["0000000000"]=true, ["1111111111"]=true, ["222222222222"]=true, } -- need yet supported
+			for k, b in pairs(GAMEMODE.SteamIDAndModels) do
+				if mdl == b[2] then
+					if b[1] == MySelf:SteamID64() or WhiteListed_IDS[ MySelf:SteamID64() ] then
+						button.CanEquip = true
+						donatoronly:SetVisible(true)
+						donatoronly:SetSize(16, 16)
+						donatoronly:AlignTop(5)
+						donatoronly:AlignRight(5)
+						donatoronly:SizeToContents()
+						donatoronly:SetImage("icon16/bomb.png")
+						
+						button.OnMousePressed = SwitchPlayerModel
+					else
+						if button.CanEquip then 
+							continue 
+						end
+						
+						donatoronly:SetVisible(true)
+						donatoronly:SetSize(16, 16)
+						donatoronly:AlignTop(5)
+						donatoronly:AlignRight(5)
+						donatoronly:SizeToContents()
+						donatoronly:SetImage("icon16/bomb.png")
+						
+						button.OnMousePressed = function()
+							chat.AddText(COLOR_RED, "This model is player restricted! Type !donate for information on how to get your own.")
+							pPlayerModel:Hide()
+						end
+					end
+				end
+			end
+
+		end
 		grid:AddItem(button)
 	end
-	grid:SetSize(wid - 16, math.ceil(table.Count(player_manager.AllValidModels()) / numcols) * grid:GetRowHeight())
+	grid:SetSize(wid2 - 16, math.ceil(table.Count(player_manager.AllValidModels()) / numcols) * grid:GetRowHeight())
 
 	list:AddItem(grid)
 
-	pPlayerModel:SetSkin("Default")
 	pPlayerModel:MakePopup()
+	pPlayerModel:SetAlpha(0)
+	pPlayerModel:AlphaTo(255, 0.5, 0)
 end
 
-function MakepPlayerColor()
-	if pPlayerColor and pPlayerColor:Valid() then pPlayerColor:Remove() end
-
-	PlayMenuOpenSound()
-
-	pPlayerColor = vgui.Create("DFrame")
-	pPlayerColor:SetWide(math.min(ScrW(), 500))
-	pPlayerColor:SetTitle(" ")
-	pPlayerColor:SetDeleteOnClose(true)
-
-	local y = 8
-
-	local label = EasyLabel(pPlayerColor, translate.Get("mm_color"), "ZSHUDFont", color_white)
-	label:SetPos((pPlayerColor:GetWide() - label:GetWide()) / 2, y)
-	y = y + label:GetTall() + 8
-
-	local lab = EasyLabel(pPlayerColor, translate.Get("mm_pm_color"))
-	lab:SetPos(8, y)
-	y = y + lab:GetTall()
-
-	local colpicker = vgui.Create("DColorMixer", pPlayerColor)
-	colpicker:SetAlphaBar(false)
-	colpicker:SetPalette(false)
-	colpicker.UpdateConVars = function(me, color)
-		me.NextConVarCheck = SysTime() + 0.2
-		RunConsoleCommand("cl_playercolor", color.r / 100 .." ".. color.g / 100 .." ".. color.b / 100)
+local function SpectatorPanelRefresh(self)
+	local pl = self:GetPlayer()
+	if not pl:IsValid() then
+		self:Remove()
+		return
 	end
-	local r, g, b = string.match(GetConVarString("cl_playercolor"), "(%g+) (%g+) (%g+)")
-	if r then
-		colpicker:SetColor(Color(r * 100, g * 100, b * 100))
-	end
-	colpicker:SetSize(pPlayerColor:GetWide() - 16, 72)
-	colpicker:SetPos(8, y)
-	y = y + colpicker:GetTall()
 
-	local lab = EasyLabel(pPlayerColor, translate.Get("mm_w_color"))
-	lab:SetPos(8, y)
-	y = y + lab:GetTall()
-
-	local colpicker = vgui.Create("DColorMixer", pPlayerColor)
-	colpicker:SetAlphaBar(false)
-	colpicker:SetPalette(false)
-	colpicker.UpdateConVars = function(me, color)
-		me.NextConVarCheck = SysTime() + 0.2
-		RunConsoleCommand("cl_weaponcolor", color.r / 100 .." ".. color.g / 100 .." ".. color.b / 100)
+	local name = pl:Name()
+	if #name > 26 then
+		name = string.sub(name, 1, 24)..".."
 	end
-	local r, g, b = string.match(GetConVarString("cl_weaponcolor"), "(%g+) (%g+) (%g+)")
-	if r then
-		colpicker:SetColor(Color(r * 100, g * 100, b * 100))
-	end
-	colpicker:SetSize(pPlayerColor:GetWide() - 16, 72)
-	colpicker:SetPos(8, y)
-	y = y + colpicker:GetTall()
+	self.m_PlayerLabel:SetText(name)
 
-	pPlayerColor:SetTall(y + 8)
-	pPlayerColor:Center()
-	pPlayerColor:MakePopup()
+	self.m_ScoreLabel:SetVisible(false)
+	self.m_PointLabel:SetVisible(false)
+	self.m_DamageLabel:SetVisible(false)
+	self.m_ClassImage:SetVisible(false)
+
+	if pl:Team() ~= self._LastTeam then
+		self._LastTeam = pl:Team()
+
+		if self._LastTeam ~= TEAM_SPECTATOR then
+			self:Remove()
+		end
+	end
+
+	self:InvalidateLayout()
 end
 
+function MakepSpectators()
+	local DermaPanel = vgui.Create( "DFrame" )
+	DermaPanel:AlignTop(ScrH() * 0.05)
+	DermaPanel:CenterHorizontal()
+	DermaPanel:SetAlpha(0)
+	DermaPanel:AlphaTo(255, 0.5, 0)
+	DermaPanel:SetSize(math.min(ScrW(), ScrH()) * 0.4, ScrH() * 0.45)
+	DermaPanel:SetTitle( "Spectators" )
+	DermaPanel:SetDraggable( true )
+	DermaPanel:MakePopup()
+
+	local SpectatorList = vgui.Create("DScrollPanel", DermaPanel)
+	SpectatorList.Team = TEAM_SPECTATOR
+	SpectatorList:SetSize(DermaPanel:GetWide(), DermaPanel:GetTall() - 20)
+	SpectatorList:AlignTop(32)
+
+	for _, pl in pairs(player.GetAll()) do
+		if pl:Team() == TEAM_SPECTATOR then
+			local panel = vgui.Create("ZSPlayerPanel", SpectatorList)
+			panel.Refresh = SpectatorPanelRefresh
+			panel:SetPlayer(pl)
+			panel:Dock(TOP)
+			panel:DockMargin(8, 2, 8, 2)
+			panel:SetParent(SpectatorList)
+		end
+	end
+end
+
+local BlurScreen = Material( 'pp/blurscreen' )
 function GM:ShowHelp()
+
 	if self.HelpMenu and self.HelpMenu:Valid() then
 		self.HelpMenu:Remove()
 	end
 
 	PlayMenuOpenSound()
 
-	local menu = vgui.Create("Panel")
-	menu:SetSize(BetterScreenScale() * 420, ScrH())
+	local menu = vgui.Create("DFrame")
+	menu:SetSize(600, 135)
+	menu:ShowCloseButton(false)
+	menu:SetTitle(" ")
 	menu:Center()
-	menu.Paint = HelpMenuPaint
-	menu.Created = SysTime()
-
-	local header = EasyLabel(menu, " ", "ZSHUDFont", COLOR_DARKRED)
-	header:SetContentAlignment(8)
-	header:DockMargin(0, ScrH() * 0.25, 0, 64)
-	header:Dock(TOP)
-	
-	local zsrimg = vgui.Create("DImage", menu)	
-	zsrimg:SetSize(512, 256)	
-	zsrimg:SetPos(header:GetTall(), header:GetWide())
-	zsrimg:CenterHorizontal()
-	zsrimg:AlignTop(100)
-	zsrimg:SetImage("zombiesurvival/zsrlogo.png")
-	
-	local but = vgui.Create("DButton", menu)
-	but:SetFont("ZSHUDFontSmaller")
-	but:SetText(translate.Get("mm_sp"))
-	but:SetTall(32)
-	but:DockMargin(0, 0, 0, 12)
-	but:DockPadding(0, 12, 0, 12)
-	but:Dock(TOP)
-	but.Think = function(self)
-	self.BaseClass.Think(self)
-		
-	local text = self:GetText()
-	if MySelf:Team() == TEAM_SPECTATOR and text == (translate.Get("mm_sp")) then
-		self:SetText(translate.Get("mm_unsp"))
-		elseif MySelf:Team() ~= TEAM_SPECTATOR and text == (translate.Get("mm_unsp")) then
-		self:SetText(translate.Get("mm_sp"))
+	--menu:SetBorderRadius(8)
+	--menu:SetCurve(true)
+	--menu:SetColor(Color(0, 0, 0, 200))
+	--local x, y = menu:GetWide(), menu:GetTall()
+	menu.Paint = function(self, w, h)
+		local x, y = self:LocalToScreen(0,0)
+		// Background Blur
+		if render.SupportsPixelShaders_2_0() then
+			DisableClipping( true )
+			surface.SetMaterial( BlurScreen )
+			surface.SetDrawColor( 255, 255, 255, 255 )
+			render.SetScissorRect( x, y, x+w, y+h, true )
+			for i=0.33, 1.33, 0.33 do
+				BlurScreen:SetFloat( '$blur', 5 * i )
+				BlurScreen:Recompute()
+				if ( render ) then render.UpdateScreenEffectTexture() end
+				surface.DrawTexturedRect( x * -1, y * -1, ScrW(), ScrH() )
+			end
+			render.SetScissorRect( 0, 0, 0, 0, false )
+			DisableClipping( false )
 		end
+
+		surface.SetDrawColor( 0, 0, 0, 200 )
+		surface.DrawRect( 0, 0, w, h )
+
+		surface.SetDrawColor( 100, 100, 100, 100 )
+		surface.DrawRect( 0, 0, w, 40 )
+		surface.SetDrawColor( 255, 255, 255, 255 )
+		
+		// Header text
+		draw.DrawText( "Main Menu", 'ZS3D2DFontSuperTiny2', menu:GetWide() * 0.5, 8, Color(255,255,255,200), TEXT_ALIGN_CENTER )
 	end
-	but.DoClick = function() RunConsoleCommand("spectate")
-	menu:Remove() end
 
 	local but = vgui.Create("DButton", menu)
-	but:SetFont("ZSHUDFontSmaller")
-	but:SetText(translate.Get("mm_help"))
-	but:SetTall(32)
-	but:DockMargin(0, 0, 0, 12)
-	but:DockPadding(0, 12, 0, 12)
-	but:Dock(TOP)
-	but.DoClick = function() MakepHelp() end
+	but:SetFont("ZS3D2DFontSuperTiny2")
+	but:SetColor(COLOR_WHITE)
+	but:SetText("Close")
+	but:SetSize( 80, 45 )
+	but:Center()
+	but:AlignBottom(25)
+	but.DoClick = function() menu:Hide() end
+	but.Paint = function(self, w, h)
+		if self.Hovered then
+			surface.SetDrawColor( 231, 76, 60, 255 )
+		else
+			surface.SetDrawColor( 192, 57, 43, 255 )
+		end
+		surface.DrawRect( 0, 0, but:GetWide(), but:GetTall() )
+	end
 
-	local but = vgui.Create("DButton", menu)
-	but:SetFont("ZSHUDFontSmaller")
-	but:SetText(translate.Get("mm_pm"))
-	but:SetTall(32)
-	but:DockMargin(0, 0, 0, 12)
-	but:DockPadding(0, 12, 0, 12)
-	but:Dock(TOP)
-	but.DoClick = function() MakepPlayerModel() end
+	local but2 = vgui.Create("DButton", menu)
+	but2:SetFont("ZS3D2DFontSuperTiny2")
+	but2:SetColor(COLOR_WHITE)
+	but2:SetText("Models")
+	but2:SetSize( 80, 45 )
+	but2:MoveRightOf(but, 10)
+	but2:AlignBottom(25)
+	but2.DoClick = function() MakepPlayerModel() end
+	but2.Paint = function(self, w, h)
+		if self.Hovered then
+			surface.SetDrawColor( 231, 76, 60, 255 )
+		else
+			surface.SetDrawColor( 192, 57, 43, 255 )
+		end
+		surface.DrawRect( 0, 0, but2:GetWide(), but2:GetTall() )
+	end
 
-	local but = vgui.Create("DButton", menu)
-	but:SetFont("ZSHUDFontSmaller")
-	but:SetText(translate.Get("mm_pc"))
-	but:SetTall(32)
-	but:DockMargin(0, 0, 0, 12)
-	but:DockPadding(0, 12, 0, 12)
-	but:Dock(TOP)
-	but.DoClick = function() MakepPlayerColor() end
+	local but3 = vgui.Create("DButton", menu)
+	but3:SetFont("ZS3D2DFontSuperTiny2")
+	but3:SetColor(COLOR_WHITE)
+	but3:SetText("Credits")
+	but3:SetSize( 80, 45 )
+	but3:MoveRightOf(but2, 10)
+	but3:AlignBottom(25)
+	but3.DoClick = function() MakepCredits() end
+	but3.Paint = function(self, w, h)
+		if self.Hovered then
+			surface.SetDrawColor( 231, 76, 60, 255 )
+		else
+			surface.SetDrawColor( 192, 57, 43, 255 )
+		end
+		surface.DrawRect( 0, 0, but3:GetWide(), but3:GetTall() )
+	end
 
-	local but = vgui.Create("DButton", menu)
-	but:SetFont("ZSHUDFontSmaller")
-	but:SetText(translate.Get("mm_options"))
-	but:SetTall(32)
-	but:DockMargin(0, 0, 0, 12)
-	but:DockPadding(0, 12, 0, 12)
-	but:Dock(TOP)
-	but.DoClick = function() MakepOptions() end
+	local but4 = vgui.Create("DButton", menu)
+	but4:SetFont("ZS3D2DFontSuperTiny2")
+	but4:SetColor(COLOR_WHITE)
+	but4:SetText("Rules")
+	but4:SetSize( 80, 45 )
+	but4:MoveLeftOf(but, 10)
+	but4:AlignBottom(25)
+	but4.DoClick = function() menu:Hide() CreateFWKZTMotd() end
+	but4.Paint = function(self, w, h)
+		if self.Hovered then
+			surface.SetDrawColor( 231, 76, 60, 255 )
+		else
+			surface.SetDrawColor( 192, 57, 43, 255 )
+		end
+		surface.DrawRect( 0, 0, but4:GetWide(), but4:GetTall() )
+	end
 
-	local but = vgui.Create("DButton", menu)
-	but:SetFont("ZSHUDFontSmaller")
-	but:SetText(translate.Get("mm_credits"))
-	but:SetTall(32)
-	but:DockMargin(0, 0, 0, 12)
-	but:DockPadding(0, 12, 0, 12)
-	but:Dock(TOP)
-	but.DoClick = function() MakepCredits() end
-	
-	local but = vgui.Create("DButton", menu)
-	but:SetFont("ZSHUDFontSmaller")
-	but:SetText(translate.Get("mm_credits2"))
-	but:SetTall(32)
-	but:DockMargin(0, 0, 0, 12)
-	but:DockPadding(0, 12, 0, 12)
-	but:Dock(TOP)
-	but.DoClick = function() MakepCredits2() end
-
-	local but = vgui.Create("DButton", menu)
-	but:SetFont("ZSHUDFontSmaller")
-	but:SetText(translate.Get("mm_close"))
-	but:SetTall(32)
-	but:DockMargin(0, 24, 0, 0)
-	but:DockPadding(0, 12, 0, 12)
-	but:Dock(TOP)
-	but.DoClick = function() menu:Remove() end
+	local but5 = vgui.Create("DButton", menu)
+	but5:SetFont("ZS3D2DFontSuperTiny2")
+	but5:SetColor(COLOR_WHITE)
+	but5:SetText("Settings")
+	but5:SetSize( 80, 45 )
+	but5:MoveLeftOf(but4, 10)
+	but5:AlignBottom(25)
+	but5.DoClick = function() menu:Hide() MakepOptions() end
+	but5.Paint = function(self, w, h)
+		if self.Hovered then
+			surface.SetDrawColor( 231, 76, 60, 255 )
+		else
+			surface.SetDrawColor( 192, 57, 43, 255 )
+		end
+		surface.DrawRect( 0, 0, but5:GetWide(), but5:GetTall() )
+	end
 
 	menu:MakePopup()
 end
