@@ -250,7 +250,7 @@ end
 local BlurScreen = Material( 'pp/blurscreen' )
 function GM:ShowHelp()
 
-	if self.HelpMenu and self.HelpMenu:Valid() then
+	if self.HelpMenu and self.HelpMenu:IsValid() then
 		self.HelpMenu:Remove()
 	end
 
@@ -318,7 +318,7 @@ function GM:ShowHelp()
 	but2:SetSize( 80, 45 )
 	but2:MoveRightOf(but, 10)
 	but2:AlignBottom(25)
-	but2.DoClick = function() MakepPlayerModel() end
+	but2.DoClick = function() MakepPlayerModel() menu:Hide() end
 	but2.Paint = function(self, w, h)
 		if self.Hovered then
 			surface.SetDrawColor( 231, 76, 60, 255 )
