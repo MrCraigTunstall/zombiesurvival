@@ -7,9 +7,9 @@ local pPlayerModel
 local function SwitchPlayerModel(self)
 	RunConsoleCommand("cl_playermodel", self.m_ModelName)
 
-	net.Start( "zs_update_playermodel", false )
-	net.WriteString( self.m_ModelName )
-	net.SendToServer()
+	--[[net.Start( "zs_update_playermodel", false )
+	net.WriteString( self.m_ModelName ) -- planned in time
+	net.SendToServer()]]--
 
 	chat.AddText(COLOR_LIMEGREEN, translate.Get("mm_pm_messg").." "..tostring(self.m_ModelName))
 	surface.PlaySound("buttons/button14.wav")
@@ -77,13 +77,13 @@ function MakepPlayerModel()
 		surface.SetDrawColor( 100, 100, 100, 100 )
 		surface.DrawRect( 0, 0, w, 40 )
 		
-		draw.DrawText( "Player Models", 'ZS3D2DFontSuperTiny2', self:GetWide() * 0.5, 8, Color(255,255,255,200), TEXT_ALIGN_CENTER )
+		draw.DrawText(translate.Get("mm_pm2"), 'ZS3D2DFontSuperTiny', self:GetWide() * 0.5, 8, Color(255,255,255,200), TEXT_ALIGN_CENTER )
 	end
 	
 	local but = vgui.Create("DButton", pPlayerModel)
 	but:SetFont("ZS3D2DFontSuperTiny2")
 	but:SetColor(COLOR_WHITE)
-	but:SetText("Back")
+	but:SetText(translate.Get("mm_back"))
 	but:SetSize( 80, 45 )
 	but:Center()
 	but:AlignBottom(15)
@@ -96,12 +96,6 @@ function MakepPlayerModel()
 		end
 		surface.DrawRect( 0, 0, but:GetWide(), but:GetTall() )
 	end
-
-	--[[pFrame = vgui.Create("DEXRoundedPanel", pPlayerModel)
-	pFrame:SetBorderRadius(8)
-	pFrame:SetCurve(true)
-	pFrame:StretchToParent(10, 10, 10, 10)
-	pFrame:SetColor(COLOR_GRAY)]]
 
 	local list = vgui.Create("DPanelList", pPlayerModel)
 	list:StretchToParent(8, 45, 8, 65)
@@ -220,13 +214,13 @@ local function SpectatorPanelRefresh(self)
 end
 
 function MakepSpectators()
-	local DermaPanel = vgui.Create( "DFrame" )
+	local DermaPanel = vgui.Create("DFrame")
 	DermaPanel:AlignTop(ScrH() * 0.05)
 	DermaPanel:CenterHorizontal()
 	DermaPanel:SetAlpha(0)
 	DermaPanel:AlphaTo(255, 0.5, 0)
 	DermaPanel:SetSize(math.min(ScrW(), ScrH()) * 0.4, ScrH() * 0.45)
-	DermaPanel:SetTitle( "Spectators" )
+	DermaPanel:SetTitle("Spectators")
 	DermaPanel:SetDraggable( true )
 	DermaPanel:MakePopup()
 
@@ -247,7 +241,7 @@ function MakepSpectators()
 	end
 end
 
-local BlurScreen = Material( 'pp/blurscreen' )
+local BlurScreen = Material('pp/blurscreen')
 function GM:ShowHelp()
 
 	if self.HelpMenu and self.HelpMenu:IsValid() then
@@ -257,116 +251,112 @@ function GM:ShowHelp()
 	PlayMenuOpenSound()
 
 	local menu = vgui.Create("DFrame")
-	menu:SetSize(600, 135)
+	menu:SetSize(800, 135)
 	menu:ShowCloseButton(false)
 	menu:SetTitle(" ")
 	menu:Center()
-	--menu:SetBorderRadius(8)
-	--menu:SetCurve(true)
-	--menu:SetColor(Color(0, 0, 0, 200))
-	--local x, y = menu:GetWide(), menu:GetTall()
 	menu.Paint = function(self, w, h)
 		local x, y = self:LocalToScreen(0,0)
-		// Background Blur
+		-- Background Blur
 		if render.SupportsPixelShaders_2_0() then
-			DisableClipping( true )
-			surface.SetMaterial( BlurScreen )
-			surface.SetDrawColor( 255, 255, 255, 255 )
-			render.SetScissorRect( x, y, x+w, y+h, true )
+			DisableClipping(true)
+			surface.SetMaterial(BlurScreen)
+			surface.SetDrawColor(255, 255, 255, 255)
+			render.SetScissorRect(x, y, x+w, y+h, true)
 			for i=0.33, 1.33, 0.33 do
-				BlurScreen:SetFloat( '$blur', 5 * i )
+				BlurScreen:SetFloat('$blur', 5 * i)
 				BlurScreen:Recompute()
-				if ( render ) then render.UpdateScreenEffectTexture() end
-				surface.DrawTexturedRect( x * -1, y * -1, ScrW(), ScrH() )
+				if (render) then render.UpdateScreenEffectTexture() end
+				surface.DrawTexturedRect(x * -1, y * -1, ScrW(), ScrH())
 			end
-			render.SetScissorRect( 0, 0, 0, 0, false )
-			DisableClipping( false )
+			render.SetScissorRect(0, 0, 0, 0, false)
+			DisableClipping(false)
 		end
 
-		surface.SetDrawColor( 0, 0, 0, 200 )
-		surface.DrawRect( 0, 0, w, h )
+		surface.SetDrawColor(0, 0, 0, 200)
+		surface.DrawRect(0, 0, w, h)
 
-		surface.SetDrawColor( 100, 100, 100, 100 )
-		surface.DrawRect( 0, 0, w, 40 )
-		surface.SetDrawColor( 255, 255, 255, 255 )
+		surface.SetDrawColor(100, 100, 100, 100)
+		surface.DrawRect(0, 0, w, 40)
+		surface.SetDrawColor(255, 255, 255, 255)
 		
-		// Header text
-		draw.DrawText( "Main Menu", 'ZS3D2DFontSuperTiny2', menu:GetWide() * 0.5, 8, Color(255,255,255,200), TEXT_ALIGN_CENTER )
+		-- Header text
+		draw.DrawText(translate.Get("mm_menu"), 'ZS3D2DFontSuperTiny', menu:GetWide() * 0.5, 8, Color(255,255,255,200), TEXT_ALIGN_CENTER )
 	end
 
 	local but = vgui.Create("DButton", menu)
 	but:SetFont("ZS3D2DFontSuperTiny2")
 	but:SetColor(COLOR_WHITE)
-	but:SetText("Close")
-	but:SetSize( 80, 45 )
+	but:SetText(translate.Get("mm_close"))
+	but:SetSize(115, 45)
 	but:Center()
 	but:AlignBottom(25)
 	but.DoClick = function() menu:Hide() end
 	but.Paint = function(self, w, h)
 		if self.Hovered then
-			surface.SetDrawColor( 231, 76, 60, 255 )
+			surface.SetDrawColor(231, 76, 60, 255)
 		else
-			surface.SetDrawColor( 192, 57, 43, 255 )
+			surface.SetDrawColor(192, 57, 43, 255)
 		end
-		surface.DrawRect( 0, 0, but:GetWide(), but:GetTall() )
+		surface.DrawRect(0, 0, but:GetWide(), but:GetTall())
 	end
 
 	local but2 = vgui.Create("DButton", menu)
 	but2:SetFont("ZS3D2DFontSuperTiny2")
 	but2:SetColor(COLOR_WHITE)
-	but2:SetText("Models")
-	but2:SetSize( 80, 45 )
+	but2:SetText(translate.Get("mm_pm3"))
+	but2:SetSize(115, 45)
 	but2:MoveRightOf(but, 10)
 	but2:AlignBottom(25)
 	but2.DoClick = function() MakepPlayerModel() menu:Hide() end
 	but2.Paint = function(self, w, h)
 		if self.Hovered then
-			surface.SetDrawColor( 231, 76, 60, 255 )
+			surface.SetDrawColor(231, 76, 60, 255)
 		else
-			surface.SetDrawColor( 192, 57, 43, 255 )
+			surface.SetDrawColor(192, 57, 43, 255)
 		end
-		surface.DrawRect( 0, 0, but2:GetWide(), but2:GetTall() )
+		surface.DrawRect(0, 0, but2:GetWide(), but2:GetTall())
 	end
 
 	local but3 = vgui.Create("DButton", menu)
 	but3:SetFont("ZS3D2DFontSuperTiny2")
 	but3:SetColor(COLOR_WHITE)
-	but3:SetText("Credits")
-	but3:SetSize( 80, 45 )
+	but3:SetText(translate.Get("mm_credits"))
+	but3:SetSize(115, 45)
 	but3:MoveRightOf(but2, 10)
 	but3:AlignBottom(25)
 	but3.DoClick = function() MakepCredits() end
 	but3.Paint = function(self, w, h)
 		if self.Hovered then
-			surface.SetDrawColor( 231, 76, 60, 255 )
+			surface.SetDrawColor(231, 76, 60, 255)
 		else
-			surface.SetDrawColor( 192, 57, 43, 255 )
+			surface.SetDrawColor(192, 57, 43, 255)
 		end
-		surface.DrawRect( 0, 0, but3:GetWide(), but3:GetTall() )
+		surface.DrawRect(0, 0, but3:GetWide(), but3:GetTall())
 	end
 
 	local but4 = vgui.Create("DButton", menu)
 	but4:SetFont("ZS3D2DFontSuperTiny2")
 	but4:SetColor(COLOR_WHITE)
-	but4:SetText("Rules")
-	but4:SetSize( 80, 45 )
+	but4:SetText(translate.Get("mm_credits2"))
+	but4:SetSize(115, 45)
 	but4:MoveLeftOf(but, 10)
 	but4:AlignBottom(25)
-	but4.DoClick = function() menu:Hide() CreateFWKZTMotd() end
+	but4.DoClick = function() menu:Hide() MakepCredits2() end
 	but4.Paint = function(self, w, h)
 		if self.Hovered then
-			surface.SetDrawColor( 231, 76, 60, 255 )
+			surface.SetDrawColor(231, 76, 60, 255)
 		else
-			surface.SetDrawColor( 192, 57, 43, 255 )
+			surface.SetDrawColor(192, 57, 43, 255)
 		end
-		surface.DrawRect( 0, 0, but4:GetWide(), but4:GetTall() )
+		surface.DrawRect(0, 0, but4:GetWide(), but4:GetTall())
 	end
 
 	local but5 = vgui.Create("DButton", menu)
 	but5:SetFont("ZS3D2DFontSuperTiny2")
 	but5:SetColor(COLOR_WHITE)
-	but5:SetText("Settings")
-	but5:SetSize( 80, 45 )
+	but5:SetText(translate.Get("mm_options"))
+	but5:SetSize(115, 45)
 	but5:MoveLeftOf(but4, 10)
 	but5:AlignBottom(25)
 	but5.DoClick = function() menu:Hide() MakepOptions() end
@@ -376,7 +366,7 @@ function GM:ShowHelp()
 		else
 			surface.SetDrawColor( 192, 57, 43, 255 )
 		end
-		surface.DrawRect( 0, 0, but5:GetWide(), but5:GetTall() )
+		surface.DrawRect(0, 0, but5:GetWide(), but5:GetTall())
 	end
 
 	menu:MakePopup()
