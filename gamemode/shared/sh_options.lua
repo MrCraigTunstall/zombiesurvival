@@ -456,12 +456,22 @@ GM.RestrictedModels = {
 	"models/player/skeleton.mdl"
 }
 
+GM.DonatorModels = { -- not yet supported
+
+}
+
+GM.SteamIDAndModels = { -- not yet supported
+
+}
+
 -- If a person has no player model then use one of these (auto-generated).
 GM.RandomPlayerModels = {}
 for name, mdl in pairs(player_manager.AllValidModels()) do
 	if not table.HasValue(GM.RestrictedModels, string.lower(mdl)) then
 		table.insert(GM.RandomPlayerModels, name)
-	end
+    --if (not GM.RestrictedModels[string.lower(mdl)]) and (not GM.DonatorModels[string.lower(mdl)]) then
+        --table.insert(GM.RandomPlayerModels, name)
+    end
 end
 
 -- Utility function to setup a weapon's DefaultClip.

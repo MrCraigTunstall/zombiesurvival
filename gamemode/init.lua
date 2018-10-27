@@ -275,6 +275,7 @@ function GM:AddNetworkStrings()
 	util.AddNetworkString("zs_spectate")
 	util.AddNetworkString("zs_weaponlocks")
 	util.AddNetworkString("zs_mutations_table")
+	--util.AddNetworkString("zs_update_playermodel")
 end
 
 function GM:IsClassicMode()
@@ -751,6 +752,24 @@ function GM:SendZombieVolunteers(pl, nonemptyonly)
 		net.Broadcast()
 	end
 end
+
+--[[net.Receive("zs_update_playermodel", function(len, pl) -- planned
+	local mdl = net.ReadString()
+	local ent = pl
+	
+	if IsValid(ent) and ent:IsPlayer() and ent:Alive() and ent:Team() == TEAM_HUMAN then
+		if ent:IsHolding() or ent:GetBarricadeGhosting() then return end
+		
+		if table.HasValue(GAMEMODE.RestrictedModels, string.lower(mdl)) then return end
+		if table.HasValue(GAMEMODE.DonatorModels, string.lower(mdl)) then return end
+		
+		local model_argument = mdl
+		local model_string = player_manager.TranslatePlayerModel(model_argument)
+
+		ent:SetModel(model_string)
+		ent:SetupHands()
+	end
+end)]]--
 
 local NextTick = 0
 function GM:Think()
