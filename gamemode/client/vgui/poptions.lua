@@ -77,16 +77,6 @@ function MakepOptions()
 			end
 		end
 	end
-
-
-	local gameplay_list = vgui.Create("DPanelList", propertysheet)
-	gameplay_list:EnableVerticalScrollbar()
-	gameplay_list:EnableHorizontal(false)
-	gameplay_list:SetSize(propertysheet:GetSize())
-	gameplay_list:SetPos(propertysheet:GetPos())
-	gameplay_list:SetPadding(8)
-	gameplay_list:SetSpacing(4)
-	propertysheet:AddSheet(translate.Get("options_gameplay"), gameplay_list, "icon16/bomb.png" )
 	
 	local weapon_options = vgui.Create("DPanelList", propertysheet)
 	weapon_options:EnableVerticalScrollbar()
@@ -96,6 +86,15 @@ function MakepOptions()
 	weapon_options:SetPadding(8)
 	weapon_options:SetSpacing(4)
 	propertysheet:AddSheet(translate.Get("options_weapon"), weapon_options, "icon16/gun.png")
+	
+	local gameplay_list = vgui.Create("DPanelList", propertysheet)
+	gameplay_list:EnableVerticalScrollbar()
+	gameplay_list:EnableHorizontal(false)
+	gameplay_list:SetSize(propertysheet:GetSize())
+	gameplay_list:SetPos(propertysheet:GetPos())
+	gameplay_list:SetPadding(8)
+	gameplay_list:SetSpacing(4)
+	propertysheet:AddSheet(translate.Get("options_gameplay"), gameplay_list, "icon16/bomb.png")
 	
 	local hud_options = vgui.Create("DPanelList", propertysheet)
 	hud_options:EnableVerticalScrollbar()
