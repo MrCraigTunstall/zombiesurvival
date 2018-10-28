@@ -809,6 +809,7 @@ LANGUAGE.title_bossm                              = "Мутации Боссов
 
 -- MainMenu (F1 menu)
 
+LANGUAGE.mm_menu                         		   = "Главное Меню"
 LANGUAGE.mm_pm_selection                           = "Выбор модели игрока"
 LANGUAGE.mm_pm_color                               = "Цвет игрока"
 LANGUAGE.mm_color                                  = "Цвета"
@@ -819,6 +820,9 @@ LANGUAGE.mm_credits2                               = "Авторы ZS:R"
 LANGUAGE.mm_options                                = "Настройки"
 LANGUAGE.mm_pc                                     = "Цвет игрока"
 LANGUAGE.mm_pm                                     = "Модель игрока"
+LANGUAGE.mm_pm2                                    = "Модели игрока"
+LANGUAGE.mm_pm3                                    = "Модели"
+LANGUAGE.mm_back                                   = "Назад" 
 LANGUAGE.mm_help                                   = "Помощь"
 LANGUAGE.mm_pm_messg                               = "Вы изменили желаемую модель игрока на"
 LANGUAGE.mm_sp                                     = "Наблюдать"
@@ -855,6 +859,12 @@ LANGUAGE.classes_speed                      		= "СКОРОСТЬ"
 
 -- Options
 
+LANGUAGE.options_gameplay                           = "Игра"
+LANGUAGE.options_weapon                            	= "Оружие"
+LANGUAGE.options_visual                             = "Визуальное"
+LANGUAGE.options_sound                            	= "Звук"
+LANGUAGE.options_player                            	= "Игрок"
+
 LANGUAGE.options_options                            = "Настройки"
 LANGUAGE.options_no_discord                  		= "Не показывать официальную ссылку на Discord в чате"
 LANGUAGE.options_no_ars_crate                  		= "Не показывать арсенальные ящики сквозь стены"
@@ -890,6 +900,8 @@ LANGUAGE.options_hp_no                              = "Цвет ауры здо�
 LANGUAGE.options_beatset_zombie                     = "Набор музыки для зомби"
 LANGUAGE.options_beatset_human                      = "Набор музыки для людей"
 LANGUAGE.options_weapon_hud_mode                    = "Вид отображения диспея оружия"
+LANGUAGE.options_thirdpersoned                    	= "Third person view point"
+LANGUAGE.options_proprotation                     	= "Угол поворота пропа"
 
 -- Help menu
 
