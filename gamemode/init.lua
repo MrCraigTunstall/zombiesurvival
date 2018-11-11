@@ -471,10 +471,18 @@ function GM:RemoveUnusedEntities()
 	util.RemoveAll("item_ammo_crate")
 
 	-- Shouldn't exist.
-	util.RemoveAll("item_suitcharger")
+	util.RemoveAll("item_suit*")
+	util.RemoveAll("func_recharge")
+	util.RemoveAll("func_reflective_glass")
 end
 
 function GM:ReplaceMapWeapons()
+	local prefix = game.GetMap():lower():sub(1, 3)
+	if prefix == "dm_" or prefix == "pb_" then
+		util.RemoveAll("weapon_*")
+		return
+	end
+
 	for _, ent in pairs(ents.FindByClass("weapon_*")) do
 		local wepclass = ent:GetClass()
 		if wepclass ~= "weapon_map_base" then
