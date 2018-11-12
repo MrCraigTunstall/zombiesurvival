@@ -77,7 +77,6 @@ function MakepCredits2()
 	frame:SetWide(wid)
 	frame:SetTitle(" ")
 	frame:SetKeyboardInputEnabled(false)
-	frame.Paint = HelpMenuPaint
 
 	local label = EasyLabel(frame, translate.Get("help_credits2").."".." - "..translate.Get("help_credits"), "ZSHUDFontNS", color_white)
 	label:AlignTop(y)

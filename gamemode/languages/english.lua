@@ -817,24 +817,28 @@ LANGUAGE.title_bossm                              = "Boss Mutations"
 
 -- Main Menu (F1 menu)
 
+LANGUAGE.mm_menu                         		   = "Main Menu"
 LANGUAGE.mm_pm_selection                           = "Player model selection"
 LANGUAGE.mm_pm_color                               = "Player color"
 LANGUAGE.mm_color                                  = "Colors"
 LANGUAGE.mm_w_color                                = "Weapon color"
 LANGUAGE.mm_close                                  = "Close"
 LANGUAGE.mm_credits                                = "Credits"
-LANGUAGE.mm_credits2                                = "ZS:R Credits"
+LANGUAGE.mm_credits2                               = "ZS:R Credits"
 LANGUAGE.mm_options                                = "Options"
 LANGUAGE.mm_pc                                     = "Player color"
 LANGUAGE.mm_pm                                     = "Player model"
+LANGUAGE.mm_pm2                                    = "Player models"
+LANGUAGE.mm_pm3                                    = "Models"
+LANGUAGE.mm_back                                   = "Back" 
 LANGUAGE.mm_help                                   = "Help" 
 LANGUAGE.mm_pm_messg                               = "You've changed your desired player model to"
 LANGUAGE.mm_sp                                     = "Spectate"
 LANGUAGE.mm_unsp                                   = "Un-Spectate"
 LANGUAGE.spectator_now                             = "You are now a Spectator."
-LANGUAGE.spectator_cantchange                       = "You can't change during wave 0"
-LANGUAGE.spectator_cantchange2                       = "This server has disabled spectator mode"
-LANGUAGE.spectator_canchange_in_x                   = "You can change from spectator in %s"
+LANGUAGE.spectator_cantchange                      = "You can't change during wave 0"
+LANGUAGE.spectator_cantchange2                     = "This server has disabled spectator mode"
+LANGUAGE.spectator_canchange_in_x                  = "You can change from spectator in %s"
 
 
 -- Weapon Database
@@ -861,7 +865,15 @@ LANGUAGE.classes_undeadclasses                      = "UNDEAD CLASSES"
 LANGUAGE.classes_chooseresawn                       = "Choose the class you want to respawn as."
 LANGUAGE.classes_hp                       			= "HP"
 LANGUAGE.classes_speed                      		= "SPEED"
+
 -- Options
+
+LANGUAGE.options_gameplay                           = "Gameplay"
+LANGUAGE.options_weapon                            	= "Weapon"
+LANGUAGE.options_visual                             = "Visual"
+LANGUAGE.options_sound                            	= "Sound"
+LANGUAGE.options_player                            	= "Player"
+
 
 LANGUAGE.options_options                            = "Options"
 LANGUAGE.options_no_discord                  		= "Don't show the official Discord link in chat"
@@ -869,7 +881,7 @@ LANGUAGE.options_no_ars_crate                  		= "Don't show arsenal crates th
 LANGUAGE.options_old_hud                  			= "Enable Health Bar HUD (requires re-joining)"
 LANGUAGE.options_no_resupply                  		= "Don't show resupply boxes through walls"
 LANGUAGE.options_no_floating_score                  = "Don't show point floaters"
-LANGUAGE.options_iron_sights_crosshair              = "Draw crosshair in ironsights."
+LANGUAGE.options_iron_sights_crosshair              = "Draw crosshair in ironsights"
 LANGUAGE.options_film_mode                          = "Film Mode (disable most of the HUD)"
 LANGUAGE.options_beats                              = "Enable ambient music"
 LANGUAGE.options_play_music                         = "Enable last human music"
@@ -899,6 +911,8 @@ LANGUAGE.options_beatset_zombie                     = "Zombie ambient beat set"
 LANGUAGE.options_beatset_human                      = "Human ambient beat set"
 LANGUAGE.options_weapon_hud_mode                    = "Weapon HUD display style"
 LANGUAGE.options_thirdpersoned                    	= "Third person view point"
+LANGUAGE.options_proprotation                     	= "Prop rotation snap angle"
+
 
 -- Help menu
 

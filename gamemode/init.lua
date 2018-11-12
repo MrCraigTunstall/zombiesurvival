@@ -275,6 +275,7 @@ function GM:AddNetworkStrings()
 	util.AddNetworkString("zs_spectate")
 	util.AddNetworkString("zs_weaponlocks")
 	util.AddNetworkString("zs_mutations_table")
+	--util.AddNetworkString("zs_update_playermodel")
 end
 
 function GM:IsClassicMode()
@@ -470,10 +471,18 @@ function GM:RemoveUnusedEntities()
 	util.RemoveAll("item_ammo_crate")
 
 	-- Shouldn't exist.
-	util.RemoveAll("item_suitcharger")
+	util.RemoveAll("item_suit*")
+	util.RemoveAll("func_recharge")
+	util.RemoveAll("func_reflective_glass")
 end
 
 function GM:ReplaceMapWeapons()
+	local prefix = game.GetMap():lower():sub(1, 3)
+	if prefix == "dm_" or prefix == "pb_" then
+		util.RemoveAll("weapon_*")
+		return
+	end
+
 	for _, ent in pairs(ents.FindByClass("weapon_*")) do
 		local wepclass = ent:GetClass()
 		if wepclass ~= "weapon_map_base" then
@@ -751,6 +760,24 @@ function GM:SendZombieVolunteers(pl, nonemptyonly)
 		net.Broadcast()
 	end
 end
+
+--[[net.Receive("zs_update_playermodel", function(len, pl) -- planned
+	local mdl = net.ReadString()
+	local ent = pl
+	
+	if IsValid(ent) and ent:IsPlayer() and ent:Alive() and ent:Team() == TEAM_HUMAN then
+		if ent:IsHolding() or ent:GetBarricadeGhosting() then return end
+		
+		if table.HasValue(GAMEMODE.RestrictedModels, string.lower(mdl)) then return end
+		if table.HasValue(GAMEMODE.DonatorModels, string.lower(mdl)) then return end
+		
+		local model_argument = mdl
+		local model_string = player_manager.TranslatePlayerModel(model_argument)
+
+		ent:SetModel(model_string)
+		ent:SetupHands()
+	end
+end)]]--
 
 local NextTick = 0
 function GM:Think()
@@ -1605,6 +1632,7 @@ function GM:PlayerInitialSpawnRound(pl)
 	--Normal Mutations (Z-Shop)
 	pl.m_Zombie_Moan = nil
 	pl.m_Zombie_MoanGuard = nil
+	pl.m_Zombie_Health = nil
 	
 	-- Boss Mutations (Z-Shop)
 	pl.m_Shade_Force = nil
@@ -3733,6 +3761,9 @@ function GM:PlayerSpawn(pl)
 	pl:SetWeaponColor(wcol)
 
 	pl.m_PreHurtHealth = pl:Health()
+	if pl:Team() == TEAM_UNDEAD and pl.m_Zombie_Health then
+	pl:SetMaxHealth(pl:GetMaxHealth() + 50) pl:SetHealth(pl:Health() + 50)
+	end
 end
 
 function GM:SetWave(wave)
@@ -4016,6 +4047,10 @@ concommand.Add("zs_class", function(sender, command, arguments)
 			sender:Kill()
 		end
 	end
+end)
+
+hook.Add("PlayerSpray", "DisablePlayerSpray", function(ply)
+	return !ply:IsAdmin()
 end)
 
 net.Receive("zs_spectate", function(len, ply)

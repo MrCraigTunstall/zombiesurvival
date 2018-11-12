@@ -409,7 +409,7 @@ GM:AddPointShopItem("gluongun", "Helios' Gluon Gun", nil, ITEMCAT_OTHER, 200, "w
 GM:AddPointShopItem("empower", ""..translate.Get("craft_empower"), nil, ITEMCAT_OTHER, 230, "weapon_zs_empower")
 
 -- Class Mutations
-GM:AddMutationItem("m_zombie_health", ""..translate.Get("zshop_alphazomb"), ""..translate.Get("zshop_alphazomb2"), ITEMCAT_MUTATIONS, 50, nil, function(pl) pl:SetMaxHealth(pl:GetMaxHealth() + 50) pl:SetHealth(pl:Health() + 50) end, "models/items/healthkit.mdl")    
+GM:AddMutationItem("m_zombie_health", ""..translate.Get("zshop_alphazomb"), ""..translate.Get("zshop_alphazomb2"), ITEMCAT_MUTATIONS, 50, nil, function(pl) pl.m_Zombie_Health = true end, "models/items/healthkit.mdl")    
 GM:AddMutationItem("m_zombie_moan", ""..translate.Get("zshop_zombsprint"), ""..translate.Get("zshop_zombsprint2"), ITEMCAT_MUTATIONS, 15, nil, function(pl) pl.m_Zombie_Moan = true end, "models/player/zombie_classic.mdl")
 GM:AddMutationItem("m_zombie_moanguard", ""..translate.Get("zshop_zombguard"), ""..translate.Get("zshop_zombguard2"), ITEMCAT_MUTATIONS, 80, nil, function(pl) pl.m_Zombie_MoanGuard = true end, "models/player/zombie_classic.mdl")
 
@@ -456,12 +456,22 @@ GM.RestrictedModels = {
 	"models/player/skeleton.mdl"
 }
 
+GM.DonatorModels = { -- not yet supported
+
+}
+
+GM.SteamIDAndModels = { -- not yet supported
+
+}
+
 -- If a person has no player model then use one of these (auto-generated).
 GM.RandomPlayerModels = {}
 for name, mdl in pairs(player_manager.AllValidModels()) do
 	if not table.HasValue(GM.RestrictedModels, string.lower(mdl)) then
 		table.insert(GM.RandomPlayerModels, name)
-	end
+    --if (not GM.RestrictedModels[string.lower(mdl)]) and (not GM.DonatorModels[string.lower(mdl)]) then
+        --table.insert(GM.RandomPlayerModels, name)
+    end
 end
 
 -- Utility function to setup a weapon's DefaultClip.
