@@ -123,7 +123,7 @@ function SWEP:ZSShootBullet(dmg, numbul, cone)
 	BULLET_NUM = 0
 	BULLET_MAX = self.Primary.NumShots
 	owner:LagCompensation(true)
-	owner:FireBulletsLua(owner:GetShootPos(), owner:GetAimVector(), cone, numbul, dmg, owner, self.Primary.KnockbackScale, self.TracerName or owner:GetTracers() or "", self.BulletCallback, nil, nil, self.MaxDistance)
+	owner:FireBulletsLua(owner:GetShootPos(), owner:GetAimVector(), cone, numbul, dmg, owner, self.Primary.KnockbackScale, self.TracerName or owner:GetTracers() or "", self.BulletCallback, nil, nil, self.MaxDistance, nil, self)
 	owner:LagCompensation(false)
 	
 	if (not self.LoadDefaultDamageIndicator) then
@@ -298,6 +298,8 @@ function SWEP:ShootBullets(dmg, numbul, cone)
 		local r = math.Rand(0.8, 1)
 		owner:ViewPunch(Angle(r * -self.Recoil, 0, (1 - r) * (math.random(2) == 1 and -1 or 1) * self.Recoil))
 	end
+
+	cone = math.deg(cone) -- Convert old spread angles
 
 	owner:LagCompensation(true)
 	owner:FireBulletsLua(owner:GetShootPos(), owner:GetAimVector(), cone, numbul, dmg, nil, self.Primary.KnockbackScale, self.TracerName, self.BulletCallback, self.Primary.HullSize, nil, self.Primary.MaxDistance, nil, self)
