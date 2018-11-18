@@ -132,7 +132,16 @@ function PANEL:Text3Paint()
 	return true
 end
 
-function PANEL:Paint()
+local matGradientLeft = CreateMaterial("gradient-l", "UnlitGeneric", {["$basetexture"] = "vgui/gradient-l", ["$vertexalpha"] = "1", ["$vertexcolor"] = "1", ["$ignorez"] = "1", ["$nomip"] = "1"})
+function PANEL:Paint(w, h)
+	surface.SetDrawColor(0, 0, 0, 180)
+	surface.DrawRect(0, 0, w * 0.4, h)
+	surface.SetMaterial(matGradientLeft)
+	surface.DrawTexturedRect(w * 0.4, 0, w * 0.6, h)
+	surface.SetDrawColor(0, 0, 0, 250)
+	surface.SetMaterial(matGradientLeft)
+	surface.DrawTexturedRect(0, h - 1, w, 1)
+
 	return true
 end
 
