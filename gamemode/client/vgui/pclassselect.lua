@@ -29,6 +29,7 @@ function GM:OpenClassSelect(bossmode)
 
 	local classImagesMaterials = {}
 
+
 	if not IsValid(zombieFrame) then
 		local zombieTable = {}
 		topFrame = vgui.Create("DPanel" )
@@ -83,6 +84,15 @@ function GM:OpenClassSelect(bossmode)
 		bossButton.DoClick = function()
 			normalZombieScrollPanel:Hide()
 			bossZombieScrollPanel:Show()
+		end
+		
+		local CloseButton = vgui.Create( "DButton", zombieFrame )
+		CloseButton:SetSize( 320, 30 )
+		CloseButton:SetPos( zombieFrame:GetWide()/12, 610 )
+		CloseButton:SetText(translate.Get("close"))
+		CloseButton.DoClick = function()
+		zombieFrame:Remove()
+		topFrame:Remove()
 		end
 
 		local mutationButton = vgui.Create( "DButton", zombieFrame )
