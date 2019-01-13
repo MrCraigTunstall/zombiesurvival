@@ -857,6 +857,7 @@ LANGUAGE.wb_maxaccu                                = "Maximum accuracy"
 
 -- Class Selection
 
+LANGUAGE.close                                      = "Close"
 LANGUAGE.normal_selection                           = "Back to normal class menu..."
 LANGUAGE.boss_selection                             = "Select desired boss class..."
 LANGUAGE.mutations_selection                        = "Mutations"
