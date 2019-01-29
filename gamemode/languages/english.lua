@@ -218,6 +218,7 @@ LANGUAGE.class_nugget								= "Nugget"
 LANGUAGE.class_bastardzine							= "Bastardzine"
 LANGUAGE.class_zombine								= "Zombine"
 LANGUAGE.class_undertaker							= "The Undertaker"
+LANGUAGE.class_night_stalker                        = "Night Stalker"
 
 
 -- Class descriptions
@@ -250,6 +251,7 @@ LANGUAGE.description_bastardzine                    = "Once nuggets began to roa
 LANGUAGE.description_burster                        = "This infected can explode if he killed."
 LANGUAGE.description_zombine						= "When a head-crab infects a Combine Soldier this horrid zombie is created.\nThis zombie is a threat to barricades mostly an is only unlocked on later waves."
 LANGUAGE.description_undertaker						= "Risen from the grave Undertaker. \nThings didn't change for him - he's still trying to put you into a tomb."
+LANGUAGE.description_night_stalker					= "The shadowed version of bastartzine. \nThis Unseen entiry can ambush humans and knock them back when leaping at them. \nBut when standing still or attacking and leaping, It can be visble \nBut when moving it becomes invisible. Which make this creature a dargerous theart in darkness and shadow"
 
 -- Class control schemes
 LANGUAGE.controls_zombie							= "> PRIMARY: Claws\n> SECONDARY: Scream\n> RELOAD: Moan\n> SPRINT: Feign death\n> ON FATAL HIT IN LEGS: Revive / Transform"
@@ -275,6 +277,7 @@ LANGUAGE.controls_reaper							= "> PRIMARY: Axe\n> RELOAD: Moan"
 LANGUAGE.controls_burster                           = "> PRIMARY: Poison Bomb\n> ON DEATH: Poison Bomb"
 LANGUAGE.controls_zombine							= "> PRIMARY: Claws\n> SECONDARY: Grenade"	
 LANGUAGE.controls_undertaker						= "> PRIMARY: Hit\n> SECONDARY: Throw dart, that can heal zombies and damage humans."
+LANGUAGE.controls_night_stalker                     = "> PRIMARY: Claws\n> SECONDARY: Lunge / Climb (next to wall)\n> RELOAD: Scream \n> INVISIBILITY WHEN MOVING"
 
 -- The help file... Quite big! I wouldn't blame you if you didn't translate this part.
 LANGUAGE.help_cat_introduction						= "Introduction"
