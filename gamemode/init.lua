@@ -3434,6 +3434,20 @@ concommand.Add("zsemptyclip", function(sender, command, arguments)
 	end
 end)
 
+function GM:TryGetLockOnTrace(sender, arguments)
+	local ent
+	local dent = Entity(tonumbersafe(arguments[2] or 0) or 0)
+	if GAMEMODE:ValidMenuLockOnTarget(sender, dent) then
+		ent = dent
+	end
+
+	if not ent then
+		ent = sender:MeleeTrace(48, 2, nil, nil, true).Entity
+	end
+
+	return ent
+end
+
 concommand.Add("zsgiveammo", function(sender, command, arguments)
 	if GAMEMODE.ZombieEscape then return end
 
