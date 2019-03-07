@@ -136,7 +136,10 @@ local draw_SimpleTextBlurry = draw.SimpleTextBlurry
 local draw_SimpleTextBlur = draw.SimpleTextBlur
 local draw_GetFontHeight = draw.GetFontHeight
 
-local MedicalAuraDistance = 300
+local MedicalAuraDistance = 800 ^ 2
+
+local M_Player = FindMetaTable("Player")
+local P_Team = M_Player.Team
 
 GM.LifeStatsBrainsEaten = 0
 GM.LifeStatsHumanDamage = 0
@@ -2109,6 +2112,51 @@ net.Receive("zs_endround", function(length)
 
 	gamemode.Call("EndRound", winner, nextmap)
 end)
+
+net.Receive("zs_ammogive", function(length)
+	local amount = net.ReadUInt(16)
+	local ammotype = net.ReadString()
+	local ent = net.ReadEntity()
+
+	if not ent:IsValidPlayer() then return end
+	local ico = GAMEMODE.AmmoIcons[ammotype] or "weapon_zs_resupplybox"
+
+	ammotype = GAMEMODE.AmmoNames[ammotype] or ammotype
+
+	GAMEMODE:CenterNotify({killicon = ico}, " ", COLOR_GREEN, translate.Format("gave_x_y_ammo_to_z", amount, ammotype, ent:Name()))
+end)
+
+net.Receive("zs_ammogiven", function(length)
+	local amount = net.ReadUInt(16)
+	local ammotype = net.ReadString()
+	local ent = net.ReadEntity()
+
+	if not ent:IsValidPlayer() then return end
+	local ico = GAMEMODE.AmmoIcons[ammotype] or "weapon_zs_resupplybox"
+
+	ammotype = GAMEMODE.AmmoNames[ammotype] or ammotype
+
+	GAMEMODE:CenterNotify({killicon = ico}, " ", COLOR_GREEN, translate.Format("obtained_x_y_ammo_from_z", amount, ammotype, ent:Name()))
+end)
+
+net.Receive("zs_updatealtselwep", function(length)
+end)
+
+local function AltSelItemUpd()
+	local activeweapon = MySelf:GetActiveWeapon()
+	if not activeweapon or not activeweapon:IsValid() then return end
+
+	local actwclass = activeweapon:GetClass()
+	GAMEMODE.HumanMenuPanel.SelectedItemLabel:SetText(weapons.Get(actwclass).PrintName)
+end
+
+local function AltSelItemUpd()
+	local activeweapon = MySelf:GetActiveWeapon()
+	if not activeweapon or not activeweapon:IsValid() then return end
+
+	local actwclass = activeweapon:GetClass()
+	GAMEMODE.HumanMenuPanel.SelectedItemLabel:SetText(weapons.Get(actwclass).PrintName)
+end
 
 -- Mutations Net
 net.Receive("zs_mutations_table", function(len)
