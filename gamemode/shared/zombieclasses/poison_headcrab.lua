@@ -120,8 +120,6 @@ end
 
 if not CLIENT then return end
 
-CLASS.Icon = "zombiesurvival/killicons/acidcrab_hd"
-
 function CLASS:CreateMove(pl, cmd)
 	local wep = pl:GetActiveWeapon()
 	if wep:IsValid() and wep.m_ViewAngles and (wep.IsLeaping and wep:IsLeaping() or wep.IsGoingToLeap and wep:IsGoingToLeap()) then
@@ -140,3 +138,5 @@ function CLASS:CreateMove(pl, cmd)
 		cmd:SetViewAngles(viewangles)
 	end
 end
+
+CLASS.Icon = "zombiesurvival/killicons/acidcrab_hd"

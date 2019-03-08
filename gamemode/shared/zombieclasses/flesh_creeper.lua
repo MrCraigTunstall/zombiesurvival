@@ -74,13 +74,7 @@ function CLASS:CalcMainActivity(pl, velocity)
 	end
 
 	if velocity:Length2D() > 0.5 then
-		--[[if pl:Crouching() and pl:OnGround() then
-			pl.CalcSeqOverride = 17
-		else]]
 			pl.CalcSeqOverride = 4
-		--[[end
-	elseif pl:Crouching() and pl:OnGround() then
-		pl.CalcSeqOverride = 40]]
 	else
 		pl.CalcSeqOverride = 2
 	end
@@ -116,35 +110,9 @@ function CLASS:UpdateAnimation(pl, velocity, maxseqgroundspeed)
 
 	if velocity:Length2D() >= 16 then
 		GAMEMODE.BaseClass.UpdateAnimation(GAMEMODE.BaseClass, pl, velocity, maxseqgroundspeed)
-
-		--[[local dir = Vector()
-		dir:Set(velocity)
-		dir.z = 0
-		dir:Normalize()
-		local aimdir = pl:GetAimVector()
-		aimdir.z = 0
-		aimdir:Normalize()
-
-		if dir:Dot(aimdir) >= 0.5 then
-			pl:SetPlaybackRate(pl:GetPlaybackRate() / self.ModelScale / 2)
-		else]]
 			pl:SetPlaybackRate(pl:GetPlaybackRate() / self.ModelScale)
-		--end
-
-		--[[if pl:Crouching() then
-			pl:SetPoseParameter("move_yaw", 0)
-		end]]
-
 		return true
 	end
-
-	--[[if pl:Crouching() then
-		pl:SetCycle(0.5 + math.sin(CurTime() * 2) * 0.025)
-		pl:SetPlaybackRate(0)
-
-		return true
-	end]]
-
 	return true
 end
 
@@ -186,8 +154,6 @@ end
 
 if not CLIENT then return end
 
-CLASS.Icon = "zombiesurvival/killicons/flesh_creeper_hd"
-
 local matFlesh = Material("models/flesh")
 function CLASS:PrePlayerDraw(pl)
 	render.ModelMaterialOverride(matFlesh)
@@ -200,3 +166,5 @@ end
 function CLASS:ShouldDrawLocalPlayer()
 	return true
 end
+
+CLASS.Icon = "zombiesurvival/killicons/flesh_creeper_hd"

@@ -158,21 +158,6 @@ if SERVER then
 	end
 end
 
---[[function CLASS:Move(pl, move)
-	local mypos = move:GetOrigin()
-
-	for _, ent in pairs(team.GetPlayers(TEAM_HUMAN)) do
-		local pos = ent:GetPos()
-		local dist = mypos:Distance(pos)
-		if dist <= 16 then
-			local dir = mypos - pos
-			dir.z = 0
-			dir:Normalize()
-			move:SetVelocity(move:GetVelocity() + FrameTime() * 400 * (1 - dist / 16) * dir)
-		end
-	end
-end]]
-
 if not CLIENT then return end
 
 function CLASS:ShouldDrawLocalPlayer(pl)

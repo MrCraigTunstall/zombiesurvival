@@ -43,15 +43,6 @@ function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilte
 
 	return true
 end
---[[function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilter)
-	if iFoot == 0 then
-		pl:EmitSound("Zombie.FootstepLeft")
-	else
-		pl:EmitSound("Zombie.FootstepRight")
-	end
-
-	return true
-end]]
 
 function CLASS:CalcMainActivity(pl, velocity)
 	local revive = pl.Revive
@@ -137,8 +128,6 @@ end
 
 if not CLIENT then return end
 
-CLASS.Icon = "zombiesurvival/killicons/freshdead_hd"
-
 function CLASS:PrePlayerDraw(pl)
 	render.SetColorModulation(0.5, 0.9, 0.5)
 end
@@ -146,3 +135,5 @@ end
 function CLASS:PostPlayerDraw(pl)
 	render.SetColorModulation(1, 1, 1)
 end
+
+CLASS.Icon = "zombiesurvival/killicons/freshdead_hd"

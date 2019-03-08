@@ -58,16 +58,6 @@ if SERVER then
 	end
 end
 
---[[function CLASS:ScalePlayerDamage(pl, hitgroup, dmginfo)
-	--if hitgroup ~= HITGROUP_LEFTLEG and hitgroup ~= HITGROUP_RIGHTLEG and hitgroup ~= HITGROUP_GEAR and hitgroup ~= HITGROUP_GENERIC then
-	if dmginfo:GetDamagePosition().z > pl:GetPos().z + 48 then
-		dmginfo:SetDamage(0)
-		dmginfo:ScaleDamage(0)
-	end
-
-	return true
-end]]
-
 function CLASS:Move(pl, mv)
 	local wep = pl:GetActiveWeapon()
 	if wep.Move and wep:Move(mv) then
@@ -99,23 +89,6 @@ function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilte
 
 	return true
 end
---[[function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilter)
-	if iFoot == 0 then
-		if mathrandom() < 0.15 then
-			pl:EmitSound("Zombie.ScuffLeft")
-		else
-			pl:EmitSound("Zombie.FootstepLeft")
-		end
-	else
-		if mathrandom() < 0.15 then
-			pl:EmitSound("Zombie.ScuffRight")
-		else
-			pl:EmitSound("Zombie.FootstepRight")
-		end
-	end
-
-	return true
-end]]
 
 function CLASS:PlayerStepSoundTime(pl, iType, bWalking)
 	if iType == STEPSOUNDTIME_NORMAL or iType == STEPSOUNDTIME_WATER_FOOT then

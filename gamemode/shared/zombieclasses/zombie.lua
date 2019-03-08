@@ -52,25 +52,6 @@ function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilte
 	return true
 end
 
--- Sound scripts are LITERALLY 100x slower than raw file input. Test it yourself if you don't believe me.
---[[function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilter)
-	if iFoot == 0 then
-		if mathrandom() < 0.15 then
-			pl:EmitSound("Zombie.ScuffLeft")
-		else
-			pl:EmitSound("Zombie.FootstepLeft")
-		end
-	else
-		if mathrandom() < 0.15 then
-			pl:EmitSound("Zombie.ScuffRight")
-		else
-			pl:EmitSound("Zombie.FootstepRight")
-		end
-	end
-
-	return true
-end]]
-
 function CLASS:PlayerStepSoundTime(pl, iType, bWalking)
 	if iType == STEPSOUNDTIME_NORMAL or iType == STEPSOUNDTIME_WATER_FOOT then
 		return 625 - pl:GetVelocity():Length()
