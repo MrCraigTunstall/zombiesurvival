@@ -3384,6 +3384,9 @@ function GM:PlayerStepSoundTime(pl, iType, bWalking)
 	return fStepTime
 end
 
+function GM:OnZEWeaponPickup(pl, wep)
+end
+
 function GM:ConCommandErrorMessage(pl, message)
 	pl:CenterNotify(COLOR_RED, message)
 	pl:SendLua("surface.PlaySound(\"buttons/button10.wav\")")
