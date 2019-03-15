@@ -92,7 +92,7 @@ function MakepPlayerModel()
 		if self.Hovered then
 			surface.SetDrawColor( 231, 76, 60, 255 )
 		else
-			surface.SetDrawColor( 192, 57, 43, 255 )
+			surface.SetDrawColor(0, 0, 0, 255)
 		end
 		surface.DrawRect( 0, 0, but:GetWide(), but:GetTall() )
 	end
@@ -198,8 +198,6 @@ local function SpectatorPanelRefresh(self)
 	self.m_PlayerLabel:SetText(name)
 
 	self.m_ScoreLabel:SetVisible(false)
-	self.m_PointLabel:SetVisible(false)
-	self.m_DamageLabel:SetVisible(false)
 	self.m_ClassImage:SetVisible(false)
 
 	if pl:Team() ~= self._LastTeam then
@@ -251,7 +249,7 @@ function GM:ShowHelp()
 	PlayMenuOpenSound()
 
 	local menu = vgui.Create("DFrame")
-	menu:SetSize(800, 135)
+	menu:SetSize(900, 135)
 	menu:ShowCloseButton(false)
 	menu:SetTitle(" ")
 	menu:Center()
@@ -296,7 +294,7 @@ function GM:ShowHelp()
 		if self.Hovered then
 			surface.SetDrawColor(231, 76, 60, 255)
 		else
-			surface.SetDrawColor(192, 57, 43, 255)
+			surface.SetDrawColor(0, 0, 0, 255)
 		end
 		surface.DrawRect(0, 0, but:GetWide(), but:GetTall())
 	end
@@ -313,7 +311,7 @@ function GM:ShowHelp()
 		if self.Hovered then
 			surface.SetDrawColor(231, 76, 60, 255)
 		else
-			surface.SetDrawColor(192, 57, 43, 255)
+			surface.SetDrawColor(0, 0, 0, 255)
 		end
 		surface.DrawRect(0, 0, but2:GetWide(), but2:GetTall())
 	end
@@ -330,7 +328,7 @@ function GM:ShowHelp()
 		if self.Hovered then
 			surface.SetDrawColor(231, 76, 60, 255)
 		else
-			surface.SetDrawColor(192, 57, 43, 255)
+			surface.SetDrawColor(0, 0, 0, 255)
 		end
 		surface.DrawRect(0, 0, but3:GetWide(), but3:GetTall())
 	end
@@ -347,7 +345,7 @@ function GM:ShowHelp()
 		if self.Hovered then
 			surface.SetDrawColor(231, 76, 60, 255)
 		else
-			surface.SetDrawColor(192, 57, 43, 255)
+			surface.SetDrawColor(0, 0, 0, 255)
 		end
 		surface.DrawRect(0, 0, but4:GetWide(), but4:GetTall())
 	end
@@ -364,10 +362,52 @@ function GM:ShowHelp()
 		if self.Hovered then
 			surface.SetDrawColor( 231, 76, 60, 255 )
 		else
-			surface.SetDrawColor( 192, 57, 43, 255 )
+			surface.SetDrawColor( 0, 0, 0, 255 )
 		end
 		surface.DrawRect(0, 0, but5:GetWide(), but5:GetTall())
 	end
+	
+	local but5 = vgui.Create("DButton", menu)
+	but5:SetFont("ZS3D2DFontSuperTiny2")
+	but5:SetColor(COLOR_WHITE)
+	but5:SetText("Spectators")
+	but5:SetSize(115, 45)
+	but5:MoveLeftOf(but4, 10)
+	but5:AlignBottom(25)
+	but5.DoClick = function() menu:Hide() MakepSpectators() end
+	but5.Paint = function(self, w, h)
+		if self.Hovered then
+			surface.SetDrawColor(231, 76, 60, 255)
+		else
+			surface.SetDrawColor(0, 0, 0, 255)
+		end
+		surface.DrawRect(0, 0, but4:GetWide(), but4:GetTall())
+	end
+	
+	local but6 = vgui.Create("DButton", menu)
+	but6:SetFont("ZS3D2DFontSuperTiny2")
+	but6:SetColor(COLOR_WHITE)
+	but6:SetText(translate.Get("mm_sp"))
+	but6:SetSize(115, 45)
+	but6:MoveRightOf(but3, 10)
+	
+	but6:AlignBottom(25)
+	but6.DoClick = function() menu:Hide() RunConsoleCommand("spectate") end
+	but6.Paint = function(self, w, h)
+		local text = self:GetText()
+		if MySelf:Team() == TEAM_SPECTATOR and text == (translate.Get("mm_sp")) then
+		self:SetText(translate.Get("mm_unsp"))
+		elseif MySelf:Team() ~= TEAM_SPECTATOR and text == (translate.Get("mm_unsp")) then
+		self:SetText(translate.Get("mm_sp"))
+	end
+		if self.Hovered then
+			surface.SetDrawColor(231, 76, 60, 255)
+		else
+			surface.SetDrawColor(0, 0, 0, 255)
+		end
+		surface.DrawRect(0, 0, but4:GetWide(), but4:GetTall())
+	end
+
 
 	menu:MakePopup()
 end
