@@ -3652,7 +3652,7 @@ function GM:PlayerSpawn(pl)
 
 		if classtab.Model then
 			if (type(classtab.Model) == "table") then
-				pl:SetModel(table.Random(classtab.Model)
+				pl:SetModel(table.Random(classtab.Model))
 			else
 				pl:SetModel(classtab.Model)
 			end
