@@ -3651,7 +3651,11 @@ function GM:PlayerSpawn(pl)
 		pl:DoHulls(pl:GetZombieClass(), TEAM_UNDEAD)
 
 		if classtab.Model then
-			pl:SetModel(classtab.Model)
+			if (type(classtab.Model) == "table") then
+				pl:SetModel(table.Random(classtab.Model)
+			else
+				pl:SetModel(classtab.Model)
+			end
 		elseif classtab.UsePlayerModel then
 			local desiredname = pl:GetInfo("cl_playermodel")
 			if #desiredname == 0 then
