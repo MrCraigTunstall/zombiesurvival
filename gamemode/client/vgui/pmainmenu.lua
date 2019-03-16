@@ -367,15 +367,15 @@ function GM:ShowHelp()
 		surface.DrawRect(0, 0, but5:GetWide(), but5:GetTall())
 	end
 	
-	local but5 = vgui.Create("DButton", menu)
-	but5:SetFont("ZS3D2DFontSuperTiny2")
-	but5:SetColor(COLOR_WHITE)
-	but5:SetText("Spectators")
-	but5:SetSize(115, 45)
-	but5:MoveLeftOf(but4, 10)
-	but5:AlignBottom(25)
-	but5.DoClick = function() menu:Hide() MakepSpectators() end
-	but5.Paint = function(self, w, h)
+	local but6 = vgui.Create("DButton", menu)
+	but6:SetFont("ZS3D2DFontSuperTiny2")
+	but6:SetColor(COLOR_WHITE)
+	but6:SetText("Spectators")
+	but6:SetSize(115, 45)
+	but6:MoveLeftOf(but5, 10)
+	but6:AlignBottom(25)
+	but6.DoClick = function() menu:Hide() MakepSpectators() end
+	but6.Paint = function(self, w, h)
 		if self.Hovered then
 			surface.SetDrawColor(231, 76, 60, 255)
 		else
