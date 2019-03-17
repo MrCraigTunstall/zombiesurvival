@@ -184,6 +184,64 @@ function MakepPlayerModel()
 	pPlayerModel:AlphaTo(255, 0.5, 0)
 end
 
+function MakepPlayerColor()
+	if pPlayerColor and pPlayerColor:Valid() then pPlayerColor:Remove() end
+	
+	pPlayerColor = vgui.Create("DFrame")
+	pPlayerColor:SetWide(math.min(ScrW(), 500))
+	pPlayerColor:SetTitle(" ")
+	pPlayerColor:SetDeleteOnClose(true)
+	
+	local y = 8
+
+	local label = EasyLabel(pPlayerColor, translate.Get("mm_color"), "ZSHUDFont", color_white)
+	label:SetPos((pPlayerColor:GetWide() - label:GetWide()) / 2, y)
+	y = y + label:GetTall() + 8	
+	
+	local lab = EasyLabel(pPlayerColor, translate.Get("mm_pm_color"))
+	lab:SetPos(8, y)
+	y = y + lab:GetTall()
+	
+	local colpicker = vgui.Create("DColorMixer", pPlayerColor)
+	colpicker:SetAlphaBar(false)
+	colpicker:SetPalette(false)
+	colpicker.UpdateConVars = function(me, color)
+		me.NextConVarCheck = SysTime() + 0.2
+		RunConsoleCommand("cl_playercolor", color.r / 100 .." ".. color.g / 100 .." ".. color.b / 100)
+	end
+	local r, g, b = string.match(GetConVarString("cl_playercolor"), "(%g+) (%g+) (%g+)")
+	if r then
+		colpicker:SetColor(Color(r * 100, g * 100, b * 100))
+	end
+	colpicker:SetSize(pPlayerColor:GetWide() - 16, 72)
+	colpicker:SetPos(8, y)
+	y = y + colpicker:GetTall()
+
+	local lab = EasyLabel(pPlayerColor, translate.Get("mm_w_color"))
+	lab:SetPos(8, y)
+	y = y + lab:GetTall()
+
+	local colpicker = vgui.Create("DColorMixer", pPlayerColor)
+	colpicker:SetAlphaBar(false)
+	colpicker:SetPalette(false)
+	colpicker.UpdateConVars = function(me, color)
+		me.NextConVarCheck = SysTime() + 0.2
+		RunConsoleCommand("cl_weaponcolor", color.r / 100 .." ".. color.g / 100 .." ".. color.b / 100)
+	end
+	local r, g, b = string.match(GetConVarString("cl_weaponcolor"), "(%g+) (%g+) (%g+)")
+	if r then
+		colpicker:SetColor(Color(r * 100, g * 100, b * 100))
+	end
+	colpicker:SetSize(pPlayerColor:GetWide() - 16, 72)
+	colpicker:SetPos(8, y)
+	y = y + colpicker:GetTall()
+	
+	pPlayerColor:SetTall(y + 8)
+	pPlayerColor:Center()
+	pPlayerColor:MakePopup()
+end
+	
+	
 local function SpectatorPanelRefresh(self)
 	local pl = self:GetPlayer()
 	if not pl:IsValid() then
@@ -249,7 +307,7 @@ function GM:ShowHelp()
 	PlayMenuOpenSound()
 
 	local menu = vgui.Create("DFrame")
-	menu:SetSize(900, 135)
+	menu:SetSize(1500, 135)
 	menu:ShowCloseButton(false)
 	menu:SetTitle(" ")
 	menu:Center()
@@ -381,19 +439,19 @@ function GM:ShowHelp()
 		else
 			surface.SetDrawColor(0, 0, 0, 255)
 		end
-		surface.DrawRect(0, 0, but4:GetWide(), but4:GetTall())
+		surface.DrawRect(0, 0, but6:GetWide(), but6:GetTall())
 	end
 	
-	local but6 = vgui.Create("DButton", menu)
-	but6:SetFont("ZS3D2DFontSuperTiny2")
-	but6:SetColor(COLOR_WHITE)
-	but6:SetText(translate.Get("mm_sp"))
-	but6:SetSize(115, 45)
-	but6:MoveRightOf(but3, 10)
+	local but7 = vgui.Create("DButton", menu)
+	but7:SetFont("ZS3D2DFontSuperTiny2")
+	but7:SetColor(COLOR_WHITE)
+	but7:SetText(translate.Get("mm_sp"))
+	but7:SetSize(115, 45)
+	but7:MoveRightOf(but3, 10)
 	
-	but6:AlignBottom(25)
-	but6.DoClick = function() menu:Hide() RunConsoleCommand("spectate") end
-	but6.Paint = function(self, w, h)
+	but7:AlignBottom(25)
+	but7.DoClick = function() menu:Hide() RunConsoleCommand("spectate") end
+	but7.Paint = function(self, w, h)
 		local text = self:GetText()
 		if MySelf:Team() == TEAM_SPECTATOR and text == (translate.Get("mm_sp")) then
 		self:SetText(translate.Get("mm_unsp"))
@@ -405,7 +463,24 @@ function GM:ShowHelp()
 		else
 			surface.SetDrawColor(0, 0, 0, 255)
 		end
-		surface.DrawRect(0, 0, but4:GetWide(), but4:GetTall())
+		surface.DrawRect(0, 0, but7:GetWide(), but7:GetTall())
+	end
+	
+	local but8 = vgui.Create("DButton", menu)
+	but8:SetFont("ZS3D2DFontSuperTiny2")
+	but8:SetColor(COLOR_WHITE)
+	but8:SetText(translate.Get("mm_pc"))
+	but8:SetSize(115, 45)
+	but8:MoveRightOf(but7, 10)
+	but8:AlignBottom(25)
+	but8.DoClick = function() MakepPlayerColor() menu:Hide() end
+	but8.Paint = function(self, w, h)
+		if self.Hovered then
+			surface.SetDrawColor(231, 76, 60, 255)
+		else
+			surface.SetDrawColor(0, 0, 0, 255)
+		end
+		surface.DrawRect(0, 0, but8:GetWide(), but8:GetTall())
 	end
 
 
