@@ -1386,14 +1386,19 @@ function GM:HumanMenu()
 end
 
 function GM:PlayerBindPress(pl, bind, wasin)
-	if bind == "gmod_undo" or bind == "undo" then
-		RunConsoleCommand("+zoom")
-		timer.CreateEx("ReleaseZoom", 1, 1, RunConsoleCommand, "-zoom")
-	elseif bind == "+menu_context" then
-		self.ZombieThirdPerson = not self.ZombieThirdPerson
-	end
+    if bind == "gmod_undo" or bind == "undo" then
+        RunConsoleCommand("+zoom")
+        timer.Create("ReleaseZoom", 1, 1, function() RunConsoleCommand("-zoom") end)
+    elseif bind == "+menu_context" then
+        if pl:Team() ~= TEAM_SPECTATOR then
+            self.ZombieThirdPerson = not self.ZombieThirdPerson
+        end
+    elseif bind == "impulse 100" then
+        if P_Team(pl) == TEAM_UNDEAD and pl:Alive() then
+            self:ToggleZombieVision()
+        end
+    end
 end
-
 function GM:_ShouldDrawLocalPlayer(pl)
 	return pl:Team() ~= TEAM_SPECTATOR and (self.ZombieThirdPerson or pl:CallZombieFunction("ShouldDrawLocalPlayer")) or pl:IsPlayingTaunt()
 end
