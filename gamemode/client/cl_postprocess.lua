@@ -255,10 +255,12 @@ function GM:ToggleZombieVision(onoff)
 end
 
 function GM:PlayerButtonDown( ply, button ) 
-	if not IsFirstTimePredicted() then return end
-	if not IsValid( ply ) or ply != MySelf then return end
-	
-	if button == KEY_F then
-		self:ToggleZombieVision()
+    if not IsFirstTimePredicted() then return end
+    if not IsValid(ply) or ply != MySelf then return end
+    
+    if ply:Team() == TEAM_UNDEAD and ply:Alive() then
+        if button == KEY_F then
+            GAMEMODE:ToggleZombieVision()
+        end
     end
 end
