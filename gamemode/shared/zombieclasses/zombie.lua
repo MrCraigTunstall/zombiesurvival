@@ -18,7 +18,7 @@ CLASS.Points = 5
 
 CLASS.SWEP = "weapon_zs_zombie"
 
-CLASS.Model = Model("models/player/zombie_classic.mdl")
+CLASS.Model = Model("models/player/zombie_classic_hbfix.mdl")
 -- CLASS.Model = {Model("models/player/corpse1.mdl"), Model("models/player/zombie_classic.mdl")}
 
 CLASS.PainSounds = {"npc/zombie/zombie_pain1.wav", "npc/zombie/zombie_pain2.wav", "npc/zombie/zombie_pain3.wav", "npc/zombie/zombie_pain4.wav", "npc/zombie/zombie_pain5.wav", "npc/zombie/zombie_pain6.wav"}
