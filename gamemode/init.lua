@@ -3845,10 +3845,6 @@ end
 
 function GM:PlayerSwitchFlashlight(pl, newstate)
 	if pl:Team() == TEAM_UNDEAD then
-		if pl:Alive() then
-			pl:SendLua("gamemode.Call(\"ToggleZombieVision\")")
-		end
-
 		return false
 	end
 
