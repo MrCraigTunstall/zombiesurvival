@@ -253,3 +253,12 @@ function GM:ToggleZombieVision(onoff)
 		MySelf:SetDSP(0)
 	end
 end
+
+function GM:PlayerButtonDown( ply, button ) 
+	if not IsFirstTimePredicted() then return end
+	if not IsValid( ply ) or ply != MySelf then return end
+	
+	if button == KEY_F then
+		self:ToggleZombieVision()
+    end
+end
