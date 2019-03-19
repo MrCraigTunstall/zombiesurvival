@@ -1,7 +1,7 @@
 AddCSLuaFile()
 
 if CLIENT then
-	SWEP.PrintName = "Inferno Zombie"
+	SWEP.PrintName = translate.Get("class_boss_inferno")
 end
 
 SWEP.Base = "weapon_zs_zombie"

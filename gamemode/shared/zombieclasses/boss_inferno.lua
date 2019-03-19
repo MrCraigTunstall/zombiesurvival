@@ -14,13 +14,13 @@ CLASS.Boss = true
 CLASS.AddCrab = true
 
 CLASS.Health = 2500
-CLASS.Speed = 225
+CLASS.Speed = 150
 
 CLASS.Points = 15
 
 CLASS.CanTaunt = true
 
-CLASS.Model = Model("models/player/zombie_classic.mdl")
+CLASS.Model = Model("models/player/zombie_classic_hbfix.mdl")
 
 CLASS.SWEP = "weapon_zs_zinferno"
 
