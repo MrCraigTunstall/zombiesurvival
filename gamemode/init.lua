@@ -3143,7 +3143,7 @@ function GM:ZombieKilledHuman(pl, attacker, inflictor, dmginfo, headshot, suicid
 	attacker:AddBrains(1)
 	attacker:AddLifeBrainsEaten(1)
 
-	if not pl.Gibbed and not suicide then
+	if not pl.Gibbed and not suicide and not headshot then
 		local status = pl:GiveStatus("revive_slump_human")
 		if status then
 			status:SetReviveTime(CurTime() + 4)
