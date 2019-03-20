@@ -4,32 +4,41 @@
 CLASS.Name = "Night Stalker"
 CLASS.TranslationName = "class_night_stalker"
 CLASS.Description = "description_night_stalker"
-CLASS.Help = "controls_night_stalker"
-CLASS.Model = Model("models/player/zombie_fast.mdl")
+CLASS.Help = "controls_night_stalker"
+
+CLASS.Model = Model("models/player/zombie_fast.mdl")
+
 CLASS.Wave = 0
 CLASS.Threshold = 0
 CLASS.Unlocked = true
 CLASS.Hidden = true
-CLASS.Boss = true
+CLASS.Boss = true
+
 CLASS.Health = 850
 CLASS.Speed = 290
-CLASS.SWEP = "weapon_zs_fastzombie_hunter"
+CLASS.SWEP = "weapon_zs_fastzombie_hunter"
+
 CLASS.ModelScale = 1
-CLASS.Points = 40
+CLASS.Points = 40
+
 CLASS.Hull = {Vector(-16, -16, 0), Vector(16, 16, 58)}
 CLASS.HullDuck = {Vector(-16, -16, 0), Vector(16, 16, 32)}
 CLASS.ViewOffset = Vector(0, 0, 50)
-CLASS.ViewOffsetDucked = Vector(0, 0, 24)
+CLASS.ViewOffsetDucked = Vector(0, 0, 24)
+
 CLASS.PainSounds = {"NPC_FastZombie.Pain"}
-CLASS.DeathSounds = {"NPC_FastZombie.Die"}
+CLASS.DeathSounds = {"NPC_FastZombie.Die"}
+
 CLASS.VoicePitch = 0.75
 CLASS.NoShadow = true
 
 CLASS.NoFallDamage = true
 CLASS.NoFallSlowdown = true
 
-CLASS.Icon = "zombiesurvival/killicons/nhunter"
-
+CLASS.Icon = "zombiesurvival/killicons/nhunter"
+
+
+
 function CLASS:Move(pl, mv)
 	local wep = pl:GetActiveWeapon()
 	if wep.Move and wep:Move(mv) then
@@ -40,7 +49,8 @@ function CLASS:Move(pl, mv)
 		mv:SetMaxSpeed(math.min(mv:GetMaxSpeed(), 90))
 		mv:SetMaxClientSpeed(math.min(mv:GetMaxClientSpeed(), 90))
 	end
-end
+end
+
 local mathrandom = math.random
 local StepLeftSounds = {
 	"npc/fast_zombie/foot1.wav",
@@ -58,16 +68,20 @@ function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilte
 	end
 	
 	return true
-end
+end
+
 --[[function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilter)
 	if iFoot == 0 then
 		pl:EmitSound("NPC_FastZombie.GallopLeft")
 	else
 		pl:EmitSound("NPC_FastZombie.GallopRight")
-	end
+	end
+
 	return true
-end]]
-
+end]]
+
+
+
 function CLASS:PlayerStepSoundTime(pl, iType, bWalking)
 	if iType == STEPSOUNDTIME_NORMAL or iType == STEPSOUNDTIME_WATER_FOOT then
 		return 450 - pl:GetVelocity():Length()
@@ -78,8 +92,10 @@ function CLASS:PlayerStepSoundTime(pl, iType, bWalking)
 	end
 
 	return 250
-end
-
+end
+
+
+
 function CLASS:CalcMainActivity(pl, velocity)
 	local wep = pl:GetActiveWeapon()
 	if not wep:IsValid() or not wep.GetClimbing then return end
@@ -168,7 +184,8 @@ function CLASS:DoAnimationEvent(pl, event, data)
 		return ACT_INVALID
 	end
 end
-
+
+
 function CLASS:CreateMove(pl, cmd)
 	local wep = pl:GetActiveWeapon()
 	if wep:IsValid() and wep.IsPouncing then
@@ -193,10 +210,13 @@ function CLASS:CreateMove(pl, cmd)
 			end]]
 		end
 	end
-end
+end
+
+
 function CLASS:GetAlpha(pl)
 	local wep = pl:GetActiveWeapon()
-	if not wep.IsAttacking then wep = NULL end
+	if not wep.IsAttacking then wep = NULL end
+
 	if wep:IsValid() and wep:IsAttacking() then
 		return 0.9
 	elseif MySelf:IsValid() and MySelf:Team() == TEAM_UNDEAD then
@@ -206,17 +226,20 @@ function CLASS:GetAlpha(pl)
 		local eyepos = EyePos()
 		return math.Clamp(pl:GetVelocity():Length() - pl:NearestPoint(eyepos):Distance(eyepos) * 0, 200, 10) / 255
 	end
-end
-
+end
+
 function CLASS:PrePlayerDraw(pl)
-	pl:RemoveAllDecals()
+	pl:RemoveAllDecals()
+
 	--[[if pl:GetBarricadeGhosting() then
 		render.SetBlend(0.7)
 		render.SetColorModulation(1, 1, 5)
 	else]]
 		local alpha = self:GetAlpha(pl)
-		if alpha == 0 then return true end
+		if alpha == 0 then return true end
+
 		render.SetBlend(alpha)
 		render.SetColorModulation(0.4, 0.4, 0.4)
 	--end
 end
+

@@ -448,11 +448,14 @@ GM.HonorableMentions[HM_NESTMASTER] = {Name = ""..translate.Get("hm_nest_master"
 -- Don't let humans use these models because they look like undead models. Must be lower case.
 GM.RestrictedModels = {
 	"models/player/zombie_classic.mdl",
+	"models/player/zombie_classic_hbfix.mdl",
 	"models/player/zombine.mdl",
 	"models/player/zombie_soldier.mdl",
 	"models/player/zombie_fast.mdl",
+	"models/zombie/fast_v3.mdl",
 	"models/player/corpse1.mdl",
 	"models/player/charple.mdl",
+	"models/zs_undertaker/undertaker.mdl",
 	"models/player/skeleton.mdl"
 }
 

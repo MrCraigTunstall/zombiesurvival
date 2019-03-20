@@ -96,13 +96,6 @@ function CLASS:DoAnimationEvent(pl, event, data)
 	end
 end
 
-if SERVER then
-	function CLASS:OnSpawned(pl)
-		pl:CreateAmbience("nightmareambience")
-	end
-
-end
-
 if not CLIENT then return end
 
 function CLASS:PrePlayerDraw(pl)
@@ -114,3 +107,14 @@ function CLASS:PostPlayerDraw(pl)
 end
 
 CLASS.Icon = "zombiesurvival/killicons/reaper_zs2"
+
+if SERVER then
+	function CLASS:OnSpawned(pl)
+		pl:CreateAmbience("nightmareambience")
+		local status = pl:GiveStatus("overridemodel")
+		if status and status:IsValid() then
+		status:SetModel("models/zombie/fast_v3.mdl")
+		status:SetBodygroup(1, 0)
+		end
+	end
+end
