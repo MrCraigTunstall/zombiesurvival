@@ -29,8 +29,6 @@ CLASS.Mass = 200
 CLASS.ViewOffset = Vector(0, 0, 75)
 CLASS.ViewOffsetDucked = Vector(0, 0, 48)
 CLASS.StepSize = 25
---[[CLASS.Hull = {Vector(-22, -22, 0), Vector(22, 22, 96)}
-CLASS.HullDuck = {Vector(-22, -22, 0), Vector(22, 22, 58)}]]
 
 CLASS.JumpPower = 225
 
@@ -135,8 +133,6 @@ end
 
 if not CLIENT then return end
 
-CLASS.Icon = "zombiesurvival/killicons/pukepus_hd"
-
 local matSkin = Material("Models/Barnacle/barnacle_sheet")
 function CLASS:PrePlayerDraw(pl)
 	render.ModelMaterialOverride(matSkin)
@@ -145,3 +141,5 @@ end
 function CLASS:PostPlayerDraw(pl)
 	render.ModelMaterialOverride()
 end
+
+CLASS.Icon = "zombiesurvival/killicons/pukepus_hd"

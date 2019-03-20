@@ -10,6 +10,7 @@ function ENT:Initialize()
 	self:SetModel("models/d3/other/concrete_obelisc/concrete_obelisc.mdl")
 	self:PhysicsInit(SOLID_VPHYSICS)
 	self:SetUseType(SIMPLE_USE)
+	self:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
 
 	local phys = self:GetPhysicsObject()
 	if phys:IsValid() then

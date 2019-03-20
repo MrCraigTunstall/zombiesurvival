@@ -210,8 +210,6 @@ end
 
 if SERVER then return end
 
-CLASS.Icon = "zombiesurvival/killicons/fastzombie_hd"
-
 function CLASS:CreateMove(pl, cmd)
 	local wep = pl:GetActiveWeapon()
 	if wep:IsValid() and wep.IsPouncing then
@@ -229,11 +227,8 @@ function CLASS:CreateMove(pl, cmd)
 			wep.m_ViewAngles = viewangles
 
 			cmd:SetViewAngles(viewangles)
-		--[[elseif wep:IsClimbing() then
-			local buttons = cmd:GetButtons()
-			if bit.band(buttons, IN_DUCK) ~= 0 then
-				cmd:SetButtons(buttons - IN_DUCK)
-			end]]
 		end
 	end
 end
+
+CLASS.Icon = "zombiesurvival/killicons/fastzombie_hd"

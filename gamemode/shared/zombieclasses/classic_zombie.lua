@@ -52,15 +52,3 @@ function CLASS:UpdateAnimation(pl, velocity, maxseqgroundspeed)
 
 	return self.BaseClass.UpdateAnimation(self, pl, velocity, maxseqgroundspeed)
 end
-
---[[if SERVER then return end
-
-function CLASS:CreateMove(pl, cmd)
-	local wep = pl:GetActiveWeapon()
-	if wep:IsValid() and wep.IsClimbing and wep:IsClimbing() then
-		local buttons = cmd:GetButtons()
-		if bit.band(buttons, IN_DUCK) ~= 0 then
-			cmd:SetButtons(buttons - IN_DUCK)
-		end
-	end
-end]]

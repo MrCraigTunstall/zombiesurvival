@@ -1,5 +1,3 @@
-
------------------------------------------------------
 CLASS.Name = "Reaper"
 CLASS.TranslationName = "class_reaper"
 CLASS.Description = "description_reaper"
@@ -16,8 +14,6 @@ CLASS.Health = 650
 CLASS.Speed = 280
 
 CLASS.CanTaunt = true
-
---CLASS.FearPerInstance = 1
 
 CLASS.Points = 35
 
@@ -48,15 +44,6 @@ function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilte
 
 	return true
 end
---[[function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilter)
-	if iFoot == 0 then
-		pl:EmitSound("NPC_FastZombie.GallopLeft")
-	else
-		pl:EmitSound("NPC_FastZombie.GallopRight")
-	end
-
-	return true
-end]]
 
 function CLASS:CalcMainActivity(pl, velocity)
 	if pl:WaterLevel() >= 3 then
@@ -118,9 +105,6 @@ end
 
 if not CLIENT then return end
 
-
-CLASS.Icon = "zombiesurvival/killicons/reaper_zs2"
-
 function CLASS:PrePlayerDraw(pl)
 	render.SetColorModulation(1, 0.5, 0.5)
 end
@@ -128,3 +112,5 @@ end
 function CLASS:PostPlayerDraw(pl)
 	render.SetColorModulation(1, 1, 1)
 end
+
+CLASS.Icon = "zombiesurvival/killicons/reaper_zs2"

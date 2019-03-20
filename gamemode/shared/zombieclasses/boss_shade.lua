@@ -114,8 +114,6 @@ end
 
 if not CLIENT then return end
 
-CLASS.Icon = "zombiesurvival/killicons/shade_hd"
-
 local ToZero = {"ValveBiped.Bip01_L_Thigh", "ValveBiped.Bip01_R_Thigh", "ValveBiped.Bip01_L_Calf", "ValveBiped.Bip01_R_Calf", "ValveBiped.Bip01_L_Foot", "ValveBiped.Bip01_R_Foot"}
 function CLASS:BuildBonePositions(pl)
 	for _, bonename in pairs(ToZero) do
@@ -187,3 +185,5 @@ end
 function CLASS:PostPlayerDraw(pl)
 	self:PostRenderEffects(pl)
 end
+
+CLASS.Icon = "zombiesurvival/killicons/shade_hd"

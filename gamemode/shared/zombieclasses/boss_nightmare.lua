@@ -86,8 +86,6 @@ end
 
 if not CLIENT then return end
 
-CLASS.Icon = "zombiesurvival/killicons/nightmare_hd_2"
-
 local function CreateBoneOffsets(pl)
 	pl.m_NightmareBoneOffsetsNext = CurTime() + math.Rand(0.02, 0.1)
 
@@ -129,3 +127,5 @@ end
 function CLASS:PostPlayerDraw(pl)
 	render.SetColorModulation(1, 1, 1)
 end
+
+CLASS.Icon = "zombiesurvival/killicons/nightmare_hd_2"

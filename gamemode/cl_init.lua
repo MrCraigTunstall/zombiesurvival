@@ -136,7 +136,10 @@ local draw_SimpleTextBlurry = draw.SimpleTextBlurry
 local draw_SimpleTextBlur = draw.SimpleTextBlur
 local draw_GetFontHeight = draw.GetFontHeight
 
-local MedicalAuraDistance = 300
+local MedicalAuraDistance = 800 ^ 2
+
+local M_Player = FindMetaTable("Player")
+local P_Team = M_Player.Team
 
 GM.LifeStatsBrainsEaten = 0
 GM.LifeStatsHumanDamage = 0
@@ -777,7 +780,7 @@ function GM:DrawHealthBar(x, y, health, maxhealth, bartexture, screenscale, pois
 			--Intro Song
 			if wavenumber >= 1 and OSTintro == 0 and MySelf:GetInfo("zs_intro") == "1" and not self.ZombieEscape then
 			if OSTintro == 0 then
-			MySelf:EmitSound("zombiesurvival/intro.mp3", 50, 100, 0.5)
+			MySelf:EmitSound("zombiesurvival/zsrintrov2.mp3", 50, 100, 0.5)
 			OSTintro = 1 -- So it doesn't repeat the track again.
 		end
 	end
@@ -1383,14 +1386,19 @@ function GM:HumanMenu()
 end
 
 function GM:PlayerBindPress(pl, bind, wasin)
-	if bind == "gmod_undo" or bind == "undo" then
-		RunConsoleCommand("+zoom")
-		timer.CreateEx("ReleaseZoom", 1, 1, RunConsoleCommand, "-zoom")
-	elseif bind == "+menu_context" then
-		self.ZombieThirdPerson = not self.ZombieThirdPerson
-	end
+    if bind == "gmod_undo" or bind == "undo" then
+        RunConsoleCommand("+zoom")
+        timer.Create("ReleaseZoom", 1, 1, function() RunConsoleCommand("-zoom") end)
+    elseif bind == "+menu_context" then
+        if pl:Team() ~= TEAM_SPECTATOR then
+            self.ZombieThirdPerson = not self.ZombieThirdPerson
+        end
+    elseif bind == "impulse 100" then
+        if P_Team(pl) == TEAM_UNDEAD and pl:Alive() then
+            self:ToggleZombieVision()
+        end
+    end
 end
-
 function GM:_ShouldDrawLocalPlayer(pl)
 	return pl:Team() ~= TEAM_SPECTATOR and (self.ZombieThirdPerson or pl:CallZombieFunction("ShouldDrawLocalPlayer")) or pl:IsPlayingTaunt()
 end
@@ -2109,6 +2117,51 @@ net.Receive("zs_endround", function(length)
 
 	gamemode.Call("EndRound", winner, nextmap)
 end)
+
+net.Receive("zs_ammogive", function(length)
+	local amount = net.ReadUInt(16)
+	local ammotype = net.ReadString()
+	local ent = net.ReadEntity()
+
+	if not ent:IsValidPlayer() then return end
+	local ico = GAMEMODE.AmmoIcons[ammotype] or "weapon_zs_resupplybox"
+
+	ammotype = GAMEMODE.AmmoNames[ammotype] or ammotype
+
+	GAMEMODE:CenterNotify({killicon = ico}, " ", COLOR_GREEN, translate.Format("gave_x_y_ammo_to_z", amount, ammotype, ent:Name()))
+end)
+
+net.Receive("zs_ammogiven", function(length)
+	local amount = net.ReadUInt(16)
+	local ammotype = net.ReadString()
+	local ent = net.ReadEntity()
+
+	if not ent:IsValidPlayer() then return end
+	local ico = GAMEMODE.AmmoIcons[ammotype] or "weapon_zs_resupplybox"
+
+	ammotype = GAMEMODE.AmmoNames[ammotype] or ammotype
+
+	GAMEMODE:CenterNotify({killicon = ico}, " ", COLOR_GREEN, translate.Format("obtained_x_y_ammo_from_z", amount, ammotype, ent:Name()))
+end)
+
+net.Receive("zs_updatealtselwep", function(length)
+end)
+
+local function AltSelItemUpd()
+	local activeweapon = MySelf:GetActiveWeapon()
+	if not activeweapon or not activeweapon:IsValid() then return end
+
+	local actwclass = activeweapon:GetClass()
+	GAMEMODE.HumanMenuPanel.SelectedItemLabel:SetText(weapons.Get(actwclass).PrintName)
+end
+
+local function AltSelItemUpd()
+	local activeweapon = MySelf:GetActiveWeapon()
+	if not activeweapon or not activeweapon:IsValid() then return end
+
+	local actwclass = activeweapon:GetClass()
+	GAMEMODE.HumanMenuPanel.SelectedItemLabel:SetText(weapons.Get(actwclass).PrintName)
+end
 
 -- Mutations Net
 net.Receive("zs_mutations_table", function(len)

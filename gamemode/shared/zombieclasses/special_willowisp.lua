@@ -106,8 +106,8 @@ end
 
 if not CLIENT then return end
 
-CLASS.Icon = "sprites/glow04_noz"
-
 function CLASS:PrePlayerDraw(pl)
 	return true
 end
+
+CLASS.Icon = "sprites/glow04_noz"

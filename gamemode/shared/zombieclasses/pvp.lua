@@ -18,8 +18,6 @@ CLASS.SWEP = "weapon_zs_infinityboomstick"
 
 CLASS.Model = Model("models/player/riot.mdl")
 
---CLASS.PainSounds = {"npc/zombie/zombie_pain1.wav", "npc/zombie/zombie_pain2.wav", "npc/zombie/zombie_pain3.wav", "npc/zombie/zombie_pain4.wav", "npc/zombie/zombie_pain5.wav", "npc/zombie/zombie_pain6.wav"}
-
 CLASS.VoicePitch = 0.65
 
 CLASS.CanFeignDeath = false
@@ -27,25 +25,6 @@ CLASS.CanFeignDeath = false
 function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilter)
 	return false
 end
-
--- Sound scripts are LITERALLY 100x slower than raw file input. Test it yourself if you don't believe me.
---[[function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilter)
-	if iFoot == 0 then
-		if mathrandom() < 0.15 then
-			pl:EmitSound("Zombie.ScuffLeft")
-		else
-			pl:EmitSound("Zombie.FootstepLeft")
-		end
-	else
-		if mathrandom() < 0.15 then
-			pl:EmitSound("Zombie.ScuffRight")
-		else
-			pl:EmitSound("Zombie.FootstepRight")
-		end
-	end
-
-	return true
-end]]
 
 function CLASS:PlayerStepSoundTime(pl, iType, bWalking)
 	return false

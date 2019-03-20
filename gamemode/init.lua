@@ -275,7 +275,9 @@ function GM:AddNetworkStrings()
 	util.AddNetworkString("zs_spectate")
 	util.AddNetworkString("zs_weaponlocks")
 	util.AddNetworkString("zs_mutations_table")
-	--util.AddNetworkString("zs_update_playermodel")
+	util.AddNetworkString("zs_ammogive")
+	util.AddNetworkString("zs_ammogiven")
+	util.AddNetworkString("zs_updatealtselwep")
 end
 
 function GM:IsClassicMode()
@@ -3382,6 +3384,14 @@ function GM:PlayerStepSoundTime(pl, iType, bWalking)
 	return fStepTime
 end
 
+function GM:OnZEWeaponPickup(pl, wep)
+end
+
+function GM:ConCommandErrorMessage(pl, message)
+	pl:CenterNotify(COLOR_RED, message)
+	pl:SendLua("surface.PlaySound(\"buttons/button10.wav\")")
+end
+
 concommand.Add("zsdropweapon", function(sender, command, arguments)
 	if GAMEMODE.ZombieEscape then return end
 
@@ -3427,21 +3437,7 @@ concommand.Add("zsemptyclip", function(sender, command, arguments)
 	end
 end)
 
-concommand.Add("zsgiveammo", function(sender, command, arguments)
-	if GAMEMODE.ZombieEscape then return end
-
-	if not sender:IsValid() or not sender:Alive() or sender:Team() == TEAM_UNDEAD then return end
-
-	local ammotype = arguments[1]
-	if not ammotype or #ammotype == 0 or not GAMEMODE.AmmoCache[ammotype] then return end
-
-	local count = sender:GetAmmoCount(ammotype)
-	if count <= 0 then
-		sender:SendLua("surface.PlaySound(\"buttons/button10.wav\")")
-		sender:PrintTranslatedMessage(HUD_PRINTCENTER, "no_spare_ammo_to_give")
-		return
-	end
-
+function GM:TryGetLockOnTrace(sender, arguments)
 	local ent
 	local dent = Entity(tonumbersafe(arguments[2] or 0) or 0)
 	if GAMEMODE:ValidMenuLockOnTarget(sender, dent) then
@@ -3449,10 +3445,28 @@ concommand.Add("zsgiveammo", function(sender, command, arguments)
 	end
 
 	if not ent then
-		ent = sender:MeleeTrace(48, 2).Entity
+		ent = sender:MeleeTrace(48, 2, nil, nil, true).Entity
 	end
 
-	if ent and ent:IsValid() and ent:IsPlayer() and ent:Team() ~= TEAM_UNDEAD and ent:Alive() then
+	return ent
+end
+
+concommand.Add("zsgiveammo", function(sender, command, arguments)
+	if GAMEMODE.ZombieEscape then return end
+
+	if not sender:IsValid() or not sender:Alive() or sender:Team() ~= TEAM_HUMAN then return end
+
+	local ammotype = arguments[1]
+	if not ammotype or #ammotype == 0 or not GAMEMODE.AmmoCache[ammotype] then return end
+
+	local count = sender:GetAmmoCount(ammotype)
+	if count <= 0 then
+		GAMEMODE:ConCommandErrorMessage(sender, translate.ClientGet(sender, "no_spare_ammo_to_give"))
+		return
+	end
+
+	local ent = GAMEMODE:TryGetLockOnTrace(sender, arguments)
+	if ent and ent:IsValidLivingHuman() then
 		local desiredgive = math.min(count, GAMEMODE.AmmoCache[ammotype])
 		if desiredgive >= 1 then
 			sender:RemoveAmmo(desiredgive, ammotype)
@@ -3465,11 +3479,22 @@ concommand.Add("zsgiveammo", function(sender, command, arguments)
 
 			sender:RestartGesture(ACT_GMOD_GESTURE_ITEM_GIVE)
 
+			net.Start("zs_ammogive")
+				net.WriteUInt(desiredgive, 16)
+				net.WriteString(ammotype)
+				net.WriteEntity(ent)
+			net.Send(sender)
+
+			net.Start("zs_ammogiven")
+				net.WriteUInt(desiredgive, 16)
+				net.WriteString(ammotype)
+				net.WriteEntity(sender)
+			net.Send(ent)
+
 			return
 		end
 	else
-		sender:SendLua("surface.PlaySound(\"buttons/button10.wav\")")
-		sender:PrintTranslatedMessage(HUD_PRINTCENTER, "no_person_in_range")
+		GAMEMODE:ConCommandErrorMessage(sender, translate.ClientGet(sender, "no_person_in_range"))
 	end
 end)
 
@@ -3626,7 +3651,11 @@ function GM:PlayerSpawn(pl)
 		pl:DoHulls(pl:GetZombieClass(), TEAM_UNDEAD)
 
 		if classtab.Model then
-			pl:SetModel(classtab.Model)
+			if (type(classtab.Model) == "table") then
+				pl:SetModel(table.Random(classtab.Model))
+			else
+				pl:SetModel(classtab.Model)
+			end
 		elseif classtab.UsePlayerModel then
 			local desiredname = pl:GetInfo("cl_playermodel")
 			if #desiredname == 0 then
@@ -4005,10 +4034,6 @@ end
 
 function GM:PlayerSwitchFlashlight(pl, newstate)
 	if pl:Team() == TEAM_UNDEAD then
-		if pl:Alive() then
-			pl:SendLua("gamemode.Call(\"ToggleZombieVision\")")
-		end
-
 		return false
 	end
 

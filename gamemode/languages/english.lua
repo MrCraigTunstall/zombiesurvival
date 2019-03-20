@@ -141,6 +141,8 @@ LANGUAGE.too_close_to_a_spawn						= "Too close to a zombie spawn!"
 LANGUAGE.x_has_built_this_nest_and_is_still_around	= "%s has built this nest and is still around, so you can't demolish it."
 LANGUAGE.no_other_nests								= "You can't destroy a nest if only one remains."
 LANGUAGE.no_free_channel							= "Radio interference from too many already being placed!"
+LANGUAGE.gave_x_y_ammo_to_z							= "Gave %d %s ammo to %s"
+LANGUAGE.obtained_x_y_ammo_from_z					= "Obtained %d %s ammo from %s"
 
 -- Sigils point objectives
 LANGUAGE.sigil_destroyed							= "The Undead have destroyed a Sigil!"
@@ -215,6 +217,7 @@ LANGUAGE.class_gore_child							= "Gore Child"
 LANGUAGE.class_giga_gore_child						= "Giga Gore Child"
 LANGUAGE.class_reaper								= "Reaper"
 LANGUAGE.class_nugget								= "Nugget"
+LANGUAGE.class_boss_inferno					  	 	= "Inferno Zombie"
 LANGUAGE.class_bastardzine							= "Bastardzine"
 LANGUAGE.class_zombine								= "Zombine"
 LANGUAGE.class_undertaker							= "The Undertaker"
@@ -251,7 +254,11 @@ LANGUAGE.description_bastardzine                    = "Once nuggets began to roa
 LANGUAGE.description_burster                        = "This infected can explode if he killed."
 LANGUAGE.description_zombine						= "When a head-crab infects a Combine Soldier this horrid zombie is created.\nThis zombie is a threat to barricades mostly an is only unlocked on later waves."
 LANGUAGE.description_undertaker						= "Risen from the grave Undertaker. \nThings didn't change for him - he's still trying to put you into a tomb."
+<<<<<<< HEAD
 LANGUAGE.description_night_stalker					= "The shadowed version of bastardzine. \nThis unseen entiry can ambush humans and knock them back when leaping at them. \nBut when standing still or attacking and leaping, it can be visible \nBut when moving it becomes invisible. Which make this creature a dangerous heart in darkness and shadow"
+=======
+LANGUAGE.description_boss_inferno                   = "The pits of hell an back, this zombie utilizes fire as a strength.\n Everything is touchs with its claws burst to flames.\n Most infernos near death will erupt in a big explosion."
+>>>>>>> upstream/master
 
 -- Class control schemes
 LANGUAGE.controls_zombie							= "> PRIMARY: Claws\n> SECONDARY: Scream\n> RELOAD: Moan\n> SPRINT: Feign death\n> ON FATAL HIT IN LEGS: Revive / Transform"
@@ -277,7 +284,11 @@ LANGUAGE.controls_reaper							= "> PRIMARY: Axe\n> RELOAD: Moan"
 LANGUAGE.controls_burster                           = "> PRIMARY: Poison Bomb\n> ON DEATH: Poison Bomb"
 LANGUAGE.controls_zombine							= "> PRIMARY: Claws\n> SECONDARY: Grenade"	
 LANGUAGE.controls_undertaker						= "> PRIMARY: Hit\n> SECONDARY: Throw dart, that can heal zombies and damage humans."
+<<<<<<< HEAD
 LANGUAGE.controls_night_stalker                     = "> PRIMARY: Claws\n> SECONDARY: Lunge / Climb (next to wall)\n> RELOAD: Scream \n> INVISIBILITY WHEN MOVING"
+=======
+LANGUAGE.controls_boss_inferno                      = "> PRIMARY: Incendiary Claws\n> SECONDARY: N/A\n> RELOAD: Moan\n> SPRINT: Regenerate"
+>>>>>>> upstream/master
 
 -- The help file... Quite big! I wouldn't blame you if you didn't translate this part.
 LANGUAGE.help_cat_introduction						= "Introduction"
@@ -882,6 +893,7 @@ LANGUAGE.options_player                            	= "Player"
 LANGUAGE.options_options                            = "Options"
 LANGUAGE.options_no_discord                  		= "Don't show the official Discord link in chat"
 LANGUAGE.options_no_ars_crate                  		= "Don't show arsenal crates through walls"
+LANGUAGE.options_no_status_ars_crate                = "Don't show arsenal crates on clients"
 LANGUAGE.options_old_hud                  			= "Enable Health Bar HUD (requires re-joining)"
 LANGUAGE.options_no_resupply                  		= "Don't show resupply boxes through walls"
 LANGUAGE.options_no_floating_score                  = "Don't show point floaters"

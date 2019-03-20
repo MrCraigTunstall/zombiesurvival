@@ -1,5 +1,3 @@
-
------------------------------------------------------
 CLASS.Name = "Bastardzine"
 CLASS.TranslationName = "class_bastardzine"
 CLASS.Description = "description_bastardzine"
@@ -8,9 +6,6 @@ CLASS.Help = "controls_fast_zombie"
 CLASS.Model = Model("models/player/zombie_classic.mdl")
 
 CLASS.Wave = 0
---CLASS.Threshold = 0
---CLASS.Unlocked = true
---CLASS.Hidden = true
 CLASS.Boss = true
 CLASS.Hidden = true
 
@@ -65,15 +60,6 @@ function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilte
 
 	return true
 end
---[[function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilter)
-	if iFoot == 0 then
-		pl:EmitSound("NPC_FastZombie.GallopLeft")
-	else
-		pl:EmitSound("NPC_FastZombie.GallopRight")
-	end
-
-	return true
-end]]
 
 function CLASS:PlayerStepSoundTime(pl, iType, bWalking)
 	if iType == STEPSOUNDTIME_NORMAL or iType == STEPSOUNDTIME_WATER_FOOT then
@@ -194,8 +180,6 @@ end
 
 if SERVER then return end
 
-CLASS.Icon = "zombiesurvival/killicons/bastardzine_hd"
-
 function CLASS:CreateMove(pl, cmd)
 	local wep = pl:GetActiveWeapon()
 	if wep:IsValid() and wep.IsPouncing then
@@ -213,11 +197,6 @@ function CLASS:CreateMove(pl, cmd)
 			wep.m_ViewAngles = viewangles
 
 			cmd:SetViewAngles(viewangles)
-		--[[elseif wep:IsClimbing() then
-			local buttons = cmd:GetButtons()
-			if bit.band(buttons, IN_DUCK) ~= 0 then
-				cmd:SetButtons(buttons - IN_DUCK)
-			end]]
 		end
 	end
 end
@@ -229,3 +208,5 @@ end
 function CLASS:PostPlayerDraw(pl)
 	render.SetColorModulation(1, 1, 1)
 end
+
+CLASS.Icon = "zombiesurvival/killicons/bastardzine_hd"

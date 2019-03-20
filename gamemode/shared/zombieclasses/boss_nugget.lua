@@ -1,5 +1,3 @@
-
------------------------------------------------------
 CLASS.Name = "Nugget"
 CLASS.TranslationName = "class_nugget"
 CLASS.Description = "description_headcrab"
@@ -7,8 +5,6 @@ CLASS.Help = "controls_headcrab"
 
 CLASS.Wave = 0
 CLASS.Threshold = 0
---CLASS.Unlocked = true
---CLASS.Hidden = true
 CLASS.Hidden = true
 CLASS.Boss = true
 
@@ -146,8 +142,6 @@ end
 
 if not CLIENT then return end
 
-CLASS.Icon = "zombiesurvival/killicons/nugget_hd_2"
-
 function CLASS:PrePlayerDraw(pl)
 	local wep = pl:GetActiveWeapon()
 	if wep:IsValid() and wep.GetBurrowTime and wep:GetBurrowTime() ~= 0 and CurTime() >= math.abs(wep:GetBurrowTime()) then
@@ -181,3 +175,5 @@ end
 function CLASS:PostPlayerDraw(pl)
 	render.SetColorModulation(1, 1, 1)
 end
+
+CLASS.Icon = "zombiesurvival/killicons/nugget_hd_2"

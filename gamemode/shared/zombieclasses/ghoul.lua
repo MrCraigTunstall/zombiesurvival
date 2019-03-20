@@ -134,64 +134,10 @@ function CLASS:DoesntGiveFear(pl)
 	return pl.FeignDeath and pl.FeignDeath:IsValid()
 end
 
---[[local function CreateFlesh(pl, damage, damagepos, damagedir)
-	damage = math.min(damage, 100)
-
-	pl:EmitSound("physics/body/body_medium_break"..math.random(2, 4)..".wav", 74, 125 - damage * 0.50)
-
-	if SERVER then
-		local damagepos = pl:LocalToWorld(damagepos)
-
-		for i=1, math.max(1, math.floor(damage / 15)) do
-			local ent = ents.Create("projectile_poisonflesh")
-			if ent:IsValid() then
-				local heading = (damagedir + VectorRand() * 0.3):GetNormalized()
-				ent:SetPos(damagepos + heading)
-				ent:SetOwner(pl)
-				ent:Spawn()
-
-				local phys = ent:GetPhysicsObject()
-				if phys:IsValid() then
-					phys:Wake()
-					phys:SetVelocityInstantaneous(math.min(350, 16 + damage ^ math.Rand(1.15, 1.25)) * heading)
-				end
-			end
-		end
-	end
-end
-
-function CLASS:ProcessDamage(pl, dmginfo)
-	local attacker, damage = dmginfo:GetAttacker(), dmginfo:GetDamage()
-	if attacker ~= pl and damage >= 5 and damage < pl:Health() and CurTime() >= (pl.m_NextGhoulEmit or 0) then
-		pl.m_NextGhoulEmit = CurTime() + 0.25
-
-		local pos = pl:WorldToLocal(dmginfo:GetDamagePosition())
-		local norm = dmginfo:GetDamageForce():GetNormalized() * -1
-		timer.Simple(0, function()
-			if pl:IsValid() then
-				CreateFlesh(pl, damage, pos, norm)
-			end
-		end)
-	end
-end]]
-
 if SERVER then
 	function CLASS:AltUse(pl)
 		pl:StartFeignDeath()
 	end
-
-	--[[function CLASS:OnKilled(pl, attacker, inflictor, suicide, headshot, dmginfo, assister)
-		local damage = dmginfo:GetDamage()
-		if damage >= 5 then
-			local pos = pl:WorldToLocal(dmginfo:GetDamagePosition())
-			local norm = dmginfo:GetDamageForce():GetNormalized() * -1
-			timer.Simple(0, function()
-				if pl:IsValid() then
-					CreateFlesh(pl, math.max(30, damage * 2), pos, norm)
-				end
-			end)
-		end
-	end]]
 end
 
 if not CLIENT then return end

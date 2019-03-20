@@ -18,7 +18,8 @@ CLASS.Points = 5
 
 CLASS.SWEP = "weapon_zs_zombie"
 
-CLASS.Model = Model("models/player/zombie_classic.mdl")
+CLASS.Model = Model("models/player/zombie_classic_hbfix.mdl")
+-- CLASS.Model = {Model("models/player/corpse1.mdl"), Model("models/player/zombie_classic.mdl")}
 
 CLASS.PainSounds = {"npc/zombie/zombie_pain1.wav", "npc/zombie/zombie_pain2.wav", "npc/zombie/zombie_pain3.wav", "npc/zombie/zombie_pain4.wav", "npc/zombie/zombie_pain5.wav", "npc/zombie/zombie_pain6.wav"}
 CLASS.DeathSounds = {"npc/zombie/zombie_die1.wav", "npc/zombie/zombie_die2.wav", "npc/zombie/zombie_die3.wav"}
@@ -51,25 +52,6 @@ function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilte
 
 	return true
 end
-
--- Sound scripts are LITERALLY 100x slower than raw file input. Test it yourself if you don't believe me.
---[[function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilter)
-	if iFoot == 0 then
-		if mathrandom() < 0.15 then
-			pl:EmitSound("Zombie.ScuffLeft")
-		else
-			pl:EmitSound("Zombie.FootstepLeft")
-		end
-	else
-		if mathrandom() < 0.15 then
-			pl:EmitSound("Zombie.ScuffRight")
-		else
-			pl:EmitSound("Zombie.FootstepRight")
-		end
-	end
-
-	return true
-end]]
 
 function CLASS:PlayerStepSoundTime(pl, iType, bWalking)
 	if iType == STEPSOUNDTIME_NORMAL or iType == STEPSOUNDTIME_WATER_FOOT then

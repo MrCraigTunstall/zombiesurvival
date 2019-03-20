@@ -27,7 +27,8 @@ local function GhostProps(pl, newPos)
 	local ents = ents.FindInBox(newPos + pl:OBBMins() - Vector(1,1,1), newPos + pl:OBBMaxs() + Vector(1,1,1))
 	
 	for k, v in ipairs(ents) do
-		if IsValid(v) and v:GetMoveType() == MOVETYPE_VPHYSICS and v:GetClass() ~= "prop_obj_sigil" and not v:IsNailed() then
+		if IsValid(v) and v:GetMoveType() == MOVETYPE_VPHYSICS and v:GetClass() ~= "prop_obj_sigil" and v:GetClass() ~= "status_arsenalcrate" 
+		and not v:IsNailed() then
 			v:GhostAllPlayersInMe(30, true)
 		end
 	end

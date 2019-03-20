@@ -56,15 +56,6 @@ if SERVER then
 	end
 end
 
---[[function CLASS:ScalePlayerDamage(pl, hitgroup, dmginfo)
-	if hitgroup ~= HITGROUP_LEFTLEG and hitgroup ~= HITGROUP_RIGHTLEG and hitgroup ~= HITGROUP_GEAR and hitgroup ~= HITGROUP_GENERIC then
-		dmginfo:SetDamage(0)
-		dmginfo:ScaleDamage(0)
-	end
-
-	return true
-end]]
-
 function CLASS:Move(pl, mv)
 	local wep = pl:GetActiveWeapon()
 	if wep.Move and wep:Move(mv) then
@@ -94,15 +85,6 @@ function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilte
 
 	return true
 end
---[[function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilter)
-	if iFoot == 0 then
-		pl:EmitSound("NPC_FastZombie.GallopLeft")
-	else
-		pl:EmitSound("NPC_FastZombie.GallopRight")
-	end
-
-	return true
-end]]
 
 function CLASS:PlayerStepSoundTime(pl, iType, bWalking)
 	if iType == STEPSOUNDTIME_NORMAL or iType == STEPSOUNDTIME_WATER_FOOT then
@@ -153,8 +135,6 @@ function CLASS:UpdateAnimation(pl, velocity, maxseqgroundspeed)
 end
 
 if not CLIENT then return end
-
-CLASS.Icon = "zombiesurvival/killicons/fast_legs"
 
 -- This whole point of this is to stop drawing decals on the upper part of the model. It doesn't actually do anything to the visible model.
 local undo = false
@@ -207,3 +187,5 @@ function CLASS:BuildBonePositions(pl)
 		pl:ManipulateBoneAngles(boneid, pl.m_KickDelta * Angle(bone == "ValveBiped.Bip01_L_Thigh" and 0 or 20, -110, 30))
 	end
 end
+
+CLASS.Icon = "zombiesurvival/killicons/fast_legs"

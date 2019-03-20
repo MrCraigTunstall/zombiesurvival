@@ -182,6 +182,20 @@ GM.AmmoModels["spotlamp"] = "models/props_combine/combine_light001a.mdl"
 GM.AmmoModels["stone"] = "models/props_junk/rock001a.mdl"
 GM.AmmoModels["pulse"] = "models/Items/combine_rifle_ammo01.mdl"
 
+GM.AmmoIcons = {}
+GM.AmmoIcons["pistol"] = "ammo_pistol"
+GM.AmmoIcons["smg1"] = "ammo_smg"
+GM.AmmoIcons["ar2"] = "ammo_assault"
+GM.AmmoIcons["battery"] = "ammo_medpower"
+GM.AmmoIcons["buckshot"] = "ammo_shotgun"
+GM.AmmoIcons["357"] = "ammo_rifle"
+GM.AmmoIcons["xbowbolt"] = "ammo_bolts"
+GM.AmmoIcons["gaussenergy"] = "ammo_nail"
+GM.AmmoIcons["pulse"] = "ammo_pulse"
+GM.AmmoIcons["impactmine"] = "ammo_explosive"
+GM.AmmoIcons["chemical"] = "ammo_chemical"
+GM.AmmoIcons["scrap"] = "ammo_scrap"
+
 -- Handled in languages file.
 GM.ValidBeaconMessages = {
 	"message_beacon_1",

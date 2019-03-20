@@ -18,27 +18,14 @@ CLASS.DeathSounds = {Sound("zombiesurvival/wraithdeath1.ogg"), Sound("zombiesurv
 
 CLASS.NoShadow = true
 
---CLASS.GhostSpeed = 35
-
 function CLASS:Move(pl, move)
-	--[[if pl:GetBarricadeGhosting() then
-		move:SetMaxSpeed(self.GhostSpeed)
-		move:SetMaxClientSpeed(self.GhostSpeed)
-	end]]
+
 
 	if pl:KeyDown(IN_SPEED) then
 		move:SetMaxSpeed(50)
 		move:SetMaxClientSpeed(50)
 	end
 end
-
---[[function CLASS:GetJumpPower(pl)
-	return pl:IsBarricadeGhosting() and 0 or DEFAULT_JUMP_POWER
-end
-
-function CLASS:SwitchedAway(pl)
-	pl:SetBarricadeGhosting(false)
-end]]
 
 function CLASS:CalcMainActivity(pl, velocity)
 	local wep = pl:GetActiveWeapon()
@@ -58,10 +45,6 @@ function CLASS:PlayerFootstep(pl, vFootPos, iFoot, strSoundName, fVolume, pFilte
 end
 
 function CLASS:ScalePlayerDamage(pl, hitgroup, dmginfo)
-	--[[if pl:IsBarricadeGhosting() then
-		dmginfo:SetDamage(dmginfo:GetDamage() * 1.5)
-	end]]
-
 	-- The Wraith model doesn't have hitboxes.
 	return true
 end
@@ -109,24 +92,19 @@ end
 
 if not CLIENT then return end
 
-CLASS.Icon = "zombiesurvival/killicons/wraith_hd"
-
 function CLASS:PrePlayerDraw(pl)
 	pl:RemoveAllDecals()
 
-	--[[if pl:GetBarricadeGhosting() then
-		render.SetBlend(0.7)
-		render.SetColorModulation(1, 1, 5)
-	else]]
 		local alpha = self:GetAlpha(pl)
 		if alpha == 0 then return true end
 
 		render.SetBlend(alpha)
 		render.SetColorModulation(0.3, 0.3, 0.3)
-	--end
 end
 
 function CLASS:PostPlayerDraw(pl)
 	render.SetColorModulation(1, 1, 1)
 	render.SetBlend(1)
 end
+
+CLASS.Icon = "zombiesurvival/killicons/wraith_hd"

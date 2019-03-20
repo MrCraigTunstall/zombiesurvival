@@ -1,6 +1,9 @@
 SWEP.ViewModel = "models/weapons/v_pistol.mdl"
 SWEP.WorldModel = "models/Combine_turrets/Floor_turret.mdl"
 
+SWEP.PrintName = translate.Get("wn_turret")
+SWEP.Description = translate.Get("worth_turret2")
+
 SWEP.AmmoIfHas = true
 
 SWEP.Primary.ClipSize = 1
@@ -8,6 +11,7 @@ SWEP.Primary.DefaultClip = 1
 SWEP.Primary.Automatic = true
 SWEP.Primary.Ammo = "thumper"
 SWEP.Primary.Delay = 2
+SWEP.Primary.Damage = 8.8
 
 SWEP.Secondary.ClipSize = -1
 SWEP.Secondary.DefaultClip = -1
@@ -16,6 +20,8 @@ SWEP.Secondary.Ammo = "none"
 
 SWEP.WalkSpeed = SPEED_NORMAL
 SWEP.FullWalkSpeed = SPEED_SLOWEST
+
+SWEP.TurretAmmoType = "smg1"
 
 function SWEP:Initialize()
 	self:SetWeaponHoldType("slam")
@@ -64,13 +70,13 @@ function SWEP:Think()
 		local count = self:GetPrimaryAmmoCount()
 		if count ~= self:GetReplicatedAmmo() then
 			self:SetReplicatedAmmo(count)
-			self.Owner:ResetSpeed()
+			self:GetOwner():ResetSpeed()
 		end
 	end
 end
 
 function SWEP:Deploy()
-	gamemode.Call("WeaponDeployed", self.Owner, self)
+	gamemode.Call("WeaponDeployed", self:GetOwner(), self)
 
 	self.IdleAnimation = CurTime() + self:SequenceDuration()
 

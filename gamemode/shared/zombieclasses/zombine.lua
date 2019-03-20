@@ -186,16 +186,12 @@ function CLASS:UpdateAnimation(pl, velocity, maxseqgroundspeed)
 	end
 	
 	if !pl:IsOnGround() || pl:WaterLevel() >= 3 then
-	
 		pl:SetPlaybackRate(1)
-	
 		if pl:GetCycle() >= 1 then
 			pl:SetCycle(pl:GetCycle() - 1)
 		end
-
 		return true
 	end
-
 	return true
 end
 
@@ -219,35 +215,22 @@ function CLASS:DoesntGiveFear(pl)
 	return IsValid(pl.FeignDeath)
 end
 
-if SERVER then
-	
-	function CLASS:OnSpawned(pl)
-	
+if SERVER then	
+	function CLASS:OnSpawned(pl)	
 		if AddHeadCrab then
-			if pl:GetZombieClassTable().Name == "Zombine" then
-	
-				pl:SetBodygroup( 1, 1 )
-			
-			end
-		
+			if pl:GetZombieClassTable().Name == "Zombine" then	
+				pl:SetBodygroup( 1, 1 )			
+			end		
 		end	
-		
 	end
 
 	function CLASS:OnKilled(pl, attacker, inflictor, suicide, headshot, dmginfo, assister)
-	
 		if AddHeadCrab then
-		
 			if pl:GetZombieClassTable().Name == "Zombine" then
-	
 				pl:SetBodygroup( 1, 0 )
-			
 			end
-		
 		end	
-		
 	end
-	
 end	
 
 if CLIENT then

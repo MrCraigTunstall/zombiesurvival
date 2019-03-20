@@ -490,10 +490,21 @@ function meta:DropWeaponByType(class)
 		if ent:IsValid() then
 			ent:SetWeaponType(class)
 			ent:Spawn()
+
+			if wep.AmmoIfHas then
+				local ammocount = wep:GetPrimaryAmmoCount()
+				local desiredrop = math.min(ammocount, wep.Primary.ClipSize) - wep:Clip1()
+				if desiredrop > 0 then
+					wep:TakeCombinedPrimaryAmmo(desiredrop)
+					wep:SetClip1(desiredrop)
+				end
+			end
 			ent:SetClip1(wep:Clip1())
 			ent:SetClip2(wep:Clip2())
+			ent.DroppedTime = CurTime()
 
 			self:StripWeapon(class)
+			self:UpdateAltSelectedWeapon()
 
 			return ent
 		end
@@ -821,17 +832,33 @@ function meta:ReflectDamage(damage)
 end
 
 function meta:GiveWeaponByType(weapon, plyr, ammo)
-	if ammo then
-		local wep = self:GetActiveWeapon()
-		if not wep or not wep:IsValid() or not wep.Primary then return end
+	local wep = self:GetActiveWeapon()
+	if not wep or not wep:IsValid() then return end
+
+	if wep.NoTransfer then return end
+
+	if ammo or wep.AmmoIfHas then
+		if not wep.Primary then return end
 
 		local ammotype = wep:ValidPrimaryAmmo()
 		local ammocount = wep:GetPrimaryAmmoCount()
 		if ammotype and ammocount then
-			local desiredgive = math.min(ammocount, math.ceil((GAMEMODE.AmmoCache[ammotype] or wep.Primary.ClipSize) * 5))
+			local desiredgive = math.min(ammocount, math.ceil((GAMEMODE.AmmoCache[ammotype] or wep.Primary.ClipSize) * (ammo and 5 or 1)))
 			if desiredgive >= 1 then
 				wep:TakeCombinedPrimaryAmmo(desiredgive)
 				plyr:GiveAmmo(desiredgive, ammotype)
+
+				net.Start("zs_ammogive")
+					net.WriteUInt(desiredgive, 16)
+					net.WriteString(ammotype)
+					net.WriteEntity(plyr)
+				net.Send(self)
+
+				net.Start("zs_ammogiven")
+					net.WriteUInt(desiredgive, 16)
+					net.WriteString(ammotype)
+					net.WriteEntity(self)
+				net.Send(plyr)
 
 				self:PlayGiveAmmoSound()
 				self:RestartGesture(ACT_GMOD_GESTURE_ITEM_GIVE)
@@ -839,47 +866,42 @@ function meta:GiveWeaponByType(weapon, plyr, ammo)
 		end
 	end
 
-	local wep = self:GetActiveWeapon()
-	if wep:IsValid() then
-		local primary = wep:ValidPrimaryAmmo()
-		if primary and 0 < wep:Clip1() then
-            		if wep.AmmoIfHas ~= true then
-				self:GiveAmmo(wep:Clip1(), primary, true)
-    			end
-    			wep:SetClip1(0)
-		end
-		local secondary = wep:ValidSecondaryAmmo()
-		if secondary and 0 < wep:Clip2() then
-            		if wep.AmmoIfHas ~= true then
-			    self:GiveAmmo(wep:Clip2(), secondary, true)
-            		end
-			wep:SetClip2(0)
-		end
+	local primary = wep:ValidPrimaryAmmo()
+	if primary and 0 < wep:Clip1() then
+		self:GiveAmmo(wep:Clip1(), primary, true)
+		wep:SetClip1(0)
+	end
+	local secondary = wep:ValidSecondaryAmmo()
+	if secondary and 0 < wep:Clip2() then
+		self:GiveAmmo(wep:Clip2(), secondary, true)
+		wep:SetClip2(0)
+	end
 
-		self:StripWeapon(weapon:GetClass())
+	self:StripWeapon(weapon:GetClass())
+	self:UpdateAltSelectedWeapon()
 
-		local wep2 = plyr:Give(weapon:GetClass())
-		if wep2 and wep2:IsValid() then
-			if wep2.Primary then
-				local primary = wep2:ValidPrimaryAmmo()
-				if primary then
-					if wep.AmmoIfHas ~= true then
-						wep2:SetClip1(0)
-					end
-					plyr:RemoveAmmo(math.max(0, wep2.Primary.DefaultClip - wep2.Primary.ClipSize), primary)
-				end
+	local wep2 = plyr:Give(weapon:GetClass())
+	if wep2 and wep2:IsValid() then
+		if wep2.Primary then
+			primary = wep2:ValidPrimaryAmmo()
+			if primary then
+				wep2:SetClip1(0)
+				plyr:RemoveAmmo(math.max(0, wep2.Primary.DefaultClip - wep2.Primary.ClipSize), primary)
 			end
-			if wep2.Secondary then
-				local secondary = wep2:ValidSecondaryAmmo()
-				if secondary then
-					if wep.AmmoIfHas ~= true then
-						wep2:SetClip2(0)
-					end
-					plyr:RemoveAmmo(math.max(0, wep2.Secondary.DefaultClip - wep2.Secondary.ClipSize), secondary)
-				end
+		end
+		if wep2.Secondary then
+			secondary = wep2:ValidSecondaryAmmo()
+			if secondary then
+				wep2:SetClip2(0)
+				plyr:RemoveAmmo(math.max(0, wep2.Secondary.DefaultClip - wep2.Secondary.ClipSize), secondary)
 			end
 		end
 	end
+end
+
+function meta:UpdateAltSelectedWeapon()
+	net.Start("zs_updatealtselwep")
+	net.Send(self)
 end
 
 

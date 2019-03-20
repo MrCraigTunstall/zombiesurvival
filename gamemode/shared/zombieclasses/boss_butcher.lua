@@ -137,8 +137,6 @@ end
 
 if not CLIENT then return end
 
-CLASS.Icon = "zombiesurvival/killicons/butcher_hd"
-
 function CLASS:PrePlayerDraw(pl)
 	render.SetColorModulation(1, 0.5, 0.5)
 end
@@ -146,3 +144,5 @@ end
 function CLASS:PostPlayerDraw(pl)
 	render.SetColorModulation(1, 1, 1)
 end
+
+CLASS.Icon = "zombiesurvival/killicons/butcher_hd"

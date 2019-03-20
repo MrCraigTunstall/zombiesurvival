@@ -136,8 +136,6 @@ end
 
 if not CLIENT then return end
 
-CLASS.Icon = "zombiesurvival/killicons/headcrab_hd"
-
 function CLASS:PrePlayerDraw(pl)
 	local wep = pl:GetActiveWeapon()
 	if wep:IsValid() and wep.GetBurrowTime and wep:GetBurrowTime() ~= 0 and CurTime() >= math.abs(wep:GetBurrowTime()) then
@@ -163,3 +161,5 @@ function CLASS:CreateMove(pl, cmd)
 		cmd:SetViewAngles(viewangles)
 	end
 end
+
+CLASS.Icon = "zombiesurvival/killicons/headcrab_hd"
