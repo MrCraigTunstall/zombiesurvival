@@ -360,7 +360,7 @@ function MakepOptions()
 	hud_options:AddItem(check)
 	
 	local check = vgui.Create("DCheckBoxLabel", Window)
-	check:SetText(translate.Get("options_show_old_baseoutlinedhud_hud"))
+	check:SetText(translate.Get("options_show_old_baseoutlined_hud"))
 	check:SetConVar("zs_oldbaseoutlinedhud")
 	check:SizeToContents()
 	hud_options:AddItem(check)
