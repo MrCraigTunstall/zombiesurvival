@@ -69,6 +69,11 @@ cvars.AddChangeCallback("zs_alwaysshownails", function(cvar, oldvalue, newvalue)
 	GAMEMODE.AlwaysShowNails = tonumber(newvalue) == 1
 end)
 
+GM.OldBaseOutlinedHUD = CreateClientConVar("zs_oldbaseoutlinedhud", "0", true, false):GetBool()
+cvars.AddChangeCallback("zs_oldbaseoutlinedhud", function(cvar, oldvalue, newvalue)
+	GAMEMODE.OldBaseOutlinedHUD = tonumber(newvalue) == 1
+end)
+
 GM.NoCrosshairRotate = CreateClientConVar("zs_nocrosshairrotate", "0", true, false):GetBool()
 cvars.AddChangeCallback("zs_nocrosshairrotate", function(cvar, oldvalue, newvalue)
 	GAMEMODE.NoCrosshairRotate = tonumber(newvalue) == 1

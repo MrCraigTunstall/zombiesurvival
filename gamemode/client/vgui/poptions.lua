@@ -358,6 +358,12 @@ function MakepOptions()
 	check:SetConVar("zs_alwaysshownails")
 	check:SizeToContents()
 	hud_options:AddItem(check)
+	
+	local check = vgui.Create("DCheckBoxLabel", Window)
+	check:SetText(translate.Get("options_show_old_baseoutlinedhud_hud"))
+	check:SetConVar("zs_oldbaseoutlinedhud")
+	check:SizeToContents()
+	hud_options:AddItem(check)
 		
 	gameplay_list:AddItem(EasyLabel(Window, translate.Get"options_proprotation"), "DefaultFontSmall", color_white)
 	dropdown = vgui.Create("DComboBox", Window)

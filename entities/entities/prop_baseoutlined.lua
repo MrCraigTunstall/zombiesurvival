@@ -38,8 +38,8 @@ function ENT:DrawTranslucent()
 		local pos = self:LocalToWorld(mins)
 
 		self:SetModelScale(oldscale * 1.01, 0)
-
-		if render.SupportsVertexShaders_2_0() then
+		
+		if render.SupportsVertexShaders_2_0() and GAMEMODE.OldBaseOutlinedHUD then
 			render.EnableClipping(true)
 			render.PushCustomClipPlane(normal, normal:Dot(pos + dist * time * normal))
 			render.PushCustomClipPlane(rnormal, rnormal:Dot(pos + dist * time * 1.25 * normal))
@@ -61,7 +61,7 @@ function ENT:DrawTranslucent()
 		render.SetBlend(1)
 		render.SetColorModulation(1, 1, 1)
 
-		if render.SupportsVertexShaders_2_0() then
+		if render.SupportsVertexShaders_2_0() and GAMEMODE.OldBaseOutlinedHUD then
 			render.PopCustomClipPlane()
 			render.PopCustomClipPlane()
 			render.EnableClipping(false)
