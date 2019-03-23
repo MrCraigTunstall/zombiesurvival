@@ -118,6 +118,26 @@ if file.Exists(GM.FolderName.."/gamemode/misc/maps/"..game.GetMap()..".lua", "LU
 	include("misc/maps/"..game.GetMap()..".lua")
 end
 
+function player.GetAll()
+	local allplayers = {}
+	
+	local counter = 1
+	
+	for i = 1 , game.MaxPlayers() do
+		local ply = player.GetByID(i)
+		if IsValid(ply) then
+
+			if SERVER && !ply:IsConnected() then
+				continue
+			end
+		
+			allplayers[counter] = ply
+			counter = counter + 1
+		end
+	end
+	return allplayers
+end
+
 function BroadcastLua(code)
 	for _, pl in pairs(player.GetAll()) do
 		pl:SendLua(code)
