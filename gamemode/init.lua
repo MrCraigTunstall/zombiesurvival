@@ -138,6 +138,7 @@ function player.GetAll()
 	return allplayers
 end
 
+
 function BroadcastLua(code)
 	for _, pl in pairs(player.GetAll()) do
 		pl:SendLua(code)
@@ -1569,7 +1570,6 @@ function GM:AttemptHumanDynamicSpawn(pl)
 end
 
 function GM:PlayerInitialSpawn(pl)
-	pl.NextFlashlightSwitch = 0
 	gamemode.Call("PlayerInitialSpawnRound", pl)
 end
 
@@ -4050,22 +4050,6 @@ function GM:WaveStateChanged(newstate)
 	end
 
 	gamemode.Call("OnWaveStateChanged")
-end
-
-function GM:PlayerSwitchFlashlight(pl, newstate)
-	if pl:Team() == TEAM_UNDEAD then
-		return false
-	end
-
-	if pl:Team() == TEAM_HUMAN and not GAMEMODE.FlashLightLimit then 
-	return true
-	elseif
-	pl:Team() == TEAM_HUMAN and CurTime() >= pl.NextFlashlightSwitch then
-		pl.NextFlashlightSwitch = CurTime() + 0.75
-		return true
-	end
-
-	return false
 end
 
 function GM:PlayerStepSoundTime(pl, iType, bWalking)

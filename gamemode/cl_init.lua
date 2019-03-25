@@ -136,6 +136,11 @@ local draw_SimpleTextBlurry = draw.SimpleTextBlurry
 local draw_SimpleTextBlur = draw.SimpleTextBlur
 local draw_GetFontHeight = draw.GetFontHeight
 
+-- Flashlight sound
+local flashsound = Sound('items/flashlight1.wav')
+local flashlight
+local flashlight_Active = false
+
 local MedicalAuraDistance = 800 ^ 2
 
 local M_Player = FindMetaTable("Player")
@@ -549,6 +554,46 @@ function GM:PostRender()
 		end
 	end
 end
+
+-- Create the flashlight
+local function CreateFlashlight()
+	local flash = ProjectedTexture()
+	flash:SetTexture('effects/flashlight001')
+	flash:SetBrightness(1)
+	flash:SetFarZ(650)
+	flash:SetFOV(70)
+	flash:SetEnableShadows(true)
+
+	return flash
+end
+
+function GM:CreateFlashlightCheck()
+	-- Only turn on flashlight for Human
+	if MySelf:IsValid() and MySelf:Team() == TEAM_HUMAN then
+		flashlight_Active = !flashlight_Active
+		surface.PlaySound (flashsound)
+	end
+end
+
+
+hook.Add('CalcView', 'Human_Flashlight_Render', function()
+	if flashlight_Active and (MySelf:Team() ~= TEAM_HUMAN or not MySelf:Alive()) then
+		flashlight_Active = false
+	end
+	if flashlight_Active then
+		if not IsValid(flashlight) then
+			flashlight = CreateFlashlight()
+		end
+		flashlight:SetPos(MySelf:GetShootPos())
+		flashlight:SetAngles(MySelf:EyeAngles())
+
+		flashlight:Update()
+	else
+		if IsValid(flashlight) then
+			flashlight:Remove()
+		end
+	end
+end)
 
 local lastwarntim = -1
 local NextGas = 0
@@ -1396,6 +1441,8 @@ function GM:PlayerBindPress(pl, bind, wasin)
     elseif bind == "impulse 100" then
         if P_Team(pl) == TEAM_UNDEAD and pl:Alive() then
             self:ToggleZombieVision()
+			else
+			self:CreateFlashlightCheck()
         end
     end
 end
