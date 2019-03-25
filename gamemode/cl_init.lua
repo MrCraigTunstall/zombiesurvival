@@ -575,26 +575,6 @@ function GM:CreateFlashlightCheck()
 	end
 end
 
-
-hook.Add('CalcView', 'Human_Flashlight_Render', function()
-	if flashlight_Active and (MySelf:Team() ~= TEAM_HUMAN or not MySelf:Alive()) then
-		flashlight_Active = false
-	end
-	if flashlight_Active then
-		if not IsValid(flashlight) then
-			flashlight = CreateFlashlight()
-		end
-		flashlight:SetPos(MySelf:GetShootPos())
-		flashlight:SetAngles(MySelf:EyeAngles())
-
-		flashlight:Update()
-	else
-		if IsValid(flashlight) then
-			flashlight:Remove()
-		end
-	end
-end)
-
 local lastwarntim = -1
 local NextGas = 0
 function GM:_Think()
@@ -1452,6 +1432,31 @@ end
 
 local roll = 0
 function GM:_CalcView(pl, origin, angles, fov, znear, zfar)
+    if flashlight_Active and (MySelf:Team() ~= TEAM_HUMAN or not MySelf:Alive()) then
+        flashlight_Active = false
+    end
+    if flashlight_Active then
+        if not IsValid(flashlight) then
+            flashlight = CreateFlashlight()
+        end
+       
+        if GAMEMODE.ZombieThirdPerson then
+           local bonenum = MySelf:LookupBone("ValveBiped.Bip01_Head1")
+           local b_pos = bonenum and MySelf:GetBonePosition(bonenum) or MySelf:GetShootPos()
+            flashlight:SetPos(b_pos + (angles:Forward() * 10))
+        else
+            flashlight:SetPos(MySelf:GetShootPos())
+        end
+       
+        flashlight:SetAngles(MySelf:EyeAngles())
+       
+        flashlight:Update()
+    else
+        if IsValid(flashlight) then
+            flashlight:Remove()
+        end
+    end
+
 	if pl.Confusion and pl.Confusion:IsValid() then
 		pl.Confusion:CalcView(pl, origin, angles, fov, znear, zfar)
 	end
