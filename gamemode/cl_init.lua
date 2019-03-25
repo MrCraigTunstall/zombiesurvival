@@ -562,7 +562,8 @@ local function CreateFlashlight()
 	flash:SetBrightness(1)
 	flash:SetFarZ(650)
 	flash:SetFOV(70)
-	flash:SetEnableShadows(true)
+	flash:SetColor(color_white)
+	flash:SetEnableShadows(false)
 
 	return flash
 end
