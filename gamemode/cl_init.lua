@@ -571,7 +571,7 @@ function GM:CreateFlashlightCheck()
 	-- Only turn on flashlight for Human
 	if MySelf:IsValid() and MySelf:Team() == TEAM_HUMAN then
 		flashlight_Active = !flashlight_Active
-		surface.PlaySound (flashsound)
+		surface.PlaySound(flashsound)
 	end
 end
 
@@ -1441,7 +1441,7 @@ function GM:PlayerBindPress(pl, bind, wasin)
     elseif bind == "impulse 100" then
         if P_Team(pl) == TEAM_UNDEAD and pl:Alive() then
             self:ToggleZombieVision()
-			else
+	else
 			self:CreateFlashlightCheck()
         end
     end
