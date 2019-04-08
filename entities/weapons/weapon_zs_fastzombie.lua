@@ -45,7 +45,7 @@ function SWEP:Think()
 
 	if self:GetClimbing() then
 		if self:GetClimbSurface() and owner:KeyDown(IN_ATTACK2) then
-			if SERVER and curtime >= self.NextClimbSound then
+			if curtime >= self.NextClimbSound and IsFirstTimePredicted() then 
 				local speed = owner:GetVelocity():Length()
 				if speed >= 50 then
 					if speed >= 100 then
@@ -76,8 +76,8 @@ function SWEP:Think()
 
 			if owner:GetVelocity():Length2D() <= 0.5 and owner:IsOnGround() then
 				self:SetRoarEndTime(curtime + self.RoarTime)
-				if SERVER then
-					owner:EmitSound("NPC_FastZombie.Frenzy")
+				if IsFirstTimePredicted() then
+					self:PlaySwingEndSound()
 				end
 			end
 		end
@@ -112,10 +112,10 @@ function SWEP:Think()
 				end
 			end
 
-			if SERVER and hit then
-				owner:EmitSound("physics/flesh/flesh_strider_impact_bullet1.wav")
-				owner:EmitSound("npc/fast_zombie/wake1.wav")
+			if hit then
+			if IsFirstTimePredicted() then self:PlayPounceHitSound()
 			end
+		end
 
 			owner:LagCompensation(false)
 
@@ -178,19 +178,34 @@ end
 function SWEP:SecondaryAttack()
 	if self:IsPouncing() or self:IsClimbing() or self:GetPounceTime() > 0 then return end
 
-	if self.Owner:IsOnGround() then
+	if self:GetOwner():IsOnGround() then
 		if CurTime() < self:GetNextPrimaryFire() or CurTime() < self:GetNextSecondaryFire() or CurTime() < self.NextAllowPounce then return end
-
-		self:SetNextPrimaryFire(math.huge)
-		self:SetPounceTime(CurTime() + self.PounceStartDelay)
-
-		self.Owner:ResetJumpPower()
-		if SERVER then
-			self.Owner:EmitSound("npc/fast_zombie/leap1.wav")
-		end
+	self:SetNextPrimaryFire(math.huge)
+	self:SetPounceTime(CurTime() + self.PounceStartDelay)
+	self:GetOwner():ResetJumpPower()
+		if IsFirstTimePredicted() then
+	self:PlayPounceStartSound()
+end 
 	elseif self:GetClimbSurface() then
 		self:StartClimbing()
 	end
+end
+
+function SWEP:PlayPounceStartSound()
+	self:EmitSound("npc/fast_zombie/leap1.wav", nil, nil, nil, CHAN_AUTO)
+end
+
+function SWEP:PlayPounceSound()
+	self:EmitSound("NPC_FastZombie.Scream", nil, nil, nil, CHAN_AUTO)
+end
+
+function SWEP:PlaySwingEndSound()
+	self:EmitSound("NPC_FastZombie.Frenzy")
+end
+
+function SWEP:PlayPounceHitSound()
+	self:EmitSound("physics/flesh/flesh_strider_impact_bullet1.wav")
+	self:EmitSound("npc/fast_zombie/wake1.wav", nil, nil, nil, CHAN_AUTO)
 end
 
 function SWEP:StartClimbing()
@@ -220,9 +235,9 @@ function SWEP:StartPounce()
 
 		self.m_ViewAngles = owner:EyeAngles()
 
-		if SERVER then
-			owner:EmitSound("NPC_FastZombie.Scream")
-		end
+	if IsFirstTimePredicted() then
+		self:PlayPounceSound()
+	end
 
 		local ang = owner:EyeAngles()
 		ang.pitch = math.min(-20, ang.pitch)
