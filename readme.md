@@ -62,7 +62,7 @@ the link below.
 
 - Project Leader:
   - MrCraigTunstall | https://steamcommunity.com/profiles/76561198059515155
-- Concept of ZS:R and Zombine Class.:
+- Simple PvP Zombie and Zombine Classes:
   - Mka0207 | https://fwkzt.com
 - Programmer / Contributor:
   - Flairieve | https://steamcommunity.com/profiles/76561198055782802
