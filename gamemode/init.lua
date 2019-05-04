@@ -1276,7 +1276,7 @@ end
 
 -- I don't know.
 local function CheckBroken()
-	for _, pl in pairs(player.GetAll()) do
+	for _, pl in pairs(player.GetAllActive()) do
 		if pl:Alive() and (pl:Health() <= 0 or pl:GetObserverMode() ~= OBS_MODE_NONE or pl:OBBMaxs().x ~= 16) then
 			pl:SetObserverMode(OBS_MODE_NONE)
 			pl:UnSpectateAndSpawn()
