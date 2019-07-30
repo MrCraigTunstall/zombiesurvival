@@ -75,9 +75,9 @@ end
 
 function CLASS:ProcessDamage(pl, dmginfo)
 	local attacker = dmginfo:GetAttacker()
-	if not SHADEFLASHLIGHTDAMAGE and attacker:IsPlayer() and attacker:Team() == TEAM_HUMAN then
-		dmginfo:SetDamage(0)
-		dmginfo:ScaleDamage(0)
+	if not attacker:IsPlayer() and attacker:Team() == TEAM_HUMAN then
+		dmginfo:SetDamage(0.3)
+		dmginfo:ScaleDamage(0.3)
 
 		if SERVER then
 			local center = pl:LocalToWorld(pl:OBBCenter())
