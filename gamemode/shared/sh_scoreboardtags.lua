@@ -43,6 +43,12 @@ function GM:IsSpecialPerson(pl, image)
 	elseif pl:IsAdmin() then
 		img = "icons/shield_gray.png"
 		tooltip = "Admin"
+	elseif pl:IsUserGroup("moderator") then
+		img = "icon16/award_gold_star_2.png"
+		tooltip = "Moderator"
+	elseif pl:IsUserGroup("member") then
+		img = "icon16/user.png"
+		tooltip = "User"
 	end
 	
 	if not pl:IsBot() then
