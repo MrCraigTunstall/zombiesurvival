@@ -145,6 +145,8 @@ local MedicalAuraDistance = 800 ^ 2
 
 local M_Player = FindMetaTable("Player")
 local P_Team = M_Player.Team
+local E_meta = FindMetaTable("Entity")
+local E_IsValid = E_meta.IsValid
 
 GM.LifeStatsBrainsEaten = 0
 GM.LifeStatsHumanDamage = 0
@@ -475,15 +477,17 @@ function GM:DrawFearMeter(power, screenscale)
 	end
 	
 	if self:GetUseSigils() and self.MaxSigils > 0 then
-		local health, maxhealth, corrupt, damageflash, sigilX, sigilY, healthfrac
-		local sigils = self:GetSigils()
+		local health, maxhealth, corrupt, damageflash, sigilX, sigilY, healthfrac, sigilLetter
+		local sigils = GAMEMODE.CachedSigils
 		local numSigils = #sigils
 		for k, sigil in ipairs(sigils) do
 			health = 0
 			maxhealth = 0
+			sigilLetter = ""
 			if sigil and sigil:IsValid() then
 				health = sigil:GetSigilHealth()
 				maxhealth = sigil:GetSigilMaxHealth()
+				sigilLetter = sigil:GetSigilLetter()
 			end
 			
 			if health >= 0 then
@@ -505,7 +509,7 @@ function GM:DrawFearMeter(power, screenscale)
 				
 				surface_SetMaterial(matSigil)
 				surface_DrawTexturedRect(sigilX, sigilY, sigilWidth, sigilHeight)
-				draw.SimpleText(sigil:GetSigilLetter(), "ZS3D2DFontSmallest", sigilX + sigilWidth/2, sigilY + sigilHeight, Vector(255, 255, 255, 255), TEXT_ALIGN_CENTER)
+				draw.SimpleText(sigilLetter, "ZS3D2DFontSmallest", sigilX + sigilWidth/2, sigilY + sigilHeight, Vector(255, 255, 255, 255), TEXT_ALIGN_CENTER)
 			end
 		end
 	end
@@ -570,7 +574,7 @@ end
 
 function GM:CreateFlashlightCheck()
 	-- Only turn on flashlight for Human
-	if MySelf:IsValid() and MySelf:Team() == TEAM_HUMAN then
+	if MySelf:IsValid() and P_Team(MySelf) == TEAM_HUMAN then
 		flashlight_Active = !flashlight_Active
 		surface.PlaySound(flashsound)
 	end
@@ -1244,6 +1248,20 @@ function GM:Initialize()
 	self:CreateVGUI()
 	self:InitializeBeats()
 	self:AddCustomAmmo()
+	
+	RunConsoleCommand("r_drawmodeldecals", "0")
+	RunConsoleCommand("r_3dsky", "0")
+	RunConsoleCommand("mat_shadowstate", "0")
+	RunConsoleCommand("r_shadowmaxrendered", "0")
+	RunConsoleCommand("r_shadowrendertotexture", "0")
+end
+
+function GM:ShutDown()
+	RunConsoleCommand("r_drawmodeldecals", "1")
+	RunConsoleCommand("r_3dsky", "1")
+	RunConsoleCommand("mat_shadowstate", "1")
+	RunConsoleCommand("r_shadowmaxrendered", "1")
+	RunConsoleCommand("r_shadowrendertotexture", "1")
 end
 
 local function FirstOfGoodType(a)
@@ -1416,7 +1434,7 @@ function GM:PlayerBindPress(pl, bind, wasin)
         RunConsoleCommand("+zoom")
         timer.Create("ReleaseZoom", 1, 1, function() RunConsoleCommand("-zoom") end)
     elseif bind == "+menu_context" then
-        if pl:Team() ~= TEAM_SPECTATOR then
+        if P_Team(pl) ~= TEAM_SPECTATOR then
             self.ZombieThirdPerson = not self.ZombieThirdPerson
         end
     elseif bind == "impulse 100" then
