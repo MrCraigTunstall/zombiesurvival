@@ -566,6 +566,7 @@ LANGUAGE.wn_keyboard								= "Tastatur"
 LANGUAGE.wn_lamp									= "Lampe"
 LANGUAGE.wn_manhacksaw								= "Manhack mit Sägeaufsatz"
 LANGUAGE.wn_manhackcontroll							= "Manhack-Fernsteuerung"
+LANGUAGE.wn_manhacksawcontroll						= LANGUAGE.wn_manhackcontroll
 LANGUAGE.wn_megamasher								= "Mega Masher"
 LANGUAGE.wn_nightmare								= "Nightmare"
 LANGUAGE.wn_pot										= "Kochtopf"
@@ -629,7 +630,6 @@ LANGUAGE.wn_manhacksawdes							= "Ein modifizierter Manhack mit einem Sägeblat
 LANGUAGE.wn_manhackcontrolldes						= "Fernsteuerung für den Manhack."
 LANGUAGE.wn_manhacksawcontrolldes					= "Fernsteuerung für den modifizierten Manhack."
 LANGUAGE.wn_oxygentankdes							= "Gewährt dem Anwender eine wesentlich höhere Luftkapazität."
-LANGUAGE.wn_manhacksawcontroll						= "A modified manhack with a saw blade attachment.\nDoes significantly more damage and is more durable. Slightly less easy to control."
 
 -- Honorable Mentions
 
