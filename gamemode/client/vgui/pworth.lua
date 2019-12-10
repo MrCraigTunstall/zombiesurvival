@@ -295,7 +295,7 @@ function MakepWorth()
 		end		
 	end	
 
-	local worthlab = EasyLabel(frame, translate.Get("worth_worth")..": "..tostring(WorthRemaining), "ZSHUDFontSmallest", COLOR_LIMEGREEN)
+	local worthlab = EasyLabel(frame, translate.Format("worth_worth", tostring(WorthRemaining)), "ZSHUDFontSmallest", COLOR_LIMEGREEN)
 	worthlab:SetPos(8, frame:GetTall() - worthlab:GetTall() - 50)
 	worthlab:AlignRight(20)
 	worthlab:AlignTop(60)
@@ -471,7 +471,7 @@ function PANEL:SetWorthID(id)
 	end
 
 	if tab.Worth then
-		self.PriceLabel:SetText(tostring(tab.Worth).." "..translate.Get("worth_worth"))
+		self.PriceLabel:SetText(translate.Format("worth_worth_cost", tostring(tab.Worth)))
 	else
 		self.PriceLabel:SetText("")
 	end
@@ -521,7 +521,7 @@ function PANEL:DoClick(silent, force)
 		WorthRemaining = WorthRemaining - tab.Worth
 	end
 
-	pWorth.WorthLab:SetText(translate.Get("worth_worth")..": "..WorthRemaining)
+	pWorth.WorthLab:SetText(translate.Format("worth_worth", WorthRemaining))
 	if WorthRemaining <= 0 then
 		pWorth.WorthLab:InvalidateLayout()
 	elseif WorthRemaining <= GAMEMODE.StartingWorth * 0.25 then

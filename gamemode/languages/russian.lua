@@ -397,7 +397,8 @@ LANGUAGE.redeemer_kill								= "ОСТАТЬСЯ В КАЧЕСТВЕ БАНДИ
 
 LANGUAGE.worth_title								= "Выберите Свой Набор Для Выживания"
 LANGUAGE.worth_close								= "Нажмите F2 чтобы открыть это меню снова."
-LANGUAGE.worth_worth								= "Очков"
+LANGUAGE.worth_worth								= "Очков: %s"
+LANGUAGE.worth_worth_cost				      		= "%s Очков"
 LANGUAGE.worth_favtab								= "Избранное"
 LANGUAGE.worth_favtooltip							= "Это ваша стандартная корзина.\nЕсли вы присоединитесь к игре поздно, то вы будете играть с этой корзиной."
 LANGUAGE.worth_favbuy								= "Купить эту сохраненную корзину."
@@ -430,13 +431,13 @@ LANGUAGE.worth_cancel                               = "Отмена"
 LANGUAGE.all_sales                                  = "Скидки в конце каждой волны"
 LANGUAGE.the_pointshop                              = "Магазин"
 LANGUAGE.for_allapocalypse                          = "Всё что нужно в зомби апокалипсисе!"
-LANGUAGE.pts_tospend                                = "Очков"
-LANGUAGE.ars_discount                               = "скидка на покупки между волнами!"
+LANGUAGE.pts_tospend                                = "Очков: %s"
+LANGUAGE.ars_discount                               = "%s%% скидка на покупки между волнами!"
 LANGUAGE.ars_tooltip                                = "Этот магазин вооружен QUIK - Anti-zombie backstab device.\nПереместите мышь за пределы магазина, чтобы быстро закрыть его!"
 LANGUAGE.ars_worth                                  = "Стартовый Магазин"
 LANGUAGE.ars_purchase                               = "Купить"
 LANGUAGE.ars_purchaseammo                           = "Купить амуницию"
-LANGUAGE.ars_pts                                    = "Очков"
+LANGUAGE.ars_pts                                    = "%s Очков"
 
 -- Ressuply Box
 
@@ -815,7 +816,7 @@ LANGUAGE.title_bossm                              = "Мутации Боссов
 
 -- MainMenu (F1 menu)
 
-LANGUAGE.mm_menu                         		   = "Главное Меню"
+LANGUAGE.mm_menu                                   = "Главное Меню"
 LANGUAGE.mm_pm_selection                           = "Выбор модели игрока"
 LANGUAGE.mm_pm_color                               = "Цвет игрока"
 LANGUAGE.mm_color                                  = "Цвета"
@@ -830,13 +831,13 @@ LANGUAGE.mm_pm2                                    = "Модели игрока"
 LANGUAGE.mm_pm3                                    = "Модели"
 LANGUAGE.mm_back                                   = "Назад" 
 LANGUAGE.mm_help                                   = "Помощь"
-LANGUAGE.mm_pm_messg                               = "Вы изменили желаемую модель игрока на"
+LANGUAGE.mm_pm_messg                               = "Вы изменили желаемую модель игрока на %s"
 LANGUAGE.mm_sp                                     = "Наблюдать"
 LANGUAGE.mm_unsp                                   = "Не-Наблюдать"
 LANGUAGE.spectator_now                             = "Вы теперь Наблюдатель."
-LANGUAGE.spectator_cantchange                       = "Вы не можете стать наблюдателем во время волны 0"
-LANGUAGE.spectator_cantchange2                       = "На этом сервере отключен режим наблюдателя"
-LANGUAGE.spectator_canchange_in_x                   = "Вы можете стать наблюдателем через %s"
+LANGUAGE.spectator_cantchange                      = "Вы не можете стать наблюдателем во время волны 0"
+LANGUAGE.spectator_cantchange2                     = "На этом сервере отключен режим наблюдателя"
+LANGUAGE.spectator_canchange_in_x                  = "Вы можете стать наблюдателем через %s"
 
 -- Weapon Database
 
@@ -954,7 +955,7 @@ LANGUAGE.ammo_pulse                                 = "Импульсные За
 LANGUAGE.pl_poison                                  = "ЯД!"
 LANGUAGE.pl_bleed                                   = "КРОВОТЕЧЕНИЕ!"
 LANGUAGE.pl_ghtc                                    = "КАСАНИЕ ГУЛЯ!"
-LANGUAGE.carrying_prop                              = "Несет"
+LANGUAGE.carrying_prop                              = "Несёт [%s]"
 LANGUAGE.stay_from_zombie_spawns                    = "Держитесь подальше от Зомби Спавнов!"
 LANGUAGE.invasion_in                                = "Вторжение начнётся через..."
 LANGUAGE.wave_intermission                          = "След. волна через:"
@@ -963,8 +964,8 @@ LANGUAGE.health                                     = "Здоровье:"
 
 -- Floating Score
 
-LANGUAGE.fc_assisted                                = "(помощь в убийстве)"
-LANGUAGE.fc_assist                                  = "(вам помог/ли)"
+LANGUAGE.fc_assisted                                = "(помощь)"
+LANGUAGE.fc_assist                                  = "(помощь)"
 LANGUAGE.fc_point                                   = "очко"
 LANGUAGE.fc_s                                       = "в/а"
 LANGUAGE.fc_munch                                   = "ЖЕВАТЬ!"
@@ -981,7 +982,7 @@ LANGUAGE.credits_credits                            = "Авторы режима
 -- Tier System
 
 LANGUAGE.dont_have_weapon_x							= "Невозможно продать, у вас нет %s"
-LANGUAGE.not_unlocked_yet_unlocked_on_x			= "Это оружие еще не разблокировано. Он будет разблокировано в начале волны %d."
+LANGUAGE.not_unlocked_yet_unlocked_on_x			= "Это оружие еще не разблокировано. Оно будет разблокировано в начале волны %d."
 LANGUAGE.weapon_tier_x								= "Оружие уровня %d разблокировано."
 LANGUAGE.sold_x_for_y_points						= "Вы продали %s за %d очков!"
 
@@ -995,8 +996,8 @@ LANGUAGE.spray_sprayedby                            = "Спрей игрока:"
 LANGUAGE.you_dont_have_enough_btokens				= "У вас недостаточно жетонов урона!"
 LANGUAGE.purchased_x_for_y_btokens					= "Вами было куплен %s за %d жетонов урона!"
 LANGUAGE.cant_buy_mutations							= "Вы не можете использовать магазин мутаций в данный момент!"
-LANGUAGE.mutationstokens							= "Жетонов"
-LANGUAGE.mutationsdamagetokens						= "Жетоны Урона"
+LANGUAGE.mutationstokens							= "%s Жетонов"
+LANGUAGE.mutationsdamagetokens						= "Жетоны Урона: %s"
 
 -- Discord / misc
 

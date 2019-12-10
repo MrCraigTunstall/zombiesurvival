@@ -11,7 +11,7 @@ local function SwitchPlayerModel(self)
 	net.WriteString( self.m_ModelName ) -- planned in time
 	net.SendToServer()]]--
 
-	chat.AddText(COLOR_LIMEGREEN, translate.Get("mm_pm_messg").." "..tostring(self.m_ModelName))
+	chat.AddText(COLOR_LIMEGREEN, translate.Format("mm_pm_messg", tostring(self.m_ModelName)))
 	surface.PlaySound("buttons/button14.wav")
 
 	pPlayerModel:Hide()

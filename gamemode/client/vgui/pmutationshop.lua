@@ -78,7 +78,7 @@ function MakepMutationShop(used)
 		end
 	end	
 
-	local worthlab = EasyLabel(frame, translate.Get("mutationsdamagetokens")..": "..tostring(TokensRemaining), "ZSHUDFontSmall", COLOR_LIMEGREEN)
+	local worthlab = EasyLabel(frame, translate.Format("mutationsdamagetokens", tostring(TokensRemaining)), "ZSHUDFontSmall", COLOR_LIMEGREEN)
 	worthlab:SetPos(8, frame:GetTall() - worthlab:GetTall() - 8)
 	frame.WorthLab = worthlab
 
@@ -189,7 +189,7 @@ function PANEL:SetMutationID(id)
 	end
 
 	if tab.Worth then
-		self.PriceLabel:SetText(tostring(tab.Worth).." "..translate.Get("mutationstokens"))
+		self.PriceLabel:SetText(translate.Format("mutationstokens", tostring(tab.Worth)))
 	else
 		self.PriceLabel:SetText("")
 	end
