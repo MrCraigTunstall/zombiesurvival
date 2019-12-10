@@ -300,7 +300,8 @@ LANGUAGE.redeemer_kill								= "BLEIBE BANDIT UND ENTSCHEIDE DICH DEN MENSCHEN 
 
 LANGUAGE.worth_title								= "Wähle deine Ausrüstung"
 LANGUAGE.worth_close								= "Drücke F2 um das Worth-Menü wieder zu öffnen."
-LANGUAGE.worth_worth								= "Worth"
+LANGUAGE.worth_worth								= "Worth: %s"
+LANGUAGE.worth_worth_cost				      		= "%s Worth" 
 LANGUAGE.worth_favtab								= "Favoriten"
 LANGUAGE.worth_favtooltip							= "Das ist dein Standardwarenkorb.\nFalls du einem Spiel spät beitrittst, bekommst du diese Ausrüstung."
 LANGUAGE.worth_favbuy								= "Kaufe diesen gespeicherten Warenkorb."
@@ -333,13 +334,13 @@ LANGUAGE.worth_cancel								= "Abbrechen"
 LANGUAGE.all_sales									= "Alle Käufe sind endgültig"
 LANGUAGE.the_pointshop								= "Der Points-Shop"
 LANGUAGE.for_allapocalypse							= "Für all deine Zombie-Apokalypse-Bedürfnisse!"
-LANGUAGE.pts_tospend								= "Punkte zum Ausgeben"
-LANGUAGE.ars_discount								= "Rabatt für den Kauf zwischen den Wellen!"
+LANGUAGE.pts_tospend								= "Punkte zum Ausgeben: %s"
+LANGUAGE.ars_discount								= "%d Rabatt für den Kauf zwischen den Wellen!"
 LANGUAGE.ars_tooltip								= "Dieser Shop ist mit dem QUIK - Anti-Zombie-Backstab-Gerät ausgerüstet.\nBewege die Maus außerhalb des Shops, um diesen schnell zu schließen!"
 LANGUAGE.ars_worth									= "Worth-Menü"
 LANGUAGE.ars_purchase								= "Kaufen"
 LANGUAGE.ars_purchaseammo							= "Munition kaufen"
-LANGUAGE.ars_pts									= "Punkte"
+LANGUAGE.ars_pts									= "%s Punkte"
 
 -- Ressuply Box
 
@@ -628,7 +629,7 @@ LANGUAGE.wn_manhacksawdes							= "Ein modifizierter Manhack mit einem Sägeblat
 LANGUAGE.wn_manhackcontrolldes						= "Fernsteuerung für den Manhack."
 LANGUAGE.wn_manhacksawcontrolldes					= "Fernsteuerung für den modifizierten Manhack."
 LANGUAGE.wn_oxygentankdes							= "Gewährt dem Anwender eine wesentlich höhere Luftkapazität."
-LANGUAGE.wn_manhacksawcontroll						= LANGUAGE.wn_manhacksawdes
+LANGUAGE.wn_manhacksawcontroll						= "A modified manhack with a saw blade attachment.\nDoes significantly more damage and is more durable. Slightly less easy to control."
 
 -- Honorable Mentions
 
@@ -700,7 +701,7 @@ LANGUAGE.mm_options									= "Optionen"
 LANGUAGE.mm_pc										= "Spielerfarbe"
 LANGUAGE.mm_pm										= "Spielermodell"
 LANGUAGE.mm_help									= "Hilfe"
-LANGUAGE.mm_pm_messg								= "Dein Spielermodell wurde geändert auf"
+LANGUAGE.mm_pm_messg								= "Dein Spielermodell wurde geändert auf %d"
 LANGUAGE.mm_sp										= "Zuschauen"
 LANGUAGE.mm_unsp									= "Nicht mehr zuschauen"
 LANGUAGE.spectator_now								= "Du bist jetzt ein Zuschauer."
@@ -807,7 +808,7 @@ LANGUAGE.ammo_pulse									= "Pulse Schüsse"
 LANGUAGE.pl_poison									= "VERGIFTUNG!"
 LANGUAGE.pl_bleed									= "BLUTUNG!"
 LANGUAGE.pl_ghtc									= "BÖSARTIGE BEHRÜHRUNG!"
-LANGUAGE.carrying_prop								= "Trägt"
+LANGUAGE.carrying_prop								= "Trägt [%s]"
 LANGUAGE.stay_from_zombie_spawns					= "Bleibe weg von den Zombie-Spawns!"
 LANGUAGE.invasion_in								= "Die Invasion beginnt in..."
 LANGUAGE.wave_intermission							= "Unterbrechung:"

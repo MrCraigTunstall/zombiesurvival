@@ -3,7 +3,7 @@ local function pointslabelThink(self)
 	if self.m_LastPoints ~= points then
 		self.m_LastPoints = points
 
-		self:SetText(translate.Get("pts_tospend")..": "..points)
+		self:SetText(translate.Format("pts_tospend", points))
 		self:SizeToContents()
 	end
 end
@@ -16,7 +16,7 @@ hook.Add("Think", "PointsShopThink", function()
 			pan.m_LastNearArsenalCrate = newstate
 
 			if newstate then
-				pan.m_DiscountLabel:SetText(GAMEMODE.ArsenalCrateDiscountPercentage.."% "..translate.Get("ars_discount"))
+				pan.m_DiscountLabel:SetText(translate.Format("ars_discount", GAMEMODE.ArsenalCrateDiscountPercentage))
 				pan.m_DiscountLabel:SetTextColor(COLOR_GREEN)
 			else
 				pan.m_DiscountLabel:SetText(translate.Get("all_sales"))
@@ -265,7 +265,7 @@ function GM:OpenPointsShop()
 					namelab:SetPos(42, itempan:GetTall() * 0.5 - namelab:GetTall() * 0.5)
 					itempan.m_NameLabel = namelab
 
-					local pricelab = EasyLabel(itempan, tostring(tab.Worth).." "..translate.Get("ars_pts"), "ZSHUDFontTiny")
+					local pricelab = EasyLabel(itempan, translate.Format("ars_pts", tostring(tab.Worth)), "ZSHUDFontTiny")
 					pricelab:SetPos(itempan:GetWide() - 20 - pricelab:GetWide(), 4)
 					pricelab:SetColor(COLOR_GRAY)
 					itempan.m_PriceLabel = pricelab
