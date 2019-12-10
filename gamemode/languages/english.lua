@@ -254,7 +254,7 @@ LANGUAGE.description_bastardzine                    = "Once nuggets began to roa
 LANGUAGE.description_burster                        = "This infected can explode if he killed."
 LANGUAGE.description_zombine						= "When a head-crab infects a Combine Soldier this horrid zombie is created.\nThis zombie is a threat to barricades mostly an is only unlocked on later waves."
 LANGUAGE.description_undertaker						= "Risen from the grave Undertaker. \nThings didn't change for him - he's still trying to put you into a tomb."
-LANGUAGE.description_night_stalker					= "The shadowed version of bastardzine. \nThis unseen entiry can ambush humans and knock them back when leaping at them. \nBut when standing still or attacking and leaping, it can be visible \nBut when moving it becomes invisible. Which make this creature a dangerous heart in darkness and shadow"
+LANGUAGE.description_night_stalker					= "The shadowed version of bastardzine. \nThis unseen entity can ambush humans and knock them back, when leaping at them. \nBut when standing still or attacking and leaping, it can be visible \nBut when moving it becomes invisible. Which make this creature a dangerous threart in darkness and shadow"
 LANGUAGE.description_boss_inferno                   = "The pits of hell an back, this zombie utilizes fire as a strength.\n Everything is touchs with its claws burst to flames.\n Most infernos near death will erupt in a big explosion."
 
 
