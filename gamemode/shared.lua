@@ -33,9 +33,10 @@ GM.Credits2 = {
 	{"Mka0207", "https://fwkzt.com", "Simple PvP Zombie and Zombine Classes"},
 	{"Flairieve", "https://steamcommunity.com/profiles/76561198055782802", "Programmer / Contributor"},
 	{"Dadido3", "https://steamcommunity.com/profiles/76561198005024048", "Assistant Programmer / German Translation"},
-	{"Nyanpasu", "https://steamcommunity.com/profiles/76561198158864042", "Issue Tracker / Russian Translation"},
+	{"Berry", "https://steamcommunity.com/profiles/76561198158864042", "Issue Tracker / Russian Translation"},
 	{"ForrestMarkX", "https://steamcommunity.com/profiles/76561197997881512", "Spectate System"},
 	{"Sulfito", "https://steamcommunity.com/profiles/76561198026081830", "Spanish Translation"},
+	{"Sandball", "http://steamcommunity.com/profiles/76561198261601032", "Korean Translation"},
 	{"Raox", "http://steamcommunity.com/profiles/76561197998357643", "Gluon Gun / Various Contributions"}
 }
 

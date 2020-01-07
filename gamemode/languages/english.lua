@@ -458,6 +458,10 @@ LANGUAGE.ars_pts                                    = "%s Points"
 LANGUAGE.res_box_ready                              = "Ready"
 LANGUAGE.res_box_seconds                            = "%i s"
 
+-- Helios
+LANGUAGE.helios_venting                             = "VENTING"
+LANGUAGE.helios_heat                                = "Heat"
+
 -- Message beacon
 
 LANGUAGE.msgbeacon_text                             = "Select a message"
@@ -523,6 +527,7 @@ LANGUAGE.worth_junkpack                             = "Junk Pack"
 LANGUAGE.worth_spotlamp                             = "Spot Lamp"
 LANGUAGE.worth_beacon                               = "Message Beacon"
 LANGUAGE.worth_fieldemiter                          = "Force Field Emitter"
+LANGUAGE.worth_fieldemiter_desc                     = "Blocks zombie projectiles but will not stop humans or zombies from passing.\nPress PRIMARY ATTACK to deploy.\nPress SECONDARY ATTACK and RELOAD to rotate."
 LANGUAGE.worth_stone                                = "Stone"
 LANGUAGE.worth_oxygentank                           = "Oxygen Tank"
 LANGUAGE.worth_oxygentank2                          = "Grants significantly more underwater breathing time to the user."
@@ -623,6 +628,16 @@ LANGUAGE.ars_50meds                                 = "50 Medical Kit power"
 LANGUAGE.ars_50meds2                                = "50 extra power for the Medical Kit."
 LANGUAGE.ars_grenade                                = "Grenade"
 LANGUAGE.ars_detpack                                = "Detonation Pack"
+LANGUAGE.ars_mednade                                = "Medic Cloud Bomb"
+LANGUAGE.ars_mednade_desc                           = "Explodes in to a cloud of healing gas. Heals 2HP, every second, for 10 seconds."
+LANGUAGE.ars_molotov                                = "Molotov"
+LANGUAGE.ars_molotov2                               = "Molotov Cocktail"
+LANGUAGE.ars_molotov_desc                           = "A highly flammable concoction.\nThrow at your own risk."
+LANGUAGE.ars_spinfusor                              = "'Spinfusor' Pulse Disc Launcher"
+LANGUAGE.ars_spinfusor_desc                         = "Launches pulse projectiles that react on walls, sending energy back in the direction they travelled."
+LANGUAGE.ars_helios                                 = "Helios' Gluon Gun"
+LANGUAGE.ars_helios_desc                            = "Projects a stream of gluons at the target, causing immense damage."
+LANGUAGE.ars_gluon                                  = "Gluon Gun"
 
 -- Shop Items (zombie shop)
 -- Normal Mutations
@@ -937,6 +952,24 @@ LANGUAGE.help_credits2                              = "Zombie Survival : Redempt
 
 LANGUAGE.team_humans                                = "Survivors"
 LANGUAGE.team_zombie                                = "Zombies"
+
+-- Scoreboard (tags)
+LANGUAGE.tag_jetboom                                = "JetBoom\nCreator of Zombie Survival!"
+LANGUAGE.tag_craig                                  = "MrCraigTunstall\nCoder of Zombie Survival Redemption."
+LANGUAGE.tag_flair                                  = "Flairieve\nThat Awesome Cat!"
+LANGUAGE.tag_mka                                    = "Mka0207\nConcepted and created Zombie Survival Redemption."
+LANGUAGE.tag_d3                                     = "D3\nAssistant coder of Zombie Survival Redemption."
+LANGUAGE.tag_gabi                                   = "Gabi\nHollowcreek Owner."
+
+LANGUAGE.tag_ru                                     = "berry\nRussian Translator."
+LANGUAGE.tag_es                                     = "Sulfito\nSpanish Translator."
+LANGUAGE.tag_ko                                     = "Sandball\nKorean Translator."
+
+LANGUAGE.tag_bot                                    = "Beep Boop!\nI'm a bot!"
+LANGUAGE.tag_sa                                     = "Super Admin"
+LANGUAGE.tag_admin                                  = "Admin"
+LANGUAGE.tag_mod                                    = "Moderator"
+LANGUAGE.tag_user                                   = "User"
 
 -- ALT menu
 

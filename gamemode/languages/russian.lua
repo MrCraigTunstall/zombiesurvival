@@ -55,7 +55,7 @@ LANGUAGE.x_pants_out_to_get_you						= "%d НОГ ИДУТ ЗА ВАМИ!"
 LANGUAGE.you_have_died								= "Вы умерли."
 LANGUAGE.you_were_killed_by_x						= "Вы были убиты игроком %s"
 LANGUAGE.you_were_kicked_by_x						= "Вас разорвало в клочья игроком %s"
-LANGUAGE.arsenal_upgraded							= "Взято оружие"
+LANGUAGE.arsenal_upgraded							= "Получено"
 LANGUAGE.final_wave									= "ПОСЛЕДНЯЯ ВОЛНА НАЧАЛАСЬ!"
 LANGUAGE.final_wave_sub								= "Все классы разблокированы, а возможность на возрождение иссякло!"
 LANGUAGE.wave_x_has_begun							= "Волна номер %d началась!"
@@ -444,6 +444,10 @@ LANGUAGE.ars_pts                                    = "%s Очков"
 LANGUAGE.res_box_ready                              = "Готов"
 LANGUAGE.res_box_seconds                            = "%i c"
 
+-- Helios
+LANGUAGE.helios_venting                             = "ВЕНТИЛЯЦИЯ"
+LANGUAGE.helios_heat                                = "Перегрев"
+
 -- Message beacon
 
 LANGUAGE.msgbeacon_text                             = "Выберите сообщение"
@@ -509,6 +513,7 @@ LANGUAGE.worth_junkpack                             = "Мусорный Паке
 LANGUAGE.worth_spotlamp                             = "Точечная Лампа"
 LANGUAGE.worth_beacon                               = "Маяк Сообщения"
 LANGUAGE.worth_fieldemiter                          = "Излучатель Силового Поля"
+LANGUAGE.worth_fieldemiter_desc                     = "Блокирует снаряды зомби(яд и т.п.), но не остановит людей или зомби от прохождения.\nНажмите ЛКМ, чтобы развернуть.\nНажмите ПКМ и ПЕРЕЗАРЯДКА, чтобы повернуть."
 LANGUAGE.worth_stone                                = "Камень"
 LANGUAGE.worth_oxygentank                           = "Кислородный баллон"
 LANGUAGE.worth_oxygentank2                          = "Увеличивает время нахождения под водой."
@@ -609,6 +614,16 @@ LANGUAGE.ars_50meds                                 = "50 медицинских
 LANGUAGE.ars_50meds2                                = "50 дополнительных зарядов для аптечки."
 LANGUAGE.ars_grenade                                = "Граната"
 LANGUAGE.ars_detpack                                = "Дистанционный взрыв-пакет"
+LANGUAGE.ars_mednade                                = "Медицинская бомба"
+LANGUAGE.ars_mednade_desc                           = "Взрывается в лечащий газ. Лечит 2ОЗ, каждую секунду, на 10 секунд."
+LANGUAGE.ars_molotov                                = "Молотов"
+LANGUAGE.ars_molotov2                               = "Коктейль Молотова"
+LANGUAGE.ars_molotov_desc                           = "Легковоспламеняющаяся смесь.\nБросать на свой страх и риск."
+LANGUAGE.ars_spinfusor                              = "Импульсная пусковая установка 'Спинфузор'"
+LANGUAGE.ars_spinfusor_desc                         = "Запускает импульсные снаряды, которые реагируют на стены, посылая энергию обратно в направлении, в котором они летели."
+LANGUAGE.ars_helios                                 = "Пушка Глиона Гелиос'"
+LANGUAGE.ars_helios_desc                            = "Проецирует поток глюонов на цель, нанося огромный урон."
+LANGUAGE.ars_gluon                                  = "Пушка Глиона"
 
 -- Shop Items (zombie shop)
 
@@ -921,6 +936,24 @@ LANGUAGE.help_credits2                              = "Zombie Survival : Redempt
 
 LANGUAGE.team_humans                                = "Выжившие"
 LANGUAGE.team_zombie                                = "Зомби"
+
+-- Scoreboard (tags)
+LANGUAGE.tag_jetboom                                = "JetBoom\nСоздатель режима Zombie Survival!"
+LANGUAGE.tag_craig                                  = "MrCraigTunstall\nКодер режима Zombie Survival Redemption."
+LANGUAGE.tag_flair                                  = "Flairieve\nТакой Потрясающий Кот!"
+LANGUAGE.tag_mka                                    = "Mka0207\nКонцепт и участие в создании Zombie Survival Redemption."
+LANGUAGE.tag_d3                                     = "D3\nПомощник кодера в Zombie Survival Redemption."
+LANGUAGE.tag_gabi                                   = "Gabi\nВладелец Hollowcreek."
+
+LANGUAGE.tag_ru                                     = "berry\nРусский переводчик."
+LANGUAGE.tag_es                                     = "Sulfito\nИспанский переводчик."
+LANGUAGE.tag_ko                                     = "Sandball\nКорейский переводчик."
+
+LANGUAGE.tag_bot                                    = "Бип Буп!\nЯ бот!"
+LANGUAGE.tag_sa                                     = "Супер-администратор"
+LANGUAGE.tag_admin                                  = "Администратор"
+LANGUAGE.tag_mod                                    = "Модератор"
+LANGUAGE.tag_user                                   = "Пользователь"
 
 -- ALT menu
 
