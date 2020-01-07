@@ -871,6 +871,24 @@ LANGUAGE.help_credits2                               = "좀비 서바이벌 : �
 -- Scoreboard (teams)
 LANGUAGE.team_humans                                = "생존자들"
 LANGUAGE.team_zombie                                = "좀비/밴딧들"
+-- Scoreboard (tags)
+LANGUAGE.tag_jetboom                                = "JetBoom\n좀비서바이벌 제작자l!"
+LANGUAGE.tag_craig                                  = "MrCraigTunstall\n좀비서바이벌 : 재 탄생의 모든 코드 담당자."
+LANGUAGE.tag_flair                                  = "Flairieve\n그저 귀여운 고양이야!"
+LANGUAGE.tag_mka                                    = "Mka0207\n좀비서바이벌 : 재 탄생의 아이디어 밎 창조."
+LANGUAGE.tag_d3                                     = "D3\n좀비서바이벌 : 재 탄생의 보조 코드 담당자!"
+LANGUAGE.tag_gabi                                   = "Gabi\nHollowcreek의 주인."
+
+LANGUAGE.tag_ru                                     = "berry\n러시아어 번역가."
+LANGUAGE.tag_es                                     = "Sulfito\n스페인어 번역가."
+LANGUAGE.tag_ko                                     = "Sandball\n한국어 번역가."
+
+LANGUAGE.tag_bot                                    = "삐 뽀!\n난 봇이야!"
+LANGUAGE.tag_sa                                     = "슈퍼 어드민"
+LANGUAGE.tag_admin                                  = "어드민"
+LANGUAGE.tag_mod                                    = "모더레이터"
+LANGUAGE.tag_user                                   = "유저"
+
 -- ALT menu
 LANGUAGE.alt_gw                                     = "무기 주기"
 LANGUAGE.alt_gw5                                    = "무기와 탄창 5박스 주기"

@@ -937,6 +937,24 @@ LANGUAGE.help_credits2                              = "Zombie Survival : Redempt
 LANGUAGE.team_humans                                = "Выжившие"
 LANGUAGE.team_zombie                                = "Зомби"
 
+-- Scoreboard (tags)
+LANGUAGE.tag_jetboom                                = "JetBoom\nСоздатель режима Zombie Survival!"
+LANGUAGE.tag_craig                                  = "MrCraigTunstall\nКодер режима Zombie Survival Redemption."
+LANGUAGE.tag_flair                                  = "Flairieve\nТакой Потрясающий Кот!"
+LANGUAGE.tag_mka                                    = "Mka0207\nКонцепт и участие в создании Zombie Survival Redemption."
+LANGUAGE.tag_d3                                     = "D3\nПомощник кодера в Zombie Survival Redemption."
+LANGUAGE.tag_gabi                                   = "Gabi\nВладелец Hollowcreek."
+
+LANGUAGE.tag_ru                                     = "berry\nРусский переводчик."
+LANGUAGE.tag_es                                     = "Sulfito\nИспанский переводчик."
+LANGUAGE.tag_ko                                     = "Sandball\nКорейский переводчик."
+
+LANGUAGE.tag_bot                                    = "Бип Буп!\nЯ бот!"
+LANGUAGE.tag_sa                                     = "Супер-администратор"
+LANGUAGE.tag_admin                                  = "Администратор"
+LANGUAGE.tag_mod                                    = "Модератор"
+LANGUAGE.tag_user                                   = "Пользователь"
+
 -- ALT menu
 
 LANGUAGE.alt_gw                                     = "Передать оружие"
