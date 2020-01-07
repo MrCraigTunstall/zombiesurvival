@@ -55,7 +55,7 @@ LANGUAGE.x_pants_out_to_get_you						= "%d НОГ ИДУТ ЗА ВАМИ!"
 LANGUAGE.you_have_died								= "Вы умерли."
 LANGUAGE.you_were_killed_by_x						= "Вы были убиты игроком %s"
 LANGUAGE.you_were_kicked_by_x						= "Вас разорвало в клочья игроком %s"
-LANGUAGE.arsenal_upgraded							= "Взято оружие"
+LANGUAGE.arsenal_upgraded							= "Получено"
 LANGUAGE.final_wave									= "ПОСЛЕДНЯЯ ВОЛНА НАЧАЛАСЬ!"
 LANGUAGE.final_wave_sub								= "Все классы разблокированы, а возможность на возрождение иссякло!"
 LANGUAGE.wave_x_has_begun							= "Волна номер %d началась!"
@@ -444,6 +444,10 @@ LANGUAGE.ars_pts                                    = "%s Очков"
 LANGUAGE.res_box_ready                              = "Готов"
 LANGUAGE.res_box_seconds                            = "%i c"
 
+-- Helios
+LANGUAGE.helios_venting                             = "ВЕНТИЛЯЦИЯ"
+LANGUAGE.helios_heat                                = "Перегрев"
+
 -- Message beacon
 
 LANGUAGE.msgbeacon_text                             = "Выберите сообщение"
@@ -618,6 +622,7 @@ LANGUAGE.ars_molotov_desc                           = "Легковосплам�
 LANGUAGE.ars_spinfusor                              = "Импульсная пусковая установка 'Спинфузор'"
 LANGUAGE.ars_spinfusor_desc                         = "Запускает импульсные снаряды, которые реагируют на стены, посылая энергию обратно в направлении, в котором они летели."
 LANGUAGE.ars_helios                                 = "Пушка Глиона Гелиос'"
+LANGUAGE.ars_helios_desc                            = "Проецирует поток глюонов на цель, нанося огромный урон."
 LANGUAGE.ars_gluon                                  = "Пушка Глиона"
 
 -- Shop Items (zombie shop)

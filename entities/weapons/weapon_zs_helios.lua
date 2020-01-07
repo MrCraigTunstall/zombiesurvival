@@ -1,8 +1,8 @@
 AddCSLuaFile()
 
 if CLIENT then
-	SWEP.PrintName = "'Helios' Gluon Gun"
-	SWEP.Description = "Projects a stream of gluons at the target, causing immense damage."
+	SWEP.PrintName = translate.Get("ars_helios")
+	SWEP.Description = translate.Get("ars_helios_desc")
 	SWEP.ViewModelFlip = false
 	SWEP.ViewModelFOV = 58
 	SWEP.OverrideAmmoDisplay = true
@@ -334,7 +334,7 @@ if CLIENT then
 			if ((CurTime() * 4) % 2) > 1 then
 				colWhite.a = 0
 			else
-				draw.SimpleText("VENTING", is3d and "ZS3D2DFontSmaller" or "ZSHUDFontSmaller", x + (wid / 2), bary + (barheight / 2), colRed, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(translate.Get("helios_venting"), is3d and "ZS3D2DFontSmaller" or "ZSHUDFontSmaller", x + (wid / 2), bary + (barheight / 2), colRed, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
 		end
 	end
@@ -351,7 +351,7 @@ if CLIENT then
 		DrawHeatBar(self, x + wid * 0.25 - wid/4, yy + hei * 0.2, wid, hei)
 		draw.RoundedBox(16, x, y, wid, hei, colBG)
 		draw.SimpleText(spare, spare >= 1000 and "ZSHUDFont" or "ZSHUDFontBig", x + wid * 0.5, y + hei * 0.5, spare == 0 and colRed or colWhite, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-		draw.SimpleText("Heat", "ZSHUDFont", x + wid * 0.5, yy + hei * 0.45, colRed, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		draw.SimpleText(translate.Get("helios_heat"), "ZSHUDFont", x + wid * 0.5, yy + hei * 0.45, colRed, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	end
 
 	function SWEP:Draw3DHUD(vm, pos, ang)
@@ -363,7 +363,7 @@ if CLIENT then
 			DrawHeatBar(self, x + wid * 0.25 - wid/4, y - hei * 1, wid, hei, true)
 			draw.RoundedBoxEx(32, x, y, wid, hei, colBG, true, false, true, false)
 			draw.SimpleText(spare, spare >= 1000 and "ZS3D2DFontSmall" or "ZS3D2DFont", x + wid * 0.5, y + hei * 0.5, spare == 0 and colRed or colWhite, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-			draw.SimpleText("Heat", "ZS3D2DFontSmall", x + wid * 0.5, y - hei * 1, colRed, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			draw.SimpleText(translate.Get("helios_heat"), "ZS3D2DFontSmall", x + wid * 0.5, y - hei * 1, colRed, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		cam.End3D2D()
 	end
 end

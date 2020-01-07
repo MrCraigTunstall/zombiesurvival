@@ -412,6 +412,9 @@ LANGUAGE.ars_pts                                    = "포인트"
 -- Ressuply Box
 LANGUAGE.res_box_ready                              = "준비"
 LANGUAGE.res_box_seconds                            = "%i 초"
+-- Helios
+LANGUAGE.helios_venting                             = "식히는중..."
+LANGUAGE.helios_heat                                = "열기"
 -- Message beacon
 LANGUAGE.msgbeacon_text                             = "메세지를 설정하십시오"
 -- PendBoard (End Game)
@@ -578,6 +581,7 @@ LANGUAGE.ars_molotov_desc                           = "강력한 화염병을 �
 LANGUAGE.ars_spinfusor                              = "'스핀펄서' 펄스 디스크 런쳐"
 LANGUAGE.ars_spinfusor_desc                         = "벽에 닿을시 반응하는 특수 디스크를 발사합니다. 디스크가 무언가에 닿아 멈출시 되돌아옵니다."
 LANGUAGE.ars_helios                                 = "헬리오스' 실험용 총"
+LANGUAGE.ars_helios_desc                            = "뜨거운 열기를 발산하여 대상에게 엄청난 피해를 입힙니다."
 LANGUAGE.ars_gluon                                  = "실험용 총"
 
 -- Shop Items (zombie shop)

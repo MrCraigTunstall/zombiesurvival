@@ -458,6 +458,10 @@ LANGUAGE.ars_pts                                    = "%s Points"
 LANGUAGE.res_box_ready                              = "Ready"
 LANGUAGE.res_box_seconds                            = "%i s"
 
+-- Helios
+LANGUAGE.helios_venting                             = "VENTING"
+LANGUAGE.helios_heat                                = "Heat"
+
 -- Message beacon
 
 LANGUAGE.msgbeacon_text                             = "Select a message"
@@ -632,6 +636,7 @@ LANGUAGE.ars_molotov_desc                           = "A highly flammable concoc
 LANGUAGE.ars_spinfusor                              = "'Spinfusor' Pulse Disc Launcher"
 LANGUAGE.ars_spinfusor_desc                         = "Launches pulse projectiles that react on walls, sending energy back in the direction they travelled."
 LANGUAGE.ars_helios                                 = "Helios' Gluon Gun"
+LANGUAGE.ars_helios_desc                            = "Projects a stream of gluons at the target, causing immense damage."
 LANGUAGE.ars_gluon                                  = "Gluon Gun"
 
 -- Shop Items (zombie shop)
