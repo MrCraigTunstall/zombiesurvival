@@ -232,7 +232,7 @@ item.NoClassicMode = true
 
 GM:AddStartingItem("stone", ""..translate.Get("worth_stone"), nil, ITEMCAT_OTHER, 0, "weapon_zs_stone")
 GM:AddStartingItem("oxtank", ""..translate.Get("worth_oxygentank"), ""..translate.Get("worth_oxygentank2"), ITEMCAT_OTHER, 1, "weapon_zs_oxygentank")
-GM:AddStartingItem("medxcbomb", "Medic Cloud Bomb", "Explodes in to a cloud of healing gas. Heals 2HP, every second, for 10 seconds.", ITEMCAT_OTHER, 10, "weapon_zs_mediccloudbomb")
+GM:AddStartingItem("medxcbomb", ""..translate.Get("ars_mednade"), ""..translate.Get("ars_mednade_desc"), ITEMCAT_OTHER, 10, "weapon_zs_mediccloudbomb")
 
 -----------
 -- W.TRAITS --
@@ -400,12 +400,12 @@ GM:AddPointShopItem("barricadekit", ""..translate.Get("ars_aegis"), nil, ITEMCAT
 
 GM:AddPointShopItem("pstone", ""..translate.Get("worth_stone"), nil, ITEMCAT_OTHER, 3, "weapon_zs_stone")
 GM:AddPointShopItem("poxtank", ""..translate.Get("worth_oxygentank"), ""..translate.Get("worth_oxygentank2"), ITEMCAT_OTHER, 5, "weapon_zs_oxygentank")
-GM:AddPointShopItem("medxcbomb", "Medic Cloud Bomb", "Explodes in to a cloud of healing gas. Heals 2HP, every second, for 10 seconds.", ITEMCAT_OTHER, 5, "weapon_zs_mediccloudbomb")
+GM:AddPointShopItem("medxcbomb", ""..translate.Get("ars_mednade"), ""..translate.Get("ars_mednade_desc"), ITEMCAT_OTHER, 5, "weapon_zs_mediccloudbomb")
 GM:AddPointShopItem("grenade", ""..translate.Get("ars_grenade"), nil, ITEMCAT_OTHER, 12, "weapon_zs_grenade")
-GM:AddPointShopItem("molotov", "Molotov", nil, ITEMCAT_OTHER, 20, "weapon_zs_molotov")
+GM:AddPointShopItem("molotov", ""..translate.Get("ars_molotov"), nil, ITEMCAT_OTHER, 20, "weapon_zs_molotov")
 GM:AddPointShopItem("detpck", ""..translate.Get("ars_detpack"), nil, ITEMCAT_OTHER, 30, "weapon_zs_detpack")
-GM:AddPointShopItem("spinfusor", "'Spinfusor' Pulse Disc Launcher", nil, ITEMCAT_OTHER, 175, "weapon_zs_spinfusor")
-GM:AddPointShopItem("gluongun", "Helios' Gluon Gun", nil, ITEMCAT_OTHER, 200, "weapon_zs_helios")
+GM:AddPointShopItem("spinfusor", ""..translate.Get("ars_spinfusor"), nil, ITEMCAT_OTHER, 175, "weapon_zs_spinfusor")
+GM:AddPointShopItem("gluongun", ""..translate.Get("ars_helios"), nil, ITEMCAT_OTHER, 200, "weapon_zs_helios")
 GM:AddPointShopItem("empower", ""..translate.Get("craft_empower"), nil, ITEMCAT_OTHER, 230, "weapon_zs_empower")
 
 -- Class Mutations

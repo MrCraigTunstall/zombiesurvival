@@ -1,5 +1,5 @@
-SWEP.PrintName = "Force Field Emitter"
-SWEP.Description = "Blocks zombie projectiles but will not stop humans or zombies from passing.\nPress PRIMARY ATTACK to deploy.\nPress SECONDARY ATTACK and RELOAD to rotate."
+SWEP.PrintName = translate.Get("worth_fieldemiter")
+SWEP.Description = translate.Get("worth_fieldemiter_desc")
 
 SWEP.ViewModel = "models/weapons/v_pistol.mdl"
 SWEP.WorldModel = Model("models/props_lab/lab_flourescentlight002b.mdl")

@@ -1,5 +1,5 @@
 if ( CLIENT ) then
-    SWEP.PrintName            = "Gluon Gun"                                                    
+    SWEP.PrintName            = translate.Get("ars_gluon")                                                    
     SWEP.Slot            = 3
     SWEP.SlotPos            = 1
     SWEP.ViewModelFOV        = 65

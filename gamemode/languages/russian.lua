@@ -509,6 +509,7 @@ LANGUAGE.worth_junkpack                             = "Мусорный Паке
 LANGUAGE.worth_spotlamp                             = "Точечная Лампа"
 LANGUAGE.worth_beacon                               = "Маяк Сообщения"
 LANGUAGE.worth_fieldemiter                          = "Излучатель Силового Поля"
+LANGUAGE.worth_fieldemiter_desc                     = "Блокирует снаряды зомби(яд и т.п.), но не остановит людей или зомби от прохождения.\nНажмите ЛКМ, чтобы развернуть.\nНажмите ПКМ и ПЕРЕЗАРЯДКА, чтобы повернуть."
 LANGUAGE.worth_stone                                = "Камень"
 LANGUAGE.worth_oxygentank                           = "Кислородный баллон"
 LANGUAGE.worth_oxygentank2                          = "Увеличивает время нахождения под водой."
@@ -609,6 +610,15 @@ LANGUAGE.ars_50meds                                 = "50 медицинских
 LANGUAGE.ars_50meds2                                = "50 дополнительных зарядов для аптечки."
 LANGUAGE.ars_grenade                                = "Граната"
 LANGUAGE.ars_detpack                                = "Дистанционный взрыв-пакет"
+LANGUAGE.ars_mednade                                = "Медицинская бомба"
+LANGUAGE.ars_mednade_desc                           = "Взрывается в лечащий газ. Лечит 2ОЗ, каждую секунду, на 10 секунд."
+LANGUAGE.ars_molotov                                = "Молотов"
+LANGUAGE.ars_molotov2                               = "Коктейль Молотова"
+LANGUAGE.ars_molotov_desc                           = "Легковоспламеняющаяся смесь.\nБросать на свой страх и риск."
+LANGUAGE.ars_spinfusor                              = "Импульсная пусковая установка 'Спинфузор'"
+LANGUAGE.ars_spinfusor_desc                         = "Запускает импульсные снаряды, которые реагируют на стены, посылая энергию обратно в направлении, в котором они летели."
+LANGUAGE.ars_helios                                 = "Пушка Глиона Гелиос'"
+LANGUAGE.ars_gluon                                  = "Пушка Глиона"
 
 -- Shop Items (zombie shop)
 

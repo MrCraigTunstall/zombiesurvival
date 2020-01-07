@@ -29,7 +29,7 @@ the link below.
 
 - Basic bandit redeem system with client & server convar.
 - Custom Sigil with mapper support.
-- Complete Russian, German & Spanish language translation.
+- Complete Russian, German, Spanish & Korean language translation.
 - Spectator option in F1 menu with server convar.
 - Tier System.
 - Selling System.
@@ -69,11 +69,13 @@ the link below.
 - Assistant Programmer / German Translation:
   - Dadido3 | https://steamcommunity.com/profiles/76561198005024048
 - Issue Tracker / Russian Translation:
-  - Nyanpasu | https://steamcommunity.com/profiles/76561198158864042
+  - Berry | https://steamcommunity.com/profiles/76561198158864042
 - Spectate System:
   - ForrestMarkX | https://steamcommunity.com/profiles/76561197997881512
 - Spanish Translation:
   - Sulfito | https://steamcommunity.com/profiles/76561198026081830
+- Korean Translation:
+  - Sandball | http://steamcommunity.com/profiles/76561198261601032
 
 ## Original Credits
 
