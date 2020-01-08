@@ -889,8 +889,10 @@ LANGUAGE.mutations_selection                        = "Mutations"
 LANGUAGE.classes_and                                = "and"
 LANGUAGE.classes_undeadclasses                      = "UNDEAD CLASSES"
 LANGUAGE.classes_chooseresawn                       = "Choose the class you want to respawn as."
-LANGUAGE.classes_hp                                 = "HP"
-LANGUAGE.classes_speed                              = "SPEED"
+LANGUAGE.classes_hp_x                               = "HP : %s"
+LANGUAGE.classes_speed_x                            = "SPEED : %s"
+LANGUAGE.classes_dmg_x                              = "DMG : %s"
+LANGUAGE.classes_force_x                            = "FORCE : %s"
 
 -- Options
 

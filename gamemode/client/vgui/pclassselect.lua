@@ -13,11 +13,11 @@ local ScrH = ScrH
 local function SortDamage(weapon)
 	for index, slot in pairs( weapons.GetStored( weapon ) ) do
 		if index == "MeleeDamage" then
-			return ", DMG : "..slot
+			return ", "..translate.Format("classes_dmg_x", slot)
 		elseif index == "PounceDamage" then
-			return ", DMG : "..slot
+			return ", "..translate.Format("classes_dmg_x", slot)
 		elseif index == "PhysicsForce" then
-			return ", FORCE : "..slot
+			return ", "..translate.Format("classes_force_x", slot)
 		end
 	end
 	
@@ -139,7 +139,7 @@ function GM:OpenClassSelect(bossmode)
 						if v.Help then
 							draw_SimpleText( translate.Get(v.Help), "Default", w*0.3+100, 50, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
 						end
-						draw_SimpleText(translate.Get("classes_hp").." : "..v.Health..", "..translate.Get("classes_speed").." : "..v.Speed..SortDamage(v.SWEP), "Default", w*0.3+100, 35, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
+						draw_SimpleText(translate.Format("classes_hp_x", v.Health)..", "..translate.Format("classes_speed_x", v.Speed..SortDamage(v.SWEP)), "Default", w*0.3+100, 35, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
 						if classImagesMaterials[k] then
 							surface_SetDrawColor( 255, 255, 255, 255 )
 							surface_SetMaterial(classImagesMaterials[k])
@@ -178,7 +178,7 @@ function GM:OpenClassSelect(bossmode)
 						if v.Help then
 							draw_SimpleText( translate.Get(v.Help), "Default", w*0.3+100, 50, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
 						end
-						draw_SimpleText( "HP : "..v.Health..", SPEED : "..v.Speed..SortDamage(v.SWEP), "Default", w*0.3+100, 35, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
+						draw_SimpleText( translate.Format("classes_hp_x", v.Health)..", "..translate.Format("classes_speed_x", v.Speed..SortDamage(v.SWEP)), "Default", w*0.3+100, 35, Color(185+colorOffs,186+colorOffs,182+colorOffs), TEXT_ALIGN_LEFT )
 						if classImagesMaterials[k] then
 							surface_SetDrawColor( 255, 255, 255, 255 )
 							surface_SetMaterial(classImagesMaterials[k])
