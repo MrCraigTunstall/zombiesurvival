@@ -877,8 +877,10 @@ LANGUAGE.mutations_selection                        = "Мутации"
 LANGUAGE.classes_and                                = "и"
 LANGUAGE.classes_undeadclasses                      = "КЛАССЫ ЗАРАЖЕННЫХ"
 LANGUAGE.classes_chooseresawn                       = "Выберите класс, за который хотите возродится."
-LANGUAGE.classes_hp                       			= "ЗДОРОВЬЕ"
-LANGUAGE.classes_speed                      		= "СКОРОСТЬ"
+LANGUAGE.classes_hp_x                     			= "ЗДОРОВЬЕ : %s"
+LANGUAGE.classes_speed_x                      		= "СКОРОСТЬ : %s"
+LANGUAGE.classes_dmg_x                              = "УРОН : %s"
+LANGUAGE.classes_force_x                            = "СИЛА : %s"
 
 -- Options
 
