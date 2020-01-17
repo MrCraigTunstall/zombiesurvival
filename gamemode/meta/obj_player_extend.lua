@@ -917,23 +917,29 @@ VoiceSets["monk"] = {
 }
 
 function meta:PlayEyePoisonedSound()
-	local snds = VoiceSets[self.VoiceSet].EyePoisonSounds
-	if snds then
-		self:EmitSound(snds[math.random(1, #snds)])
+	if self.VoiceSet then
+		local snds = VoiceSets[self.VoiceSet].EyePoisonSounds
+		if snds then
+			self:EmitSound(snds[math.random(1, #snds)])
+		end
 	end
 end
 
 function meta:PlayGiveAmmoSound()
-	local snds = VoiceSets[self.VoiceSet].GiveAmmoSounds
-	if snds then
-		self:EmitSound(snds[math.random(1, #snds)])
+	if self.VoiceSet then
+		local snds = VoiceSets[self.VoiceSet].GiveAmmoSounds
+		if snds then
+			self:EmitSound(snds[math.random(1, #snds)])
+		end
 	end
 end
 
 function meta:PlayDeathSound()
-	local snds = VoiceSets[self.VoiceSet].DeathSounds
-	if snds then
-		self:EmitSound(snds[math.random(1, #snds)])
+	if self.VoiceSet then
+		local snds = VoiceSets[self.VoiceSet].DeathSounds
+		if snds then
+			self:EmitSound(snds[math.random(1, #snds)])
+		end
 	end
 end
 
