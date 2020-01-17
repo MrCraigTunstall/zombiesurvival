@@ -2,7 +2,6 @@ function GM:PlayerRedeemed(pl, silent, noequip)
 
 if not silent then
 		net.Start("zs_playerredeemed")
-		net.Start("zs_redeemmenu")
 			net.WriteEntity(pl)
 			net.WriteString(pl:Name())
 		net.Broadcast()
