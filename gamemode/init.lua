@@ -246,7 +246,6 @@ function GM:Initialize()
 	end]]
 
 	game.ConsoleCommand("fire_dmgscale 1\n")
-	game.ConsoleCommand("mp_flashlight 1\n")
 	game.ConsoleCommand("sv_gravity 600\n")
 end
 
@@ -291,7 +290,6 @@ function GM:AddNetworkStrings()
 	util.AddNetworkString("zs_pl_kill_self")
 	util.AddNetworkString("zs_death")
 	util.AddNetworkString("unlockClass")
-	util.AddNetworkString("zs_redeemmenu")
 	util.AddNetworkString("zs_weapontiers")
 	util.AddNetworkString("zs_spectate")
 	util.AddNetworkString("zs_weaponlocks")

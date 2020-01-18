@@ -38,3 +38,10 @@ function meta:HealPlayer(pl, amount)
 
 	return healed
 end
+
+GM.CachedSigils = {}
+timer.Create("CacheSigils", 1, 0, function()
+	if not GAMEMODE then return end
+
+	GAMEMODE.CachedSigils = GAMEMODE:GetSigils()
+end)
