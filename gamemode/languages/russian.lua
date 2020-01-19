@@ -1,6 +1,5 @@
 -- Translated by Mr. Darkness (http://www.noxiousnet.com/forums/index.php?action=profile;u=6296)
-
--- Updated 01\13\19
+-- Updated by berry
 
 translate.AddLanguage("ru", "Russian")
 
@@ -849,6 +848,7 @@ LANGUAGE.mm_help                                   = "Помощь"
 LANGUAGE.mm_pm_messg                               = "Вы изменили желаемую модель игрока на %s"
 LANGUAGE.mm_sp                                     = "Наблюдать"
 LANGUAGE.mm_unsp                                   = "Не-Наблюдать"
+LANGUAGE.mm_spectators                             = "Наблюдатели"
 LANGUAGE.spectator_now                             = "Вы теперь Наблюдатель."
 LANGUAGE.spectator_cantchange                      = "Вы не можете стать наблюдателем во время волны 0"
 LANGUAGE.spectator_cantchange2                     = "На этом сервере отключен режим наблюдателя"
@@ -893,11 +893,12 @@ LANGUAGE.options_player                            	= "Игрок"
 LANGUAGE.options_options                            = "Настройки"
 LANGUAGE.options_no_discord                  		= "Не показывать официальную ссылку на Discord в чате"
 LANGUAGE.options_no_ars_crate                  		= "Не показывать арсенальные ящики сквозь стены"
-LANGUAGE.options_old_hud                  			= "Включить панель здоровья в Интерфейсе (требует повторного присоединения)"
+LANGUAGE.options_no_status_ars_crate                = "Не показывать арсенальные ящики на клиенте"
+LANGUAGE.options_old_hud                  			= "Включить панель здоровья в интерфейсе (требует повторного присоединения)"
 LANGUAGE.options_no_resupply                  		= "Не показывать ящики аммуниции через стены"
 LANGUAGE.options_no_floating_score                  = "Отключить всплывающие показатели очков?"
 LANGUAGE.options_iron_sights_crosshair              = "Показывать точку в прицеливании"
-LANGUAGE.options_film_mode                          = "Режим Фильма (отключает большиство из интерфейса)"
+LANGUAGE.options_film_mode                          = "Режим фильма (отключает большиство из интерфейса)"
 LANGUAGE.options_beats                              = "Включить игровую музыку"
 LANGUAGE.options_play_music                         = "Включить музыку последнего выжившего"
 LANGUAGE.options_post_processing                    = "Включить постобработку"
@@ -909,6 +910,7 @@ LANGUAGE.options_auras                              = "Включить ауры
 LANGUAGE.options_damage_floaters                    = "Включить отображение нанесенного урона"
 LANGUAGE.options_movement_view_roll                 = "Включить покачивание камерой при движении"
 LANGUAGE.options_always_show_nails                  = "Всегда показывать здоровье гвоздей"
+LANGUAGE.options_show_old_baseoutlined_hud          = "Показывать старый базовый интерфейс"
 LANGUAGE.options_no_redeem                          = "Отключить автоматическое воскрешение (след. раунд)"
 LANGUAGE.options_no_bandit                          = "Отключить становление бандитом"
 LANGUAGE.options_always_volunteer                   = "Всегда быть в списке зараженных"
@@ -924,8 +926,8 @@ LANGUAGE.options_hp_full                            = "Цвет ауры здо�
 LANGUAGE.options_hp_no                              = "Цвет ауры здоровья - Нет здоровья"
 LANGUAGE.options_beatset_zombie                     = "Набор музыки для зомби"
 LANGUAGE.options_beatset_human                      = "Набор музыки для людей"
-LANGUAGE.options_weapon_hud_mode                    = "Вид отображения диспея оружия"
-LANGUAGE.options_thirdpersoned                    	= "Third person view point"
+LANGUAGE.options_weapon_hud_mode                    = "Вид отображения дисплея оружия"
+LANGUAGE.options_thirdpersoned                    	= "Положение камеры от 3-го лица"
 LANGUAGE.options_proprotation                     	= "Угол поворота пропа"
 
 -- Help menu
