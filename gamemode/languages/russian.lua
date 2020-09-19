@@ -1034,7 +1034,7 @@ LANGUAGE.you_dont_have_enough_btokens				= "У вас недостаточно �
 LANGUAGE.purchased_x_for_y_btokens					= "Вами было куплен %s за %d жетонов урона!"
 LANGUAGE.cant_buy_mutations							= "Вы не можете использовать магазин мутаций в данный момент!"
 LANGUAGE.mutationstokens							= "%s Жетонов"
-LANGUAGE.mutationsdamagetokens						= "Жетоны Урона: %s"
+LANGUAGE.mutationsdamagetokens						= "Жетоны урона: %s"
 
 -- Discord / misc
 
