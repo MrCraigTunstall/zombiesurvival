@@ -436,6 +436,16 @@ if CLIENT then
 	end
 end
 
+local string_sub = string.sub
+function meta:IsAPhysicsProp()
+	if not IsValid(self) then return false end
+	
+	if not self.CheckedIsPhysProp then
+		self.CheckedIsPhysProp = (string_sub(self:GetClass(), 1, 12) == "prop_physics" or string_sub(self:GetClass(), 1, 12) == "func_physbox") and 1 or 0
+	end
+	return self.CheckedIsPhysProp==1
+end
+
 local OldSequenceDuration = meta.SequenceDuration
 function meta:SequenceDuration(seqid)
 	return OldSequenceDuration(self, seqid) or 0

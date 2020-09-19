@@ -176,8 +176,20 @@ GM.Crafts = {
 	}
 }
 
+local pairs = pairs
+local string = string
+local string_sub = string.sub
+local string_lower = string.lower
+local table = table
+local table_HasValue = table.HasValue
+local type = type
+local table_insert = table.insert
+local ents = ents
+local ents_FindInSphere = ents.FindInSphere
+local FindMetaTable = FindMetaTable
+
 function GM:GetCraftingRecipe(enta, entb)
-	if not enta:IsValid() or not entb:IsValid() or enta == entb then return end
+	if not IsValid(enta) or not IsValid(entb) or enta == entb then return end
 
 	for _, recipe in pairs(self.Crafts) do
 		if self:CraftingRecipeMatches(enta, entb, recipe) then return recipe end
@@ -191,17 +203,17 @@ end
 function GM:CraftingRecipeMatches(enta, entb, recipe, checkedswap)
 	local entaclass = enta:GetClass()
 	local entbclass = entb:GetClass()
-	local entaisphysics = string.sub(entaclass, 1, 12) == "prop_physics"
-	local entbisphysics = string.sub(entbclass, 1, 12) == "prop_physics"
+	local entaisphysics = string_sub(entaclass, 1, 12) == "prop_physics"
+	local entbisphysics = string_sub(entbclass, 1, 12) == "prop_physics"
 
 	if recipe.callback and recipe.callback(enta, entb) then
 		return true
 	end
 
 	if recipe.a and recipe.b and (recipe.a[1] == entaclass or entaisphysics and recipe.a[1] == "*physics*") and (recipe.b[1] == entbclass or entaisphysics and recipe.a[1] == "*physics*") then
-		local mdla = string.lower(enta:GetModel())
-		local mdlb = string.lower(entb:GetModel())
-		if (recipe.a[2] == nil or type(recipe.a[2]) == "table" and table.HasValue(recipe.a[2], mdla) or mdla == recipe.a[2]) and (recipe.b[2] == nil or type(recipe.b[2]) == "table" and table.HasValue(recipe.b[2], mdlb) or mdlb == recipe.b[2]) then
+		local mdla = string_lower(enta:GetModel())
+		local mdlb = string_lower(entb:GetModel())
+		if (recipe.a[2] == nil or type(recipe.a[2]) == "table" and table_HasValue(recipe.a[2], mdla) or mdla == recipe.a[2]) and (recipe.b[2] == nil or type(recipe.b[2]) == "table" and table_HasValue(recipe.b[2], mdlb) or mdlb == recipe.b[2]) then
 			return true
 		end
 	end
@@ -211,8 +223,17 @@ function GM:CraftingRecipeMatches(enta, entb, recipe, checkedswap)
 	end
 end
 
-function GM:CanCraft(pl, enta, entb)
-	if self:GetCraftingRecipe(enta, entb) == nil or not pl:IsValid() or not pl:Alive() or pl:Team() ~= TEAM_HUMAN then return false end
+function GM:CanCraft(pl, enta, entb, checkedrec)
+	if (not checkedrec and self:GetCraftingRecipe(enta, entb) == nil) or not IsValid(pl) or not pl:Alive() or pl:Team() == TEAM_UNDEAD then return false end
+
+	if enta:IsWeapon() then -- Handle weapons differently.
+		if entb:IsBarricadeProp() or entb:GetName() ~= "" then return false end
+		
+		local plpos = pl:EyePos()
+		local nearest = entb:NearestPoint(plpos)
+		if nearest:Distance(plpos) > (self.CraftingRange*1.7) or not TrueVisibleFilters(nearest, plpos, pl, entb) then return false end
+		return true
+	end
 
 	if enta:IsBarricadeProp() or entb:IsBarricadeProp() or enta:GetName() ~= "" or entb:GetName() ~= "" then return false end
 
@@ -232,7 +253,7 @@ local meta = FindMetaTable("Entity")
 if not meta then return end
 
 function meta:IsPhysicsModel(mdl)
-	return string.sub(self:GetClass(), 1, 12) == "prop_physics" and (not mdl or string.lower(self:GetModel()) == string.lower(mdl))
+	return self:IsAPhysicsProp() and (not mdl or string_lower(self:GetModel()) == string_lower(mdl))
 end
 
 function meta:IsWeaponType(class)
@@ -242,7 +263,7 @@ end
 if true then return end
 
 function GM:GetCraftingRecipe(enta, entb)
-	if not enta:IsValid() or not entb:IsValid() or enta == entb then return end
+	if not IsValid(enta) or not IsValid(entb) or enta == entb then return end
 
 	for _, recipe in pairs(self.Crafts) do
 		if self:CraftingRecipeMatches(enta, entb, recipe) then return recipe end
@@ -256,17 +277,17 @@ end
 function GM:CraftingRecipeMatches(enta, entb, recipe, checkedswap)
 	local entaclass = enta:GetClass()
 	local entbclass = entb:GetClass()
-	local entaisphysics = string.sub(entaclass, 1, 12) == "prop_physics"
-	local entbisphysics = string.sub(entbclass, 1, 12) == "prop_physics"
+	local entaisphysics = string_sub(entaclass, 1, 12) == "prop_physics"
+	local entbisphysics = string_sub(entbclass, 1, 12) == "prop_physics"
 
 	if recipe.callback and recipe.callback(enta, entb) then
 		return true
 	end
 
 	if recipe.a and recipe.b and (recipe.a[1] == entaclass or entaisphysics and recipe.a[1] == "*physics*") and (recipe.b[1] == entbclass or entaisphysics and recipe.a[1] == "*physics*") then
-		local mdla = string.lower(enta:GetModel())
-		local mdlb = string.lower(entb:GetModel())
-		if (recipe.a[2] == nil or type(recipe.a[2]) == "table" and table.HasValue(recipe.a[2], mdla) or mdla == recipe.a[2]) and (recipe.b[2] == nil or type(recipe.b[2]) == "table" and table.HasValue(recipe.b[2], mdlb) or mdlb == recipe.b[2]) then
+		local mdla = string_lower(enta:GetModel())
+		local mdlb = string_lower(entb:GetModel())
+		if (recipe.a[2] == nil or type(recipe.a[2]) == "table" and table_HasValue(recipe.a[2], mdla) or mdla == recipe.a[2]) and (recipe.b[2] == nil or type(recipe.b[2]) == "table" and table_HasValue(recipe.b[2], mdlb) or mdlb == recipe.b[2]) then
 			return true
 		end
 	end
@@ -280,8 +301,8 @@ function GM:GetAllValidCraftingRecipes(pl)
 	local craftable = {}
 
 	for _, craft in pairs(self.Crafts) do
-		if self:CanCraft(pl, craft) then
-			table.insert(craftable, craft)
+		if self:CanCraftAll(pl, craft) then
+			table_insert(craftable, craft)
 		end
 	end
 
@@ -297,11 +318,12 @@ function GM:IsValidCraftingEntity(ent, pl)
 end
 
 -- This checks everything and is what determines if a recipe displays to the player in their menu.
-function GM:CanCraft(pl, craft)
-	if not pl:IsValid() or not pl:Alive() or pl:Team() ~= TEAM_HUMAN then return false end
+function GM:CanCraftAll(pl, craft)
+	if not IsValid(pl) or not pl:Alive() or pl:Team() == TEAM_UNDEAD then return false end
 
 	local plpos = pl:EyePos()
-	local entities = ents.FindValidInSphere(plpos, self.CraftingRange)
+	--local entities = ents_FindInSphere(plpos, self.CraftingRange)
+	local entities = util.FindRadiusEntities(plpos,self.CraftingRange)
 
 	if craft.CanCraft and not craft:CanCraft(pl, entities, plpos) then return false end
 
@@ -330,5 +352,5 @@ local meta = FindMetaTable("Entity")
 if not meta then return end
 
 function meta:IsPhysicsModel(mdl)
-	return string.sub(self:GetClass(), 1, 12) == "prop_physics" and (not mdl or string.lower(self:GetModel()) == string.lower(mdl))
+	return self:IsAPhysicsProp() and (not mdl or string_lower(self:GetModel()) == string_lower(mdl))
 end

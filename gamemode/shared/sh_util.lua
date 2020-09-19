@@ -22,6 +22,95 @@ function player.GetAllSpectators()
 	return t
 end
 
+-- Takes a table of false/trues with numbers as the keys, compresses to array of chars (8 bits), in other words a string, for storage in files.
+-- The net library already uses the smallest number of bits needed so this is only for storing data.
+function util.CompressBitTable(t)
+	local buf = ""
+	local maxvalue = 0
+
+	t = table.ToAssoc(t)
+
+	for k in pairs(t) do
+		if k > maxvalue then maxvalue = k end
+	end
+	local num_bytes = math.ceil(maxvalue / 8)
+
+	for on_byte = 1, num_bytes do
+		local byte = 0
+
+		for bit_slot = 1, 8 do
+			if t[bit_slot + 8 * (on_byte - 1)] then
+				byte = bit.bor(byte, 2 ^ (bit_slot - 1))
+			end
+		end
+
+		buf = buf..string.char(byte)
+	end
+
+	return buf
+end
+
+function util.DecompressBitTable(str, associative)
+	local t = {}
+
+	for on_byte = 1, #str do
+		local byte = str:sub(on_byte, on_byte):byte()
+		for bit_slot = 1, 8 do
+			if bit.band(byte, 1) == 1 then
+				local v = bit_slot + 8 * (on_byte - 1)
+				if associative then
+					t[v] = true
+				else
+					t[#t + 1] = v
+				end
+			end
+			byte = bit.arshift(byte, 1)
+		end
+	end
+
+	return t
+end
+
+function table.IsAssoc(t)
+	for _, v in pairs(t) do
+		if v == true then
+			return true
+		end
+
+		return false
+	end
+end
+
+function table.ToAssoc(t)
+	if not table.IsAssoc(t) then
+		local t2 = {}
+
+		for k, v in pairs(t) do
+			t2[v] = true
+		end
+
+		return t2
+	end
+
+	return t
+end
+
+function table.ToKeyValues(t)
+	if table.IsAssoc(t) then
+		local t2 = {}
+
+		for k, v in pairs(t) do
+			if v then
+				t2[#t2 + 1] = k
+			end
+		end
+
+		return t2
+	end
+
+	return t
+end
+
 function FindStartingItem(id)
 	if not id then return end
 
