@@ -126,13 +126,6 @@ GM.Crafts = {
 		end,
 		Result = {"weapon_zs_explosivecrowbar"}
 	},
-    {
-		Name = "a nuke masher",
-		callback = function(enta, entb)
-			return enta:IsWeaponType("weapon_zs_empower") and entb:IsWeaponType("weapon_zs_megamasher")
-		end,
-		Result = {"weapon_zs_nukemasher"}
-	},
 	{
 		Name = "a bust-on-a-stick",
 		callback = function(enta, entb)
