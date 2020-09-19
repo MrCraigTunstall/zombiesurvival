@@ -321,35 +321,35 @@ meta.OldSetPhysicsAttacker = meta.SetPhysicsAttacker
 function meta:SetPhysicsAttacker(ent)
 	if string.sub(self:GetClass(), 1, 12) == "func_physbox" and ent:IsValid() then
 		self.PBAttacker = ent
-		self.NPBAttacker = CurTime() + 1
+		self.NPBAttacker = CurTime() + 5
 	end
 	self:OldSetPhysicsAttacker(ent)
 end
 
-local function randomsort(a, b)
-	return a.rand < b.rand
-end
-local function randomize(t)
-	for k, v in pairs(t) do v.rand = math.Rand(0, 1) end
-	table.sort(t, randomsort)
-end
-
 -- Return true to override default behavior.
 function meta:DamageNails(attacker, inflictor, damage, dmginfo)
-	if not self:IsNailed() or self.m_NailsDontAbsorb then return end
+	if not self:IsNailed() then return end
 
-	if self:GetBarricadeHealth() <= 0 then return end
+	-- Props that don't have barricade health yet might still be nailed to something.
+	local nails = self:GetLivingNails()
+	local isattach = false
+	for i, nail in ipairs(nails) do
+		isattach = self == nail:GetAttachEntity() or isattach
+	end
+
+	if self:GetBarricadeHealth() <= 0 and not isattach then return end
 
 	if not gamemode.Call("CanDamageNail", self, attacker, inflictor, damage, dmginfo) then
 		if dmginfo then
 			dmginfo:SetDamage(0)
-			dmginfo:SetDamageType(DMG_BULLET)
+			dmginfo:SetDamageType(DMG_GENERIC)
 		end
 
 		return true
 	end
 
-	if damage < 0 then
+	-- No physics damage to props. Stops ramming/thrown weapons damaging them.
+	if damage < 0 or dmginfo:GetDamageType() == DMG_CRUSH then
 		if dmginfo then
 			dmginfo:SetDamage(0)
 		end
@@ -357,9 +357,15 @@ function meta:DamageNails(attacker, inflictor, damage, dmginfo)
 		return true
 	end
 
+	if gamemode.Call("IsEscapeDoorOpen") then
+		local multi = gamemode.Call("GetEscapeStage") * 1.5
+
+		dmginfo:SetDamage(dmginfo:GetDamage() * multi)
+		damage = damage * multi
+	end
+
 	self:ResetLastBarricadeAttacker(attacker, dmginfo)
 
-	local nails = self:GetLivingNails()
 	if #nails <= 0 then return end
 
 	self:SetBarricadeHealth(self:GetBarricadeHealth() - damage)
@@ -367,9 +373,12 @@ function meta:DamageNails(attacker, inflictor, damage, dmginfo)
 		nail:OnDamaged(damage, attacker, inflictor, dmginfo)
 	end
 
-	if attacker:IsPlayer() then
-		GAMEMODE:DamageFloater(attacker, self, dmginfo)
+	-- No points for repairing damage from fire, trigger_hurt, etc.
+	if not attacker:IsZombie() then
+		self:AddUselessDamage(damage)
 	end
+
+	attacker.LastBarricadeHit = CurTime()
 
 	if dmginfo then dmginfo:SetDamage(0) end
 
@@ -388,7 +397,7 @@ function meta:DamageNails(attacker, inflictor, damage, dmginfo)
 		end
 
 		for _, nail in pairs(nails) do
-			self:RemoveNail(nail)
+			self:RemoveNail(nail, nil, nil, true)
 		end
 	end
 
@@ -462,7 +471,7 @@ local function GetNailOwner(nail, filter)
 	return game.GetWorld()
 end
 
-function meta:RemoveNail(nail, dontremoveentity, removedby)
+function meta:RemoveNail(nail, dontremoveentity, removedby, forceremoveconstraint)
 	if not self:IsNailed() then return end
 
 	if not nail then
@@ -473,16 +482,31 @@ function meta:RemoveNail(nail, dontremoveentity, removedby)
 
 	local cons = nail:GetNailConstraint()
 	local othernails = 0
-	for _, othernail in pairs(ents.FindByClass("prop_nail")) do
-		if othernail ~= nail and not nail.m_IsRemoving and othernail:GetNailConstraint():IsValid() and othernail:GetNailConstraint() == cons then
-			othernails = othernails + 1
+	if not forceremoveconstraint then
+		for _, othernail in pairs(ents.FindByClass("prop_nail")) do
+			if othernail ~= nail and not nail.m_IsRemoving and othernail:GetNailConstraint():IsValid() and othernail:GetNailConstraint() == cons then
+				othernails = othernails + 1
+			end
 		end
 	end
 
 	-- Only remove the constraint if it's the last nail.
 	if othernails == 0 and cons:IsValid() then
+		if self.PropHealth and self:GetBarricadeHealth() > 0 then
+			local repairs_frac = self:GetBarricadeRepairs() / self:GetMaxBarricadeRepairs()
+
+			if repairs_frac < 0.5 then
+				self.PropHealth = math.min(self.PropHealth, self:GetBarricadeHealth())
+
+				local brit = math.Clamp(self.PropHealth / self.TotalHealth, 0, 1)
+				local col = self:GetColor()
+				col.r = 255
+				col.g = 255 * brit
+				col.b = 255 * brit
+				self:SetColor(col)
+			end
+		end
 		cons:Remove()
-		if not self:IsWorld() then self:SetIsNailed(false) end
 	end
 
 	local ent2 = GetNailOwner(nail, self)
@@ -502,9 +526,6 @@ function meta:RemoveNail(nail, dontremoveentity, removedby)
 				break
 			end
 		end
-		if #ent2.Nails <= 0 then
-			if not self:IsWorld() then self:SetIsNailed(false) end
-		end
 	end
 
 	self:TemporaryBarricadeObject()
@@ -516,11 +537,53 @@ function meta:RemoveNail(nail, dontremoveentity, removedby)
 		nail.m_IsRemoving = true
 	end
 
+	self:RecalculateNailBonuses()
+	self:CollisionRulesChanged()
+
+	if ent2 and ent2:IsValid() then
+		ent2:CollisionRulesChanged()
+	end
+
 	return true
+end
+
+function meta:RemoveNextFrame(time)
+	self.Removing = true
+	self:Fire("kill", "", time or 0.01)
 end
 
 function meta:SetIsNailed(IsNailed)
 	self:SetNWBool("IsNailed", IsNailed)
+end
+
+local function barricadetimer(self, timername)
+	if self:IsValid() then
+		for _, e in pairs(ents.FindInBox(self:WorldSpaceAABB())) do
+			if e and e:IsValid() and e:IsPlayer() and e:Alive() then
+				return
+			end
+		end
+
+		self.IsBarricadeObject = nil
+		self:CollisionRulesChanged()
+	end
+
+	timer.Remove(timername)
+end
+function meta:TemporaryBarricadeObject()
+	if self.IsBarricadeObject then return end
+
+	for _, e in pairs(ents.FindInBox(self:WorldSpaceAABB())) do
+		if e and e:IsValid() and e:IsPlayer() and e:Alive() then
+			self.IsBarricadeObject = true
+			self:CollisionRulesChanged()
+
+			local timername = "TemporaryBarricadeObject"..self:GetCreationID()
+			timer.Create(timername, 0, 0, function() barricadetimer(self, timername) end)
+
+			return
+		end
+	end
 end
 
 function meta:RecalculateNailBonuses()

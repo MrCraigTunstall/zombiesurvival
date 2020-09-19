@@ -291,11 +291,6 @@ function meta:GetHolder()
 	end
 end
 
-function meta:RemoveNextFrame(time)
-	self.Removing = true
-	self:Fire("kill", "", time or 0.01)
-end
-
 function meta:ThrowFromPosition(pos, force, noknockdown)
 	if force == 0 or self:IsProjectile() or self.NoThrowFromPosition then return false end
 

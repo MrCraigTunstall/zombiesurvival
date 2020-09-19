@@ -2243,6 +2243,13 @@ net.Receive("zs_mutations_table", function(len)
 	end
 end)
 
+net.Receive("zs_nailremoved", function(length)
+	local ent = net.ReadEntity()
+	if not ent:IsValidPlayer() then return end
+
+	GAMEMODE:CenterNotify({killicon = "weapon_zs_hammer"}, " ", COLOR_RED, translate.Format("removed_your_nail", ent:Name()))
+end)
+
 -- Temporary fix
 function render.DrawQuadEasy(pos, dir, xsize, ysize, color, rotation)
 	xsize = xsize / 2

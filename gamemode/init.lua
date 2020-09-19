@@ -297,6 +297,7 @@ function GM:AddNetworkStrings()
 	util.AddNetworkString("zs_weaponlocks")
 	util.AddNetworkString("zs_mutations_table")
 	util.AddNetworkString("zs_ammogive")
+	util.AddNetworkString("zs_nailremoved")
 	util.AddNetworkString("zs_ammogiven")
 	util.AddNetworkString("zs_updatealtselwep")
 end
@@ -608,6 +609,19 @@ function GM:CreateZombieGas()
 			end
 		end
 	end
+end
+
+function GM:PlayerShouldTakeNailRemovalPenalty(pl, nail, nailowner, prop)
+	if gamemode.Call("PlayerIsAdmin", pl) then return false end
+
+	if not gamemode.Call("CanPlaceNail", nailowner) then return false end
+
+	local firstnail = prop:GetFirstNail()
+	if firstnail and pl == firstnail:GetOwner() then
+		return false
+	end
+
+	return true
 end
 
 function GM:CheckDynamicSpawnHR(ent)
@@ -1814,20 +1828,29 @@ function GM:OnNailRemoved(nail, ent1, ent2, remover)
 
 	if remover and remover:IsValid() and remover:IsPlayer() then
 		local deployer = nail:GetDeployer()
-		if deployer:IsValid() and deployer ~= remover and deployer:Team() ~= TEAM_UNDEAD then
-			PrintTranslatedMessage(HUD_PRINTCONSOLE, "nail_removed_by", remover:Name(), deployer:Name())
+		local deployername = "[unconnected]"
+		if deployer:IsValid() and deployer:Team() == TEAM_HUMAN then
+			deployername = deployer:Name()
+
+			if deployer ~= remover then
+				net.Start("zs_nailremoved")
+					net.WriteEntity(remover)
+				net.Send(deployer)
+			end
 		end
+
+		PrintTranslatedMessage(HUD_PRINTCONSOLE, "nail_removed_by", remover:Name(), deployername)
 	end
 end
 
 -- A nail is created between two entities.
 function GM:OnNailCreated(ent1, ent2, nail)
-    if ent1 and ent1:IsValid() and not ent1:IsWorld() then
-        timer.Simple(0, function() evalfreeze(ent1) end)
-    end
-    if ent2 and ent2:IsValid() and not ent2:IsWorld() then
-        timer.Simple(0, function() evalfreeze(ent2) end)
-    end
+	if ent1 and ent1:IsValid() and not ent1:IsWorld() then
+		timer.Simple(0, function() evalfreeze(ent1) end)
+	end
+	if ent2 and ent2:IsValid() and not ent2:IsWorld() then
+		timer.Simple(0, function() evalfreeze(ent2) end)
+	end
 end
 
 function GM:RemoveDuplicateAmmo(pl)
