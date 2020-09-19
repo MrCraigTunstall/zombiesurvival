@@ -697,9 +697,12 @@ end
 
 function GM:GetRagdollEyes(pl)
 	local Ragdoll = pl:GetRagdollEntity()
-	if not Ragdoll:IsValid() then return end
+	if not IsValid(Ragdoll) then return end
 
-	local att = Ragdoll:GetAttachment(Ragdoll:LookupAttachment("eyes"))
+	local attachmentnum = Ragdoll:LookupAttachment("eyes")
+	if attachmentnum == nil then return end
+	
+	local att = Ragdoll:GetAttachment(attachmentnum)
 	if att then
 		att.Pos = att.Pos + att.Ang:Forward() * -2
 		att.Ang = att.Ang
@@ -784,4 +787,13 @@ end
 end
 
 function GM:VehicleMove()
+end
+
+function GM:PlayerEnteredVehicle(ply, veh, role)
+end
+
+function GM:CanPlayerEnterVehicle(player, vehicle, sRole)
+end
+
+function GM:CanExitVehicle(veh, ply)
 end
