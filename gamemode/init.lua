@@ -114,28 +114,30 @@ include("server/sv_catbomb.lua")
 --include("server/sv_crashrecover.lua")
 include("server/sv_extras.lua")
 
+local M_Player = FindMetaTable("Player")
+local P_Team = M_Player.Team
+local E_meta = FindMetaTable("Entity")
+local E_IsValid = E_meta.IsValid
+local table_HasValue = table.HasValue
+local table_RemoveByValue = table.RemoveByValue
+
 if file.Exists(GM.FolderName.."/gamemode/misc/maps/"..game.GetMap()..".lua", "LUA") then
 	include("misc/maps/"..game.GetMap()..".lua")
 end
 
-function player.GetAll()
-	local allplayers = {}
-	
-	local counter = 1
-	
-	for i = 1 , game.MaxPlayers() do
-		local ply = player.GetByID(i)
-		if IsValid(ply) then
-
-			if SERVER && !ply:IsConnected() then
-				continue
-			end
-		
-			allplayers[counter] = ply
-			counter = counter + 1
-		end
+local function PlayerGetAllTable(p)
+	local ptable = {}
+	for i, v in ipairs(p) do
+        ptable[i] = v
 	end
-	return allplayers
+    
+	return ptable
+end
+
+local PlayerGetAll = {}
+
+function player.GetAll()
+    return PlayerGetAllTable(PlayerGetAll)
 end
 
 
@@ -1568,6 +1570,8 @@ function GM:AttemptHumanDynamicSpawn(pl)
 end
 
 function GM:PlayerInitialSpawn(pl)
+	if table_HasValue(PlayerGetAll, pl) then return end
+	PlayerGetAll[#PlayerGetAll + 1] = pl
 	gamemode.Call("PlayerInitialSpawnRound", pl)
 end
 
@@ -1725,6 +1729,7 @@ function GM:GetDynamicSpawning()
 end
 
 function GM:PlayerDisconnected(pl)
+	table_RemoveByValue(PlayerGetAll, pl)
 	pl.Disconnecting = true
 
 	local uid = pl:UniqueID()
