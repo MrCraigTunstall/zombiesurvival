@@ -634,21 +634,29 @@ local playermins = Vector(-17, -17, 0)
 local playermaxs = Vector(17, 17, 4)
 local LastSpawnPoints = {}
 
+local spawn_blockers = {
+	prop_physics = true,
+	prop_physics_override = true,
+	prop_physics_multiplayer = true,
+	prop_dynamic = true
+}
+
 function GM:PlayerSelectSpawn(pl)
 	local spawninplayer = false
 	local teamid = pl:Team()
 	local tab
 	local epicenter
+
 	if pl.m_PreRedeem and teamid == TEAM_HUMAN and #self.RedeemSpawnPoints >= 1 then
 		tab = self.RedeemSpawnPoints
 	elseif teamid == TEAM_UNDEAD then
 		if pl:GetZombieClassTable().Boss and (not pl.DeathClass or self.ZombieClasses[pl.DeathClass].Boss) and #self.BossSpawnPoints >= 1 then
 			tab = self.BossSpawnPoints
 		elseif self.DynamicSpawning --[[and CurTime() >= self:GetWaveStart() + 1]] then -- If we're a bit in the wave then we can spawn on top of heavily dense groups with no humans looking at us.
-			if self:ShouldUseAlternateDynamicSpawn() then
+			if self:ShouldUseAlternateDynamicSpawn() then -- This system is used for zombie escape, classic mode, baby mode, etc.
 				-- If they're near a human, use position where they died.
 				for _, h in pairs(team.GetPlayers(TEAM_HUMAN)) do
-					if h:GetPos():Distance(epicenter or pl:GetPos()) < 1024 then
+					if h:GetPos():DistToSqr(epicenter or pl:GetPos()) < 1048576 then --1024^2
 						epicenter = pl.KilledPos
 						break
 					end
@@ -668,13 +676,11 @@ function GM:PlayerSelectSpawn(pl)
 				end
 			else
 				local dyn = pl.ForceDynamicSpawn
-				if dyn then
+				if dyn then -- We were spectating an entity.
 					pl.ForceDynamicSpawn = nil
 					if self:DynamicSpawnIsValid(dyn) then
-						self:CheckDynamicSpawnHR(dyn)
-
-						if dyn:GetClass() == "prop_creepernest" then
-							local owner = dyn.Owner
+						if dyn:GetClass() == "prop_creepernest" then -- For honorable mentions
+							local owner = dyn:GetOwner()
 							if owner and owner:IsValid() and owner:Team() == TEAM_UNDEAD then
 								owner.NestSpawns = owner.NestSpawns + 1
 							end
@@ -682,21 +688,14 @@ function GM:PlayerSelectSpawn(pl)
 
 						return dyn
 					end
+				end
 
-					epicenter = dyn:GetPos() -- Ok, at least skew our epicenter to what they tried to spawn at.
-					tab = table.Copy(team.GetValidSpawnPoint(TEAM_UNDEAD))
-					local dynamicspawns = self:GetDynamicSpawns(pl)
-					if #dynamicspawns > 0 then
-						spawninplayer = true
-						table.Add(tab, dynamicspawns)
-					end
-				else
-					tab = table.Copy(team.GetValidSpawnPoint(TEAM_UNDEAD))
-					local dynamicspawns = self:GetDynamicSpawns(pl)
-					if #dynamicspawns > 0 then
-						spawninplayer = true
-						table.Add(tab, dynamicspawns)
-					end
+				-- Otherwise we just use whatever we can (creeper nests too)
+				tab = table.Copy(team.GetValidSpawnPoint(TEAM_UNDEAD))
+				local dynamicspawns = self:GetDynamicSpawns(pl)
+				if #dynamicspawns > 0 then
+					spawninplayer = true
+					table.Add(tab, dynamicspawns)
 				end
 			end
 		end
@@ -707,49 +706,69 @@ function GM:PlayerSelectSpawn(pl)
 	-- Now we have a table of our potential spawn points, including dynamic spawns (other players).
 	-- We validate if the spawn is blocked, disabled, or otherwise not suitable below.
 
-	local count = #tab
-	if count > 0 then
+	if #tab > 0 then
 		local potential = {}
 
+		-- Filter out spawns that are disabled or blocked.
 		for _, spawn in pairs(tab) do
 			if spawn:IsValid() and not spawn.Disabled and (spawn:IsPlayer() or spawn ~= LastSpawnPoints[teamid] or #tab == 1) and spawn:IsInWorld() then
 				local blocked
-				local spawnpos = spawn:GetPos()
-				for _, ent in pairs(ents.FindInBox(spawnpos + playermins, spawnpos + playermaxs)) do
-					if IsValid(ent) and ent:IsPlayer() and not spawninplayer or string.sub(ent:GetClass(), 1, 5) == "prop_" then
-						blocked = true
-						break
+
+				if not self.ObjectiveMap or teamid == TEAM_UNDEAD then
+					local spawnpos = spawn:GetPos()
+					for _, ent in pairs(ents.FindInBox(spawnpos + playermins, spawnpos + playermaxs)) do
+						if not spawninplayer and IsValid(ent) and ent:IsPlayer() or spawn_blockers[ent:GetClass()] then
+							blocked = true
+							break
+						end
 					end
 				end
+
 				if not blocked then
 					potential[#potential + 1] = spawn
 				end
 			end
 		end
 
-		-- Now our final spawn list. Pick the one that's closest to the humans if we're a zombie. Otherwise use a random spawn.
+		-- Now our final spawn list is ready.
 		if #potential > 0 then
-			local spawn = teamid == TEAM_UNDEAD and self:GetClosestSpawnPoint(potential, epicenter or self:GetTeamEpicentre(TEAM_HUMAN)) or table.Random(potential)
+			local spawn
+			if teamid == TEAM_UNDEAD then
+				if pl:KeyDown(IN_ATTACK2) then
+					spawn = self:GetClosestSpawnPoint(potential, epicenter or self:GetTeamEpicentre(TEAM_HUMAN))
+				elseif pl:KeyDown(IN_RELOAD) then
+					spawn = self:GetFurthestSpawnPoint(potential, epicenter or self:GetTeamEpicentre(TEAM_HUMAN))
+				elseif math.random(2) == 2 then
+					-- Let every other left click masher spawn randomly instead of closest so we have wandering zombies.
+					spawn = table.Random(potential)
+				else
+					spawn = self:GetClosestSpawnPoint(potential, epicenter or self:GetTeamEpicentre(TEAM_HUMAN))
+				end
+			else
+				spawn = table.Random(potential)
+			end
+
 			if spawn then
 				LastSpawnPoints[teamid] = spawn
-				self:CheckDynamicSpawnHR(spawn)
-				pl.SpawnedOnSpawnPoint = true
+				pl.SpawnedOnSpawnPoint = spawn:GetClass():sub(1, 11) == "info_player"
+				pl.DidntSpawnOnSpawnPoint = pl.DidntSpawnOnSpawnPoint or not pl.SpawnedOnSpawnPoint
 				return spawn
 			end
 		end
 	end
 
-	pl.SpawnedOnSpawnPoint = true
+	pl.SpawnedOnSpawnPoint = false
+	pl.DidntSpawnOnSpawnPoint = true
 
 	-- Fallback.
 	return LastSpawnPoints[teamid] or #tab > 0 and table.Random(tab) or pl
 end
 
-local function BossZombieSort(a, b)
-	local ascore = a.BarricadeDamage * 0.2 + a.DamageDealt[TEAM_UNDEAD]
-	local bscore = b.BarricadeDamage * 0.2 + b.DamageDealt[TEAM_UNDEAD]
+local function BossZombieSort(za, zb)
+	local ascore = za.WaveBarricadeDamage * 0.05 + za.WaveHumanDamage
+	local bscore = zb.WaveBarricadeDamage * 0.05 + zb.WaveHumanDamage
 	if ascore == bscore then
-		return a:Deaths() < b:Deaths()
+		return za:Deaths() < zb:Deaths()
 	end
 
 	return ascore > bscore
