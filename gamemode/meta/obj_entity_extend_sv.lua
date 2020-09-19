@@ -16,8 +16,12 @@ function meta:HealPlayer(pl, amount, pointmul, nobymsg, poisononly)
 
 	amount = amount * multiplier
 
+	if not pl:IsValid() then
+		return
+	end
+
 	-- Heal bleed first.
-	if not poisononly and bleed > 0 then
+	if not poisononly and bleed > 0 and pl.AddBleedDamage then
 		rmv = math.min(amount, bleed)
 		pl:AddBleedDamage(-rmv)
 		healed = healed + rmv
@@ -25,7 +29,7 @@ function meta:HealPlayer(pl, amount, pointmul, nobymsg, poisononly)
 	end
 
 	-- Heal poison next.
-	if poison > 0 and amount > 0 then
+	if poison > 0 and amount > 0 and pl.AddPoisonDamage then
 		rmv = math.min(amount, poison)
 		pl:AddPoisonDamage(-rmv)
 		healed = healed + rmv
