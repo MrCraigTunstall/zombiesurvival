@@ -245,7 +245,7 @@ function PANEL:DoClick(silent, force)
 		TokensRemaining = TokensRemaining - tab.Worth
 	end
 
-	pMutation.WorthLab:SetText(translate.Get("mutationsdamagetokens")..": ".. TokensRemaining)
+	pMutation.WorthLab:SetText(translate.Format("mutationsdamagetokens", tostring(TokensRemaining)))
 	if TokensRemaining <= 0 then
 		pMutation.WorthLab:SetTextColor(COLOR_RED)
 		pMutation.WorthLab:InvalidateLayout()
