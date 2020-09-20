@@ -541,6 +541,22 @@ local ammoreplacements = {
 	["item_box_buckshot"] = "buckshot"
 }
 function GM:ReplaceMapAmmo()
+	local prefix = game.GetMap():lower():sub(1, 3)
+	if prefix == "dm_" or prefix == "pb_" then
+		util.RemoveAll("item_ammo_*")
+		util.RemoveAll("item_health*")
+		util.RemoveAll("item_rpg_round")
+		util.RemoveAll("item_box_buckshot")
+
+		for _, e in pairs(ents.FindByModel("models/props_c17/oildrum001_explosive.mdl")) do
+			if e:IsValid() and e:GetClass():sub(1, 12) == "prop_physics" then
+				e:Remove()
+			end
+		end
+
+		return
+	end
+
 	for classname, ammotype in pairs(ammoreplacements) do
 		for _, ent in pairs(ents.FindByClass(classname)) do
 			local newent = ents.Create("prop_ammo")
@@ -585,7 +601,7 @@ function GM:CreateZombieGas()
 
 		if not self.ZombieEscape then
 			for __, human_spawn in pairs(humanspawns) do
-				if human_spawn:IsValid() and human_spawn:GetPos():Distance(spawnpos) < 500 then
+				if human_spawn:IsValid() and human_spawn:GetPos():DistToSqr(spawnpos) < 90000 then
 					near = true
 					break
 				end
@@ -594,7 +610,7 @@ function GM:CreateZombieGas()
 
 		if not near then
 			for __, gas in pairs(gasses) do
-				if gas:GetPos():Distance(spawnpos) < 350 then
+				if gas:GetPos():DistToSqr(spawnpos) < 122500 then --350^2
 					near = true
 					break
 				end
@@ -1411,6 +1427,14 @@ function GM:InitPostEntityMap(fromze)
 
 	for _, ent in pairs(ents.FindByClass("prop_ammo")) do ent.PlacedInMap = true end
 	for _, ent in pairs(ents.FindByClass("prop_weapon")) do ent.PlacedInMap = true end
+	for _, ent in pairs(ents.FindByClass("func_door_rotating")) do ent.NoTraceAttack = true end
+	for _, ent in pairs(ents.FindByClass("func_physbox")) do ent.IsPhysbox = true end
+	for _, ent in pairs(ents.FindByClass("func_physbox_multiplayer")) do
+		ent.IsPhysbox = true
+		ent.IgnoreZEProtect = true
+	end
+
+	for _, ent in pairs(ents.FindByClass("item_*")) do ent.NoNails = true end
 
 	if self.ObjectiveMap then
 		self:SetDynamicSpawning(false)
@@ -1418,6 +1442,24 @@ function GM:InitPostEntityMap(fromze)
 	else
 		gamemode.Call("CreateSigils")
 	end
+
+	if game.MaxPlayers() > 16 then
+		local e = ents.FindByClass("shadow_control")[1]
+		if not e then
+			e = ents.Create("shadow_control")
+			e:Spawn()
+		end
+		if e:IsValid() then
+			e:SetKeyValue("disableallshadows", "1")
+		end
+
+		util.RemoveAll("func_precipitation")
+	end
+end
+
+function GM:SetDynamicSpawning(onoff)
+	SetGlobalBool("DynamicSpawningDisabled", not onoff)
+	self.DynamicSpawning = onoff
 end
 
 local function EndRoundPlayerShouldTakeDamage(pl, attacker) return pl:Team() == TEAM_UNDEAD or not attacker:IsPlayer() end

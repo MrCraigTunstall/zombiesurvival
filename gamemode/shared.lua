@@ -220,11 +220,6 @@ function GM:SortZombieSpawnDistances(allplayers)
 	table.sort(allplayers, self.ZombieSpawnDistanceSort)
 end
 
-function GM:SetDynamicSpawning(onoff)
-	SetGlobalBool("DynamicSpawningDisabled", not onoff)
-	self.DynamicSpawning = onoff
-end
-
 function GM:ValidMenuLockOnTarget(pl, ent)
 	if ent and ent:IsValid() and ent:IsPlayer() and ent:Team() ~= TEAM_UNDEAD and ent:Alive() then
 		local startpos = pl:EyePos()
