@@ -340,11 +340,65 @@ function meta:GetZombieClassTable()
 	return ZombieClasses[self:GetZombieClass()]
 end
 
-function meta:CallZombieFunction(funcname, ...)
-	if self:Team() == TEAM_UNDEAD then
-		local tab = self:GetZombieClassTable()
-		if tab[funcname] then
-			return tab[funcname](tab, self, ...)
+local zctab
+local zcfunc
+function meta:CallZombieFunction0(funcname)
+	if P_Team(self) == TEAM_UNDEAD then
+		zctab = ZombieClasses[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass]
+		zcfunc = zctab[funcname]
+		if zcfunc then
+			return zcfunc(zctab, self)
+		end
+	end
+end
+
+function meta:CallZombieFunction1(funcname, a1)
+	if P_Team(self) == TEAM_UNDEAD then
+		zctab = ZombieClasses[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass]
+		zcfunc = zctab[funcname]
+		if zcfunc then
+			return zcfunc(zctab, self, a1)
+		end
+	end
+end
+
+function meta:CallZombieFunction2(funcname, a1, a2)
+	if P_Team(self) == TEAM_UNDEAD then
+		zctab = ZombieClasses[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass]
+		zcfunc = zctab[funcname]
+		if zcfunc then
+			return zcfunc(zctab, self, a1, a2)
+		end
+	end
+end
+
+function meta:CallZombieFunction3(funcname, a1, a2, a3)
+	if P_Team(self) == TEAM_UNDEAD then
+		zctab = ZombieClasses[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass]
+		zcfunc = zctab[funcname]
+		if zcfunc then
+			return zcfunc(zctab, self, a1, a2, a3)
+		end
+	end
+end
+
+function meta:CallZombieFunction4(funcname, a1, a2, a3, a4)
+	if P_Team(self) == TEAM_UNDEAD then
+		zctab = ZombieClasses[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass]
+		zcfunc = zctab[funcname]
+		if zcfunc then
+			return zcfunc(zctab, self, a1, a2, a3, a4)
+		end
+	end
+end
+meta.CallZombieFunction = meta.CallZombieFunction4 -- 4 should be enough for legacy.
+
+function meta:CallZombieFunction5(funcname, a1, a2, a3, a4, a5)
+	if P_Team(self) == TEAM_UNDEAD then
+		zctab = ZombieClasses[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass]
+		zcfunc = zctab[funcname]
+		if zcfunc then
+			return zcfunc(zctab, self, a1, a2, a3, a4, a5)
 		end
 	end
 end

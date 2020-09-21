@@ -122,6 +122,7 @@ end
 
 function meta:AddLifeBarricadeDamage(amount)
 	self.LifeBarricadeDamage = self.LifeBarricadeDamage + amount
+	self.WaveBarricadeDamage = self.WaveBarricadeDamage + amount
 
 	if not self:Alive() and not self:GetZombieClassTable().NeverAlive then
 		net.Start("zs_lifestatsbd")

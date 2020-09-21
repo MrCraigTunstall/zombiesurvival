@@ -1689,6 +1689,9 @@ function GM:PlayerInitialSpawnRound(pl)
 	pl.LifeBarricadeDamage = 0
 	pl.LifeHumanDamage = 0
 	pl.LifeBrainsEaten = 0
+	
+	pl.WaveBarricadeDamage = 0
+	pl.WaveHumanDamage = 0
 
 	pl.m_PointQueue = 0
 	pl.m_LastDamageDealt = 0
@@ -3713,6 +3716,7 @@ VoiceSetTranslate["models/jason278-players/gabe_3.mdl"] = "monk"
 function GM:PlayerSpawn(pl)
 	pl:StripWeapons()
 	pl:RemoveStatus("confusion", false, true)
+	pl:RemoveFlags(FL_ONGROUND) -- fixes :OnGround() returning true on spawn even if they're not on the ground.
 
 	if pl:GetMaterial() ~= "" then
 		pl:SetMaterial("")
@@ -3733,6 +3737,12 @@ function GM:PlayerSpawn(pl)
 	pl:SetLegDamage(0)
 	pl:SetLastAttacker()
 
+	local pcol = Vector(pl:GetInfo("cl_playercolor"))
+	pcol.x = math.Clamp(pcol.x, 0, 2.5)
+	pcol.y = math.Clamp(pcol.y, 0, 2.5)
+	pcol.z = math.Clamp(pcol.z, 0, 2.5)
+	pl:SetPlayerColor(pcol)
+
 	if pl:Team() == TEAM_UNDEAD then
 		pl:RemoveStatus("overridemodel", false, true)
 
@@ -3744,11 +3754,10 @@ function GM:PlayerSpawn(pl)
 		pl.LifeHumanDamage = 0
 		pl.LifeBrainsEaten = 0
 
-		if self:GetEscapeSequence() and self:GetEscapeStage() >= ESCAPESTAGE_BOSS then
-			local bossindex = pl:GetBossZombieIndex()
-			if bossindex ~= -1 then
-				pl:SetZombieClass(bossindex)
-			end
+		pl.BossHealRemaining = nil
+
+		if self:GetUseSigils() and self:GetEscapeSequence() and self:GetEscapeStage() >= ESCAPESTAGE_BOSS and not pl.Revived then
+			pl:SetZombieClassName("Super Zombie")
 		elseif pl.DeathClass and self:GetWaveActive() then
 			pl:SetZombieClass(pl.DeathClass)
 			pl.DeathClass = nil
@@ -3756,6 +3765,8 @@ function GM:PlayerSpawn(pl)
 
 		local classtab = pl:GetZombieClassTable()
 		pl:DoHulls(pl:GetZombieClass(), TEAM_UNDEAD)
+		--pl:SetCustomCollisionCheck(pl.NoCollideAll == true)
+		pl:CollisionRulesChanged()
 
 		if classtab.Model then
 			if (type(classtab.Model) == "table") then
@@ -3764,28 +3775,30 @@ function GM:PlayerSpawn(pl)
 				pl:SetModel(classtab.Model)
 			end
 		elseif classtab.UsePlayerModel then
-			local desiredname = pl:GetInfo("cl_playermodel")
-			if #desiredname == 0 then
+			local mdl = player_manager.TranslatePlayerModel(pl:GetInfo("cl_playermodel"))
+			if table.HasValue(self.RestrictedModels, mdl) then
 				pl:SelectRandomPlayerModel()
 			else
-				pl:SetModel(player_manager.TranslatePlayerModel(desiredname))
+				pl:SetModel(mdl)
 			end
 		elseif classtab.UsePreviousModel then
 			local curmodel = string.lower(pl:GetModel())
-			if table.HasValue(self.RestrictedModels, curmodel) or string.sub(curmodel, 1, 14) ~= "models/player/" then
+			if table.HasValue(self.RestrictedModels, curmodel) or (not VoiceSetTranslate[curmodel] and string.sub(curmodel, 1, 14) ~= "models/player") then
 				pl:SelectRandomPlayerModel()
 			end
 		elseif classtab.UseRandomModel then
 			pl:SelectRandomPlayerModel()
 		else
-			pl:SetModel("models/player/zombie_classic.mdl")
+			pl:SetModel("models/player/zombie_classic_hbfix.mdl")
 		end
 
-		local numundead = team.NumPlayers(TEAM_UNDEAD)
-		if self.OutnumberedHealthBonus <= numundead or classtab.Boss then
+		if classtab.Boss then
 			pl:SetHealth(classtab.Health)
 		else
-			pl:SetHealth(classtab.Health * 1.5)
+			local lowundead = team.NumPlayers(TEAM_UNDEAD) < 4
+
+			local healthmulti = (self.ObjectiveMap or self.ZombieEscape) and 1 or lowundead and 1.5 or 1
+			pl:SetHealth(classtab.Health * healthmulti)
 		end
 
 		if classtab.SWEP then
@@ -3796,7 +3809,7 @@ function GM:PlayerSpawn(pl)
 		pl:SetMaxHealth(1)
 
 		pl:ResetSpeed()
-		pl:SetCrouchedWalkSpeed(classtab.CrouchedWalkSpeed or 0.70)
+		pl:SetCrouchedWalkSpeed(classtab.CrouchedWalkSpeed or 0.45)
 
 		if not pl.Revived or not self:GetWaveActive() or CurTime() > self:GetWaveEnd() then
 			pl.StartCrowing = 0
@@ -3807,15 +3820,31 @@ function GM:PlayerSpawn(pl)
 			pl.ForceSpawnAngles = nil
 		end
 
-		if pl.SpawnedOnSpawnPoint and not pl.DidntSpawnOnSpawnPoint and not pl.Revived and not pl:GetZombieClassTable().NeverAlive then
-			pl:GiveStatus("zombiespawnbuff", 3)
+		if not pl.Revived and not pl:GetZombieClassTable().NeverAlive and pl.SpawnedOnSpawnPoint and not pl.DidntSpawnOnSpawnPoint then
+			pl:GiveStatus("zombiespawnbuff", self.ObjectiveMap and 1.5 or 3)
 		end
 		pl.DidntSpawnOnSpawnPoint = nil
 		pl.SpawnedOnSpawnPoint = nil
-
-		pl:CallZombieFunction("OnSpawned")
-	elseif pl:Team() == TEAM_HUMAN or pl:Team() == TEAM_REDEEMER then
 		pl.m_PointQueue = 0
+		local overridemodel = pl:GetZombieClassTable().OverrideModel
+		if overridemodel then
+			local current = pl:GiveStatus("overridemodel")
+			if current and current:IsValid() then
+				current:SetModel(overridemodel)
+				current:ResetBones()
+				pl:CallZombieFunction1("ManipulateOverrideModel", current)
+			end
+		else
+			pl:RemoveStatus("overridemodel", false, true)
+		end
+
+		local oldhands = pl:GetHands()
+		if IsValid(oldhands) then
+			oldhands:Remove()
+		end
+
+		pl:CallZombieFunction0("OnSpawned")
+	elseif pl:Team() == TEAM_HUMAN then
 		pl.PackedItems = {}
 
 		local desiredname = pl:GetInfo("cl_playermodel")
@@ -3838,14 +3867,18 @@ function GM:PlayerSpawn(pl)
 
 		pl.HumanSpeedAdder = nil
 
+		pl:SetNoTarget(false)
+		pl:SetMaxHealth(100)
+		--pl:SetCustomCollisionCheck(false)
+		pl:CollisionRulesChanged()
+
 		pl.BonusDamageCheck = CurTime()
 
 		pl:ResetSpeed()
 		pl:SetJumpPower(DEFAULT_JUMP_POWER)
 		pl:SetCrouchedWalkSpeed(0.65)
-
-		pl:SetNoTarget(false)
-		pl:SetMaxHealth(100)
+		pl:SetViewOffset(DEFAULT_VIEW_OFFSET)
+		pl:SetViewOffsetDucked(DEFAULT_VIEW_OFFSET_DUCKED)
 
 		if self.ZombieEscape then
 			pl:Give("weapon_zs_zeknife")
@@ -4015,6 +4048,11 @@ function GM:WaveStateChanged(newstate)
 			elseif not pl:Alive() and not pl.Revive then
 				pl:UnSpectateAndSpawn()
 			end
+		end
+		
+		for _, pl in pairs(player.GetAll()) do
+			pl.WaveBarricadeDamage = 0
+			pl.WaveHumanDamage = 0
 		end
 
 		local curwave = self:GetWave()
