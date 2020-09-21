@@ -413,11 +413,7 @@ function meta:GiveStatus(sType, fDie)
 	local cur = self:GetStatus(sType)
 	if cur then
 		if fDie then
-		    local newend = CurTime() + fDie
-			local oldend = cur.DieTime
-			if not oldend or newend > oldend then
-				cur:SetDie(newend)
-			end
+			cur:SetDie(fDie)
 		end
 		cur:SetPlayer(self, true)
 		return cur
