@@ -1658,7 +1658,7 @@ function GM:PlayerInitialSpawnRound(pl)
 
 	pl:SetCanWalk(false)
 	pl:SetCanZoom(false)
-	pl:SetNoCollideWithTeammates(true)
+	pl:SetNoCollideWithTeammates(false)
 	pl:SetCustomCollisionCheck(true)
 
 	pl.ZombiesKilled = 0
