@@ -4215,6 +4215,11 @@ net.Receive("zs_spectate", function(len, ply)
 		return
 	end
 	
+	if LASTHUMAN then
+		ply:CenterNotify(COLOR_RED, translate.ClientGet(ply, "spectator_cantchange3"))
+		return
+	end
+	
 	if ply.SpecCoolDown and RealTime() < ply.SpecCoolDown then
 		local timeLeft = ply.SpecCoolDown - RealTime()
 		ply:CenterNotify(COLOR_DARKRED, string.format("You can change from spectator in %s", string.NiceTime(timeLeft)))
@@ -4241,8 +4246,6 @@ net.Receive("zs_spectate", function(len, ply)
 	elseif ply:Team() == TEAM_SPECTATOR and GAMEMODE:GetWave() <= 0 then
 		if GAMEMODE.PreviouslyDied[ply:SteamID()] and not ply.ChangedToSpecDuringWave0 then
 			index = TEAM_UNDEAD
-		else
-			index = TEAM_HUMAN
 		end
 
 		if not GAMEMODE.CheckedOut[ply:SteamID()] and index ~= TEAM_UNDEAD then

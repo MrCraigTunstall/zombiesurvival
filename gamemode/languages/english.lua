@@ -861,9 +861,10 @@ LANGUAGE.mm_pm_messg                                = "You've changed your desir
 LANGUAGE.mm_sp                                      = "Spectate"
 LANGUAGE.mm_unsp                                    = "Un-Spectate"
 LANGUAGE.mm_spectators                              = "Spectators"
-LANGUAGE.spectator_now                              = "You are now a Spectator."
+LANGUAGE.spectator_now                              = "You are now a Spectator"
 LANGUAGE.spectator_cantchange                       = "You can't change during wave 0"
 LANGUAGE.spectator_cantchange2                      = "This server has disabled spectator mode"
+LANGUAGE.spectator_cantchange3                      = "You can't change during last human phase"
 LANGUAGE.spectator_canchange_in_x                   = "You can change from spectator in %s"
 
 
