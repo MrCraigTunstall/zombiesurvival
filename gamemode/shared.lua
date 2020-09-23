@@ -571,6 +571,11 @@ function GM:GetClosestSpawnPoint(teamid, pos)
 	return spawnpoints[1]
 end
 
+function GM:GetFurthestSpawnPoint(teamid, pos)
+	local spawnpoints = GetSortedSpawnPoints(teamid, pos)
+	return spawnpoints[#spawnpoints]
+end
+
 local FEAR_RANGE = 768
 local FEAR_PERINSTANCE = 0.075
 local RALLYPOINT_THRESHOLD = 0.3
