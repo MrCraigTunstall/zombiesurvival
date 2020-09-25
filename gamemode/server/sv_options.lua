@@ -30,6 +30,11 @@ GM.RandomProps = {
 	"models/props_wasteland/kitchen_shelf002a.mdl"
 }
 
+GM.LastHumanHearAll = CreateConVar("zs_lasthumanhearall", "1", FCVAR_ARCHIVE + FCVAR_NOTIFY, "Enables last human to hear and talk to everyone, 1 to enable, 0 to disable. Enabled by default."):GetBool()
+cvars.AddChangeCallback("zs_lasthumanhearall", function(cvar, oldvalue, newvalue)
+	GAMEMODE.LastHumanHearAll = tonumber(newvalue) == 1
+end)
+
 GM.BanditMode = CreateConVar("zs_banditmode", "1", FCVAR_ARCHIVE + FCVAR_NOTIFY, "Enables the bandit redeem system, 1 to enable, 0 to disable. Enabled by default."):GetBool()
 cvars.AddChangeCallback("zs_banditmode", function(cvar, oldvalue, newvalue)
 	GAMEMODE.BanditMode = tonumber(newvalue) == 1

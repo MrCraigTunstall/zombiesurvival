@@ -556,10 +556,10 @@ end
 
 local temppos
 local function SortByDistance(a, b)
-	return a:GetPos():Distance(temppos) < b:GetPos():Distance(temppos)
+	return a:GetPos():DistToSqr(temppos) < b:GetPos():DistToSqr(temppos)
 end
 
-function GM:GetClosestSpawnPoint(teamid, pos)
+local function GetSortedSpawnPoints(teamid, pos)
 	temppos = pos
 	local spawnpoints
 	if type(teamid) == "table" then
@@ -567,8 +567,13 @@ function GM:GetClosestSpawnPoint(teamid, pos)
 	else
 		spawnpoints = team.GetValidSpawnPoint(teamid)
 	end
+
 	table.sort(spawnpoints, SortByDistance)
-	return spawnpoints[1]
+	return spawnpoints
+end
+
+function GM:GetClosestSpawnPoint(teamid, pos)
+	return GetSortedSpawnPoints(teamid, pos)[1]
 end
 
 function GM:GetFurthestSpawnPoint(teamid, pos)

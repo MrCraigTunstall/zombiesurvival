@@ -367,9 +367,6 @@ GM:AddPointShopItem("pipe", ""..translate.Get("worth_leadpipe"), nil, ITEMCAT_ME
 GM:AddPointShopItem("sledgehammer", ""..translate.Get("ars_sledge"), nil, ITEMCAT_MELEE, 30, "weapon_zs_sledgehammer")
 GM:AddPointShopItem("katana", ""..translate.Get("weapon_katana"), nil, ITEMCAT_MELEE, 50, "weapon_zs_katana")
 
-
-
-
 ------------
 -- P.TOOLS --
 ------------

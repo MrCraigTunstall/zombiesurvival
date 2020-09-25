@@ -1115,6 +1115,9 @@ function GM:LastHuman(pl)
 	end
 
 	self.TheLastHuman = pl
+	if self.LastHumanHearAll then
+	hook.Add("PlayerCanHearPlayersVoice", "LastHumanCanHearPlayersVoice", function() return true, false end)
+	end
 end
 
 function GM:PlayerHealedTeamMember(pl, other, health, wep)
@@ -1321,6 +1324,9 @@ function GM:RestartLua()
 	hook.Remove("PlayerCanHearPlayersVoice", "EndRoundCanHearPlayersVoice")
 
 	self:RevertZombieClasses()
+	if self.LastHumanHearAll then
+	hook.Remove("PlayerCanHearPlayersVoice", "LastHumanCanHearPlayersVoice")
+	end
 end
 
 -- I don't know.
