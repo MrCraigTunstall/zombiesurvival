@@ -849,9 +849,10 @@ LANGUAGE.mm_pm_messg                               = "Вы изменили же
 LANGUAGE.mm_sp                                     = "Наблюдать"
 LANGUAGE.mm_unsp                                   = "Выйти из набл."
 LANGUAGE.mm_spectators                             = "Наблюдатели"
-LANGUAGE.spectator_now                             = "Вы теперь наблюдатель."
+LANGUAGE.spectator_now                             = "Вы теперь наблюдатель"
 LANGUAGE.spectator_cantchange                      = "Вы не можете стать наблюдателем во время 0 волны"
 LANGUAGE.spectator_cantchange2                     = "На этом сервере отключен режим наблюдателя"
+LANGUAGE.spectator_cantchange3                     = "Вы не можете сменить во время фазы последнего человека"
 LANGUAGE.spectator_canchange_in_x                  = "Вы можете стать наблюдателем через %s"
 
 -- Weapon Database
