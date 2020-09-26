@@ -946,3 +946,58 @@ function meta:UnSpectate()
 		self:OldUnSpectate(obsm)
 	end
 end
+
+function meta:PlayEyePainSound()
+	local rf = RecipientFilter()
+	rf:AddPAS(self:GetPos())
+	net.Start("voice_eyepain")
+	net.WriteEntity(self)
+	net.Send(rf)
+end
+
+function meta:PlayGiveAmmoSound()
+	local rf = RecipientFilter()
+	rf:AddPAS(self:GetPos())
+	net.Start("voice_giveammo")
+	net.WriteEntity(self)
+	net.Send(rf)
+end
+
+function meta:PlayDeathSound()
+	local rf = RecipientFilter()
+	rf:AddPAS(self:GetPos())
+	net.Start("voice_death")
+	net.WriteEntity(self)
+	net.Send(rf)
+end
+
+function meta:PlayZombieDeathSound()
+	local rf = RecipientFilter()
+	rf:AddPAS(self:GetPos())
+	net.Start("voice_zombiedeath")
+	net.WriteEntity(self)
+	net.Send(rf)
+end
+
+function meta:PlayPainSound()
+	if CurTime() < self.NextPainSound then return end
+	self.NextPainSound = CurTime() + 0.5
+
+	local rf = RecipientFilter()
+	rf:AddPAS(self:GetPos())
+	net.Start("voice_pain")
+	net.WriteEntity(self)
+	net.WriteUInt(math.ceil(self:Health() / 25), 4)
+	net.Send(rf)
+end
+
+function meta:PlayZombiePainSound()
+	if CurTime() < self.NextPainSound then return end
+	self.NextPainSound = CurTime() + 0.5
+
+	local rf = RecipientFilter()
+	rf:AddPAS(self:GetPos())
+	net.Start("voice_zombiepain")
+	net.WriteEntity(self)
+	net.Send(rf)
+end

@@ -300,6 +300,13 @@ function GM:AddNetworkStrings()
 	util.AddNetworkString("zs_nailremoved")
 	util.AddNetworkString("zs_ammogiven")
 	util.AddNetworkString("zs_updatealtselwep")
+	
+	util.AddNetworkString("voice_eyepain")
+	util.AddNetworkString("voice_giveammo")
+	util.AddNetworkString("voice_death")
+	util.AddNetworkString("voice_zombiedeath")
+	util.AddNetworkString("voice_pain")
+	util.AddNetworkString("voice_zombiepain")
 end
 
 function GM:IsClassicMode()
@@ -2991,9 +2998,14 @@ function GM:PlayerShouldTakeDamage(pl, attacker)
 end
 
 function GM:PlayerHurt(victim, attacker, healthremaining, damage)
-	if 0 < healthremaining then
+	if healthremaining < 1 then return end
+
+	if victim:Team() == TEAM_HUMAN then
 		victim:PlayPainSound()
+	else
+		victim:PlayZombiePainSound()
 	end
+
 
 	if victim:Team() ~= TEAM_UNDEAD then
 		victim.BonusDamageCheck = CurTime()
@@ -3702,23 +3714,29 @@ concommand.Add("zsdropammo", function(sender, command, arguments)
 end)
 
 local VoiceSetTranslate = {}
-VoiceSetTranslate["models/player/alyx.mdl"] = "alyx"
-VoiceSetTranslate["models/player/barney.mdl"] = "barney"
-VoiceSetTranslate["models/player/breen.mdl"] = "male"
-VoiceSetTranslate["models/player/combine_soldier.mdl"] = "combine"
-VoiceSetTranslate["models/player/combine_soldier_prisonguard.mdl"] = "combine"
-VoiceSetTranslate["models/player/combine_super_soldier.mdl"] = "combine"
-VoiceSetTranslate["models/player/eli.mdl"] = "male"
-VoiceSetTranslate["models/player/gman_high.mdl"] = "male"
-VoiceSetTranslate["models/player/kleiner.mdl"] = "male"
-VoiceSetTranslate["models/player/monk.mdl"] = "monk"
-VoiceSetTranslate["models/player/mossman.mdl"] = "female"
-VoiceSetTranslate["models/player/odessa.mdl"] = "male"
-VoiceSetTranslate["models/player/police.mdl"] = "combine"
-VoiceSetTranslate["models/player/brsp.mdl"] = "female"
-VoiceSetTranslate["models/player/moe_glados_p.mdl"] = "female"
-VoiceSetTranslate["models/grim.mdl"] = "combine"
-VoiceSetTranslate["models/jason278-players/gabe_3.mdl"] = "monk"
+VoiceSetTranslate["models/player/alyx.mdl"] = VOICESET_ALYX
+VoiceSetTranslate["models/player/barney.mdl"] = VOICESET_BARNEY
+VoiceSetTranslate["models/player/combine_soldier.mdl"] = VOICESET_COMBINE
+VoiceSetTranslate["models/player/combine_soldier_prisonguard.mdl"] = VOICESET_COMBINE
+VoiceSetTranslate["models/player/combine_super_soldier.mdl"] = VOICESET_COMBINE
+VoiceSetTranslate["models/player/police.mdl"] = VOICESET_COMBINE
+VoiceSetTranslate["models/grim.mdl"] = VOICESET_COMBINE
+VoiceSetTranslate["models/player/police_fem.mdl"] = VOICESET_COMBINE
+VoiceSetTranslate["models/player/monk.mdl"] = VOICESET_MONK
+VoiceSetTranslate["models/jason278-players/gabe_3.mdl"] = VOICESET_MONK
+VoiceSetTranslate["models/player/mossman.mdl"] = VOICESET_FEMALE
+VoiceSetTranslate["models/player/brsp.mdl"] = VOICESET_FEMALE
+VoiceSetTranslate["models/player/moe_glados_p.mdl"] = VOICESET_FEMALE
+VoiceSetTranslate["models/player/mossman_arctic.mdl"] = VOICESET_FEMALE
+VoiceSetTranslate["models/player/p2_chell.mdl"] = VOICESET_FEMALE
+VoiceSetTranslate["models/dawson/obese_male_deluxe/obese_male_deluxe.mdl"] = VOICESET_MONK
+VoiceSetTranslate["models/player/cirno/cirno_player.mdl"] = VOICESET_FEMALE
+VoiceSetTranslate["models/player/dewobedil/eromanga_sensei/sagiri/pajama_p.mdl"] = VOICESET_FEMALE
+VoiceSetTranslate["models/loyalists/mmd/remilia/remilia_mp_pm.mdl"] = VOICESET_FEMALE
+VoiceSetTranslate["models/loyalists/mmd/flandre/flandre_mp_pm.mdl"] = VOICESET_FEMALE
+VoiceSetTranslate["models/jazzmcfly/kantai/yuudachi/yuudachi.mdl"] = VOICESET_FEMALE
+VoiceSetTranslate["models/player/dewobedil/vocaloid/haku/bikini_p.mdl"] = VOICESET_FEMALE
+VoiceSetTranslate["models/player/dewobedil/touhou/junko/default_p.mdl"] = VOICESET_FEMALE
 function GM:PlayerSpawn(pl)
 	pl:StripWeapons()
 	pl:RemoveStatus("confusion", false, true)
@@ -3864,11 +3882,11 @@ function GM:PlayerSpawn(pl)
 
 		-- Cache the voice set.
 		if VoiceSetTranslate[lowermodelname] then
-			pl.VoiceSet = VoiceSetTranslate[lowermodelname]
+			pl:SetDTInt(DT_PLAYER_INT_VOICESET, VoiceSetTranslate[lowermodelname])
 		elseif string.find(lowermodelname, "female", 1, true) then
-			pl.VoiceSet = "female"
+			pl:SetDTInt(DT_PLAYER_INT_VOICESET, VOICESET_FEMALE)
 		else
-			pl.VoiceSet = "male"
+			pl:SetDTInt(DT_PLAYER_INT_VOICESET, VOICESET_MALE)
 		end
 
 		pl.HumanSpeedAdder = nil

@@ -776,30 +776,30 @@ end
 
 local VoiceSets = {}
 
-VoiceSets["male"] = {
-	["GiveAmmoSounds"] = {
+VoiceSets[VOICESET_MALE] = {
+	[VOICELINE_GIVEAMMO] = {
 		Sound("vo/npc/male01/ammo03.wav"),
 		Sound("vo/npc/male01/ammo04.wav"),
 		Sound("vo/npc/male01/ammo05.wav")
 	},
-	["PainSoundsLight"] = {
+	[VOICELINE_PAIN_LIGHT] = {
 		Sound("vo/npc/male01/ow01.wav"),
 		Sound("vo/npc/male01/ow02.wav"),
 		Sound("vo/npc/male01/pain01.wav"),
 		Sound("vo/npc/male01/pain02.wav"),
 		Sound("vo/npc/male01/pain03.wav")
 	},
-	["PainSoundsMed"] = {
+	[VOICELINE_PAIN_MED] = {
 		Sound("vo/npc/male01/pain04.wav"),
 		Sound("vo/npc/male01/pain05.wav"),
 		Sound("vo/npc/male01/pain06.wav")
 	},
-	["PainSoundsHeavy"] = {
+	[VOICELINE_PAIN_HEAVY] = {
 		Sound("vo/npc/male01/pain07.wav"),
 		Sound("vo/npc/male01/pain08.wav"),
 		Sound("vo/npc/male01/pain09.wav")
 	},
-	["DeathSounds"] = {
+	[VOICELINE_DEATH] = {
 		Sound("vo/npc/male01/no02.wav"),
 		Sound("ambient/voices/citizen_beaten1.wav"),
 		Sound("ambient/voices/citizen_beaten3.wav"),
@@ -808,197 +808,195 @@ VoiceSets["male"] = {
 		Sound("vo/npc/male01/pain07.wav"),
 		Sound("vo/npc/male01/pain08.wav")
 	},
-	["EyePoisonedSounds"] = {
+	[VOICELINE_EYEPAIN] = {
 		Sound("ambient/voices/m_scream1.wav")
 	}
 }
 
-VoiceSets["barney"] = {
-	["GiveAmmoSounds"] = {
+VoiceSets[VOICESET_BARNEY] = {
+	[VOICELINE_GIVEAMMO] = {
 		Sound("items/ammo_pickup.wav")
 	},
-	["PainSoundsLight"] = {
+	[VOICELINE_PAIN_LIGHT] = {
 		Sound("vo/npc/Barney/ba_pain02.wav"),
 		Sound("vo/npc/Barney/ba_pain07.wav"),
 		Sound("vo/npc/Barney/ba_pain04.wav")
 	},
-	["PainSoundsMed"] = {
+	[VOICELINE_PAIN_MED] = {
 		Sound("vo/npc/Barney/ba_pain01.wav"),
 		Sound("vo/npc/Barney/ba_pain08.wav"),
 		Sound("vo/npc/Barney/ba_pain10.wav")
 	},
-	["PainSoundsHeavy"] = {
+	[VOICELINE_PAIN_HEAVY] = {
 		Sound("vo/npc/Barney/ba_pain05.wav"),
 		Sound("vo/npc/Barney/ba_pain06.wav"),
 		Sound("vo/npc/Barney/ba_pain09.wav")
 	},
-	["DeathSounds"] = {
+	[VOICELINE_DEATH] = {
 		Sound("vo/npc/Barney/ba_ohshit03.wav"),
 		Sound("vo/npc/Barney/ba_no01.wav"),
 		Sound("vo/npc/Barney/ba_no02.wav"),
 		Sound("vo/npc/Barney/ba_pain03.wav")
 	},
-	["EyePoisonedSounds"] = {
+	[VOICELINE_EYEPAIN] = {
 		Sound("vo/k_lab/ba_thingaway02.wav")
 	}
 }
 
-VoiceSets["female"] = {
-	["GiveAmmoSounds"] = {
+VoiceSets[VOICESET_FEMALE] = {
+	[VOICELINE_GIVEAMMO] = {
 		Sound("vo/npc/female01/ammo03.wav"),
 		Sound("vo/npc/female01/ammo04.wav"),
 		Sound("vo/npc/female01/ammo05.wav")
 	},
-	["PainSoundsLight"] = {
+	[VOICELINE_PAIN_LIGHT] = {
 		Sound("vo/npc/female01/pain01.wav"),
 		Sound("vo/npc/female01/pain02.wav"),
 		Sound("vo/npc/female01/pain03.wav")
 	},
-	["PainSoundsMed"] = {
+	[VOICELINE_PAIN_MED] = {
 		Sound("vo/npc/female01/pain04.wav"),
 		Sound("vo/npc/female01/pain05.wav"),
 		Sound("vo/npc/female01/pain06.wav")
 	},
-	["PainSoundsHeavy"] = {
+	[VOICELINE_PAIN_HEAVY] = {
 		Sound("vo/npc/female01/pain07.wav"),
 		Sound("vo/npc/female01/pain08.wav"),
 		Sound("vo/npc/female01/pain09.wav")
 	},
-	["DeathSounds"] = {
+	[VOICELINE_DEATH] = {
 		Sound("vo/npc/female01/no01.wav"),
 		Sound("vo/npc/female01/ow01.wav"),
 		Sound("vo/npc/female01/ow02.wav"),
 		Sound("vo/npc/female01/goodgod.wav"),
 		Sound("ambient/voices/citizen_beaten2.wav")
 	},
-	["EyePoisonedSounds"] = {
+	[VOICELINE_EYEPAIN] = {
 		Sound("ambient/voices/f_scream1.wav")
 	}
 }
 
-VoiceSets["alyx"] = {
-	["GiveAmmoSounds"] = {
+VoiceSets[VOICESET_ALYX] = {
+	[VOICELINE_GIVEAMMO] = {
 		Sound("vo/npc/female01/ammo03.wav"),
 		Sound("vo/npc/female01/ammo04.wav"),
 		Sound("vo/npc/female01/ammo05.wav")
 	},
-	["PainSoundsLight"] = {
+	[VOICELINE_PAIN_LIGHT] = {
 		Sound("vo/npc/Alyx/gasp03.wav"),
 		Sound("vo/npc/Alyx/hurt08.wav")
 	},
-	["PainSoundsMed"] = {
+	[VOICELINE_PAIN_MED] = {
 		Sound("vo/npc/Alyx/hurt04.wav"),
 		Sound("vo/npc/Alyx/hurt06.wav"),
 		Sound("vo/Citadel/al_struggle07.wav"),
 		Sound("vo/Citadel/al_struggle08.wav")
 	},
-	["PainSoundsHeavy"] = {
+	[VOICELINE_PAIN_HEAVY] = {
 		Sound("vo/npc/Alyx/hurt05.wav"),
 		Sound("vo/npc/Alyx/hurt06.wav")
 	},
-	["DeathSounds"] = {
+	[VOICELINE_DEATH] = {
 		Sound("vo/npc/Alyx/no01.wav"),
 		Sound("vo/npc/Alyx/no02.wav"),
 		Sound("vo/npc/Alyx/no03.wav"),
 		Sound("vo/Citadel/al_dadgordonno_c.wav"),
 		Sound("vo/Streetwar/Alyx_gate/al_no.wav")
 	},
-	["EyePoisonedSounds"] = {
+	[VOICELINE_EYEPAIN] = {
 		Sound("vo/npc/Alyx/uggh01.wav"),
 		Sound("vo/npc/Alyx/uggh02.wav")
 	}
 }
 
-VoiceSets["combine"] = {
-	["GiveAmmoSounds"] = {
+VoiceSets[VOICESET_COMBINE] = {
+	[VOICELINE_GIVEAMMO] = {
 		Sound("npc/combine_soldier/vo/hardenthatposition.wav"),
 		Sound("npc/combine_soldier/vo/readyweapons.wav"),
 		Sound("npc/combine_soldier/vo/weareinaninfestationzone.wav"),
 		Sound("npc/metropolice/vo/dismountinghardpoint.wav")
 	},
-	["PainSoundsLight"] = {
+	[VOICELINE_PAIN_LIGHT] = {
 		Sound("npc/combine_soldier/pain1.wav"),
 		Sound("npc/combine_soldier/pain2.wav"),
 		Sound("npc/combine_soldier/pain3.wav")
 	},
-	["PainSoundsMed"] = {
+	[VOICELINE_PAIN_MED] = {
 		Sound("npc/metropolice/pain1.wav"),
 		Sound("npc/metropolice/pain2.wav")
 	},
-	["PainSoundsHeavy"] = {
+	[VOICELINE_PAIN_HEAVY] = {
 		Sound("npc/metropolice/pain3.wav"),
 		Sound("npc/metropolice/pain4.wav")
 	},
-	["DeathSounds"] = {
+	[VOICELINE_DEATH] = {
 		Sound("npc/combine_soldier/die1.wav"),
 		Sound("npc/combine_soldier/die2.wav"),
 		Sound("npc/combine_soldier/die3.wav")
 	},
-	["EyePoisonSounds"] = {
+	[VOICELINE_EYEPAIN] = {
 		Sound("npc/combine_soldier/die1.wav"),
 		Sound("npc/combine_soldier/die2.wav"),
 		Sound("npc/metropolice/vo/shit.wav")
 	}
 }
 
-VoiceSets["monk"] = {
-	["GiveAmmoSounds"] = {
+VoiceSets[VOICESET_MONK] = {
+	[VOICELINE_GIVEAMMO] = {
 		Sound("vo/ravenholm/monk_giveammo01.wav")
 	},
-	["PainSoundsLight"] = {
+	[VOICELINE_PAIN_LIGHT] = {
 		Sound("vo/ravenholm/monk_pain01.wav"),
 		Sound("vo/ravenholm/monk_pain02.wav"),
 		Sound("vo/ravenholm/monk_pain03.wav"),
 		Sound("vo/ravenholm/monk_pain05.wav")
 	},
-	["PainSoundsMed"] = {
+	[VOICELINE_PAIN_MED] = {
 		Sound("vo/ravenholm/monk_pain04.wav"),
 		Sound("vo/ravenholm/monk_pain06.wav"),
 		Sound("vo/ravenholm/monk_pain07.wav"),
 		Sound("vo/ravenholm/monk_pain08.wav")
 	},
-	["PainSoundsHeavy"] = {
+	[VOICELINE_PAIN_HEAVY] = {
 		Sound("vo/ravenholm/monk_pain09.wav"),
 		Sound("vo/ravenholm/monk_pain10.wav"),
 		Sound("vo/ravenholm/monk_pain12.wav")
 	},
-	["DeathSounds"] = {
+	[VOICELINE_DEATH] = {
 		Sound("vo/ravenholm/monk_death07.wav")
 	},
-	["EyePoisonSounds"] = {
+	[VOICELINE_EYEPAIN] = {
 		Sound("vo/ravenholm/monk_death07.wav")
 	}
 }
 
-function meta:PlayEyePoisonedSound()
-	if self.VoiceSet then
-		local snds = VoiceSets[self.VoiceSet].EyePoisonSounds
-		if snds then
-			self:EmitSound(snds[math.random(1, #snds)])
-		end
+function meta:GetVoiceLines(line_type)
+	return VoiceSets[self:GetDTInt(DT_PLAYER_INT_VOICESET)][line_type]
+end
+
+function meta:PlayEyePainSound()
+	local snds = self:GetVoiceLines(VOICELINE_EYEPAIN)
+	if snds then
+		self:EmitSound(snds[math.random(1, #snds)])
 	end
 end
 
 function meta:PlayGiveAmmoSound()
-	if self.VoiceSet then
-		local snds = VoiceSets[self.VoiceSet].GiveAmmoSounds
-		if snds then
-			self:EmitSound(snds[math.random(1, #snds)])
-		end
+	local snds = self:GetVoiceLines(VOICELINE_GIVEAMMO)
+	if snds then
+		self:EmitSound(snds[math.random(1, #snds)])
 	end
 end
 
 function meta:PlayDeathSound()
-	if self.VoiceSet then
-		local snds = VoiceSets[self.VoiceSet].DeathSounds
-		if snds then
-			self:EmitSound(snds[math.random(1, #snds)])
-		end
+	local snds = self:GetVoiceLines(VOICELINE_DEATH)
+	if snds then
+		self:EmitSound(snds[math.random(1, #snds)])
 	end
 end
 
 function meta:PlayZombieDeathSound()
-	if not self:CallZombieFunction("PlayDeathSound") then
+	if not self:CallZombieFunction0("PlayDeathSound") then
 		local snds = self:GetZombieClassTable().DeathSounds
 		if snds then
 			self:EmitSound(snds[math.random(#snds)])
@@ -1006,36 +1004,74 @@ function meta:PlayZombieDeathSound()
 	end
 end
 
-function meta:PlayPainSound()
-	if CurTime() < self.NextPainSound then return end
-
+function meta:PlayPainSound(health)
 	local snds
 
-	if self:Team() == TEAM_UNDEAD then
-		if self:CallZombieFunction("PlayPainSound") then return end
-		snds = self:GetZombieClassTable().PainSounds
+	if health >= 70 then
+		snds = self:GetVoiceLines(VOICELINE_PAIN_LIGHT)
+	elseif health >= 35 then
+		snds = self:GetVoiceLines(VOICELINE_PAIN_MED)
 	else
-		local set = VoiceSets[self.VoiceSet]
-		if set then
-			local health = self:Health()
-			if 70 <= health then
-				snds = set.PainSoundsLight
-			elseif 35 <= health then
-				snds = set.PainSoundsMed
-			else
-				snds = set.PainSoundsHeavy
-			end
-		end
+		snds = self:GetVoiceLines(VOICELINE_PAIN_HEAVY)
 	end
 
 	if snds then
 		local snd = snds[math.random(#snds)]
 		if snd then
 			self:EmitSound(snd)
-			self.NextPainSound = CurTime() + SoundDuration(snd) - 0.1
 		end
 	end
 end
+
+function meta:PlayZombiePainSound()
+	if self:CallZombieFunction0("PlayPainSound") then return end
+
+	local snds = self:GetZombieClassTable().PainSounds
+	if snds then
+		local snd = snds[math.random(#snds)]
+		if snd then
+			self:EmitSound(snd)
+		end
+	end
+end
+
+net.Receive("voice_eyepain", function(len)
+	local ent = net.ReadEntity()
+	if ent:IsValid() then
+		ent:PlayEyePainSound()
+	end
+end)
+net.Receive("voice_giveammo", function(len)
+	local ent = net.ReadEntity()
+	if ent:IsValid() then
+		ent:PlayGiveAmmoSound()
+	end
+end)
+net.Receive("voice_death", function(len)
+	local ent = net.ReadEntity()
+	if ent:IsValid() then
+		ent:PlayDeathSound()
+	end
+end)
+net.Receive("voice_zombiedeath", function(len)
+	local ent = net.ReadEntity()
+	if ent:IsValid() then
+		ent:PlayZombieDeathSound()
+	end
+end)
+net.Receive("voice_pain", function(len)
+	local ent = net.ReadEntity()
+	local health = net.ReadUInt(4) * 25
+	if ent:IsValid() then
+		ent:PlayPainSound(health)
+	end
+end)
+net.Receive("voice_zombiepain", function(len)
+	local ent = net.ReadEntity()
+	if ent:IsValid() then
+		ent:PlayZombiePainSound()
+	end
+end)
 
 -- updated by mka0207
 local ViewHullMins = Vector(-8, -8, -8)
