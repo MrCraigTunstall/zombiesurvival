@@ -51,14 +51,14 @@ function CACHE:Save()
 		table.insert(tosave, cached[1].."="..cached[2])
 	end
 
-	file.Write("noxapi_cache.txt", table.concat(tosave, "\n"))
+	file.Write("zsrapi_cache.txt", table.concat(tosave, "\n"))
 end
 
 function CACHE:Load()
-	if file.Exists("noxapi_cache.txt", "DATA") then
+	if file.Exists("zsrapi_cache.txt", "DATA") then
 		self.Cache = {}
 
-		for i, line in pairs(string.Explode("\n", file.Read("noxapi_cache.txt", "DATA"))) do
+		for i, line in pairs(string.Explode("\n", file.Read("zsrapi_cache.txt", "DATA"))) do
 			local cont = string.Explode("=", line)
 			local steamid, memberlevel = cont[1], tonumber(cont[2]) or 0
 
@@ -80,7 +80,7 @@ function CACHE:BufferRequest()
 		steamid_to_player[pl:SteamID()] = pl
 	end
 
-	http.Fetch("http://www.noxiousnet.com/api/player/memberlevel?steamids="..table.concat(steamids, ","), function(body, len, headers, code)
+	http.Fetch("https://voidresonance.com/zsapi/index?steamid="..table.concat(steamids, ","), function(body, len, headers, code)
 		local levels = string.Explode(",", body)
 		if #levels == #IDS then
 			local allplayers = player.GetAll()
@@ -115,7 +115,7 @@ function CACHE:WaitForBuffer()
 end
 
 hook.Add("PlayerInitialSpawn", "noxapi", function(pl)
-	--[[if NDB or pl:IsBot() then return end
+	if NDB or pl:IsBot() then return end
 
 	local steamid = pl:SteamID()
 	local memberlevel = CACHE:Get(steamid)
@@ -127,12 +127,10 @@ hook.Add("PlayerInitialSpawn", "noxapi", function(pl)
 	else
 		table.insert(Buffer, {steamid, pl})
 		CACHE:WaitForBuffer()
-	end]]
+	end
 end)
 
 hook.Add("Initialize", "noxapi", function()
-	--resource.AddFile("materials/noxiousnet/noxicon.png")
-
 	if not NDB then
 		CACHE:Load()
 	end
@@ -145,7 +143,7 @@ hook.Add("ShutDown", "noxapi", function()
 end)
 
 concommand.Add("noxapi_forcerefresh", function(sender, command, arguments)
-	--[[if sender._ForcedNoxAPILookup or sender:IsNoxSupporter() or NDB then return end
+	if sender._ForcedNoxAPILookup or sender:IsSupporter() or NDB then return end
 
 	sender._ForcedNoxAPILookup = true
 
@@ -153,14 +151,14 @@ concommand.Add("noxapi_forcerefresh", function(sender, command, arguments)
 
 	CACHE:Remove(steamid)
 
-	http.Fetch("http://www.noxiousnet.com/api/player/memberlevel?steamid="..steamid, function(body, len, headers, code)
+	http.Fetch("https://voidresonance.com/zsapi/index?steamid="..steamid, function(body, len, headers, code)
 		local level = tonumber(body) or 0
 
 		if level == 1 or level == 2 then
-			pl:SetDTBool(15, true)
-			pl:PrintMessage(HUD_PRINTTALK, SUPPORTER_MESSAGE)
+			sender:SetDTBool(15, true)
+			sender:PrintMessage(HUD_PRINTTALK, SUPPORTER_MESSAGE)
 		end
 
 		CACHE:Set(steamid, level)
-	end)]]
+	end)
 end)

@@ -7,12 +7,19 @@ function GM:ScoreboardShow()
 		ScoreBoard = vgui.Create("ZSScoreBoard")
 	end
 
-	ScoreBoard:SetSize(math.min(ScrW(), ScrH()) * 0.8, ScrH() * 0.85)
+	local screenscale = BetterScreenScale()
+
+	ScoreBoard:SetSize(math.min(974, ScrW() * 0.65) * math.max(1, screenscale), ScrH() * 0.85)
 	ScoreBoard:AlignTop(ScrH() * 0.05)
 	ScoreBoard:CenterHorizontal()
 	ScoreBoard:SetAlpha(0)
-	ScoreBoard:AlphaTo(255, 0.5, 0)
+	ScoreBoard:AlphaTo(255, 0.15, 0)
 	ScoreBoard:SetVisible(true)
+end
+
+function GM:ScoreboardRebuild()
+	self:ScoreboardHide()
+	ScoreBoard = nil
 end
 
 function GM:ScoreboardHide()
@@ -33,9 +40,6 @@ PANEL.m_MaximumScroll = 0
 local function BlurPaint(self)
 	draw.SimpleTextBlur(self:GetValue(), self.Font, 0, 0, self:GetTextColor())
 
-	return true
-end
-local function emptypaint(self)
 	return true
 end
 
@@ -69,6 +73,10 @@ function PANEL:Init()
 	self.m_ZombieHeading = vgui.Create("DTeamHeading", self)
 	self.m_ZombieHeading:SetTeam(TEAM_UNDEAD)
 
+	self.m_PointsLabel = EasyLabel(self, "Score", "ZSScoreBoardPlayer", COLOR_GRAY)
+
+	self.m_BrainsLabel = EasyLabel(self, "Brains", "ZSScoreBoardPlayer", COLOR_GRAY)
+
 	self.ZombieList = vgui.Create("DScrollPanel", self)
 	self.ZombieList.Team = TEAM_UNDEAD
 
@@ -79,30 +87,40 @@ function PANEL:Init()
 end
 
 function PANEL:PerformLayout()
+	local screenscale = math.max(0.95, BetterScreenScale())
+
 	self.m_AuthorLabel:MoveBelow(self.m_TitleLabel)
 	self.m_ContactLabel:MoveBelow(self.m_AuthorLabel)
 
 	self.m_ServerNameLabel:SetPos(math.min(self:GetWide() - self.m_ServerNameLabel:GetWide(), self:GetWide() * 0.75 - self.m_ServerNameLabel:GetWide() * 0.5), 32 - self.m_ServerNameLabel:GetTall() / 2)
 
-	self.m_HumanHeading:SetSize(self:GetWide() / 2 - 32, 28)
-	self.m_HumanHeading:SetPos(self:GetWide() * 0.25 - self.m_HumanHeading:GetWide() * 0.5, 110 - self.m_HumanHeading:GetTall())
+	self.m_HumanHeading:SetSize(self:GetWide() / 2 - 32, 28 * screenscale)
+	self.m_HumanHeading:SetPos(self:GetWide() * 0.25 - self.m_HumanHeading:GetWide() * 0.5, 110 * screenscale - self.m_HumanHeading:GetTall())
 
-	self.m_ZombieHeading:SetSize(self:GetWide() / 2 - 32, 28)
-	self.m_ZombieHeading:SetPos(self:GetWide() * 0.75 - self.m_ZombieHeading:GetWide() * 0.5, 110 - self.m_ZombieHeading:GetTall())
+	self.m_ZombieHeading:SetSize(self:GetWide() / 2 - 32, 28 * screenscale)
+	self.m_ZombieHeading:SetPos(self:GetWide() * 0.75 - self.m_ZombieHeading:GetWide() * 0.5, 110 * screenscale - self.m_ZombieHeading:GetTall())
 
-	self.HumanList:SetSize(self:GetWide() / 2 - 24, self:GetTall() - 150)
-	self.HumanList:AlignBottom(16)
-	self.HumanList:AlignLeft(8)
+	self.m_PointsLabel:SizeToContents()
+	self.m_PointsLabel:SetPos((self:GetWide() / 2 - 24) * 0.6 - self.m_PointsLabel:GetWide() * 0.35, 110 * screenscale - self.m_HumanHeading:GetTall())
+	self.m_PointsLabel:MoveBelow(self.m_HumanHeading, 1 * screenscale)
 
-	self.ZombieList:SetSize(self:GetWide() / 2 - 24, self:GetTall() - 150)
-	self.ZombieList:AlignBottom(16)
-	self.ZombieList:AlignRight(8)
+	self.m_BrainsLabel:SizeToContents()
+	self.m_BrainsLabel:SetPos(self:GetWide() / 2 + 3 * screenscale + (self:GetWide() / 2 - 24) * 0.61 - self.m_BrainsLabel:GetWide() * 0.35, 110 * screenscale - self.m_HumanHeading:GetTall())
+	self.m_BrainsLabel:MoveBelow(self.m_ZombieHeading, 1 * screenscale)
+
+	self.HumanList:SetSize(self:GetWide() / 2 - 24, self:GetTall() - 150 * screenscale)
+	self.HumanList:AlignBottom(16 * screenscale)
+	self.HumanList:AlignLeft(8 * screenscale)
+
+	self.ZombieList:SetSize(self:GetWide() / 2 - 24, self:GetTall() - 150 * screenscale)
+	self.ZombieList:AlignBottom(16 * screenscale)
+	self.ZombieList:AlignRight(8 * screenscale)
 end
 
 function PANEL:Think()
 	if RealTime() >= self.NextRefresh then
 		self.NextRefresh = RealTime() + self.RefreshTime
-		self:Refresh()
+		self:RefreshScoreboard()
 	end
 end
 
@@ -135,7 +153,7 @@ end
 
 function PANEL:GetPlayerPanel(pl)
 	for _, panel in pairs(self.PlayerPanels) do
-		if panel:Valid() and panel:GetPlayer() == pl then
+		if panel:IsValid() and panel:GetPlayer() == pl then
 			return panel
 		end
 	end
@@ -143,7 +161,7 @@ end
 
 function PANEL:CreatePlayerPanel(pl)
 	local curpan = self:GetPlayerPanel(pl)
-	if curpan and curpan:Valid() then return curpan end
+	if curpan and curpan:IsValid() then return curpan end
 
 	if pl:Team() == TEAM_SPECTATOR then return end
 
@@ -157,7 +175,7 @@ function PANEL:CreatePlayerPanel(pl)
 	return panel
 end
 
-function PANEL:Refresh()
+function PANEL:RefreshScoreboard()
 	self.m_ServerNameLabel:SetText(GetHostName())
 	self.m_ServerNameLabel:SizeToContents()
 	self.m_ServerNameLabel:SetPos(math.min(self:GetWide() - self.m_ServerNameLabel:GetWide(), self:GetWide() * 0.75 - self.m_ServerNameLabel:GetWide() * 0.5), 32 - self.m_ServerNameLabel:GetTall() / 2)
@@ -165,7 +183,7 @@ function PANEL:Refresh()
 	if self.PlayerPanels == nil then self.PlayerPanels = {} end
 
 	for pl, panel in pairs(self.PlayerPanels) do
-		if not panel:Valid() or pl:IsValid() and pl:IsSpectator() then
+		if not panel:IsValid() or pl:IsValid() and pl:IsSpectator() then
 			self:RemovePlayerPanel(panel)
 		end
 	end
@@ -176,7 +194,7 @@ function PANEL:Refresh()
 end
 
 function PANEL:RemovePlayerPanel(panel)
-	if panel:Valid() then
+	if panel:IsValid() then
 		self.PlayerPanels[panel:GetPlayer()] = nil
 		panel:Remove()
 	end
@@ -184,7 +202,7 @@ end
 
 vgui.Register("ZSScoreBoard", PANEL, "Panel")
 
-local PANEL = {}
+PANEL = {}
 
 PANEL.RefreshTime = 1
 
@@ -201,7 +219,7 @@ end
 
 local function AvatarDoClick(self)
 	local pl = self.PlayerPanel:GetPlayer()
-	if pl:IsValid() and pl:IsPlayer() then
+	if pl:IsValidPlayer() then
 		pl:ShowProfile()
 	end
 end
@@ -209,18 +227,19 @@ end
 local function empty() end
 
 function PANEL:Init()
-	self:SetTall(32)
+	local screenscale = math.max(0.95, BetterScreenScale())
+	self:SetTall(32 * screenscale)
 
 	self.m_AvatarButton = self:Add("DButton", self)
 	self.m_AvatarButton:SetText(" ")
-	self.m_AvatarButton:SetSize(32, 32)
+	self.m_AvatarButton:SetSize(32 * screenscale, 32 * screenscale)
 	self.m_AvatarButton:Center()
 	self.m_AvatarButton.DoClick = AvatarDoClick
 	self.m_AvatarButton.Paint = empty
 	self.m_AvatarButton.PlayerPanel = self
 
 	self.m_Avatar = vgui.Create("AvatarImage", self.m_AvatarButton)
-	self.m_Avatar:SetSize(32, 32)
+	self.m_Avatar:SetSize(32 * screenscale, 32 * screenscale)
 	self.m_Avatar:SetVisible(false)
 	self.m_Avatar:SetMouseInputEnabled(false)
 
@@ -230,7 +249,7 @@ function PANEL:Init()
 	self.m_SpecialImage:SetVisible(false)
 
 	self.m_ClassImage = vgui.Create("DImage", self)
-	self.m_ClassImage:SetSize(22, 22)
+	self.m_ClassImage:SetSize(22 * screenscale, 22 * screenscale)
 	self.m_ClassImage:SetMouseInputEnabled(false)
 	self.m_ClassImage:SetVisible(false)
 
@@ -244,7 +263,7 @@ function PANEL:Init()
 	self.m_Mute.DoClick = MuteDoClick
 end
 
-local colTemp = Color(255, 255, 255, 220)
+local colTemp = Color(255, 255, 255, 200)
 function PANEL:Paint()
 	local col = color_black_alpha220
 	local mul = 0.5
@@ -252,7 +271,7 @@ function PANEL:Paint()
 	if pl:IsValid() then
 		col = team.GetColor(pl:Team())
 
-		if gamemode.Call("IsSpecialPerson", pl) then
+		if self.m_Flash then
 			mul = 0.6 + math.abs(math.sin(RealTime() * 6)) * 0.4
 		elseif pl == MySelf then
 			mul = 0.8
@@ -266,7 +285,7 @@ function PANEL:Paint()
 	colTemp.r = col.r * mul
 	colTemp.g = col.g * mul
 	colTemp.b = col.b * mul
-	draw.RoundedBox(8, 0, 0, self:GetWide(), self:GetTall(), colTemp)
+	draw.RoundedBox(4, 0, 0, self:GetWide(), self:GetTall(), colTemp)
 
 	return true
 end
@@ -279,7 +298,7 @@ function PANEL:DoClick()
 end
 
 function PANEL:PerformLayout()
-	self.m_AvatarButton:AlignLeft(20)
+	self.m_AvatarButton:AlignLeft(16)
 	self.m_AvatarButton:CenterVertical()
 
 	self.m_PlayerLabel:SizeToContents()
@@ -287,10 +306,9 @@ function PANEL:PerformLayout()
 	self.m_PlayerLabel:CenterVertical()
 
 	self.m_ScoreLabel:SizeToContents()
-	self.m_ScoreLabel:SetPos(self:GetWide() * 0.666 - self.m_ScoreLabel:GetWide() / 2, 0)
+	self.m_ScoreLabel:SetPos(self:GetWide() * 0.6 - self.m_ScoreLabel:GetWide() / 2, 0)
 	self.m_ScoreLabel:CenterVertical()
 
-	self.m_SpecialImage:AlignLeft(2)
 	self.m_SpecialImage:CenterVertical()
 
 	self.m_ClassImage:SetSize(self:GetTall(), self:GetTall())
@@ -308,7 +326,7 @@ function PANEL:PerformLayout()
 	self.m_Mute:CenterVertical()
 end
 
-function PANEL:Refresh()
+function PANEL:RefreshPlayer()
 	local pl = self:GetPlayer()
 	if not pl:IsValid() then
 		self:Remove()
@@ -316,20 +334,24 @@ function PANEL:Refresh()
 	end
 
 	local name = pl:Name()
-	if #name > 26 then
-		name = string.sub(name, 1, 24)..".."
+	if #name > 23 then
+		name = string.sub(name, 1, 21)..".."
 	end
 	self.m_PlayerLabel:SetText(name)
-	self.m_ScoreLabel:SetText(pl:Frags())
+	self.m_PlayerLabel:SetAlpha(240)
 
-	if pl:Team() == TEAM_UNDEAD and pl:GetZombieClassTable().Icon then
+	self.m_ScoreLabel:SetText(pl:Frags())
+	self.m_ScoreLabel:SetAlpha(240)
+
+	if MySelf:Team() == TEAM_UNDEAD and pl:Team() == TEAM_UNDEAD and pl:GetZombieClassTable().Icon then
 		self.m_ClassImage:SetVisible(true)
 		self.m_ClassImage:SetImage(pl:GetZombieClassTable().Icon)
+		self.m_ClassImage:SetImageColor(pl:GetZombieClassTable().IconColor or color_white)
 	else
 		self.m_ClassImage:SetVisible(false)
 	end
 
-	if pl == LocalPlayer() then
+	if pl == MySelf then
 		self.m_Mute:SetVisible(false)
 	else
 		if pl:IsMuted() then
@@ -352,14 +374,14 @@ end
 function PANEL:Think()
 	if RealTime() >= self.NextRefresh then
 		self.NextRefresh = RealTime() + self.RefreshTime
-		self:Refresh()
+		self:RefreshPlayer()
 	end
 end
 
 function PANEL:SetPlayer(pl)
 	self.m_Player = pl or NULL
 
-	if pl:IsValid() and pl:IsPlayer() then
+	if pl:IsValidPlayer() then
 		self.m_Avatar:SetPlayer(pl)
 		self.m_Avatar:SetVisible(true)
 
@@ -369,6 +391,8 @@ function PANEL:SetPlayer(pl)
 			self.m_SpecialImage:SetTooltip()
 			self.m_SpecialImage:SetVisible(false)
 		end
+
+		self.m_Flash = gamemode.Call("IsSpecialPerson", pl)
 	else
 		self.m_Avatar:SetVisible(false)
 		self.m_SpecialImage:SetVisible(false)
@@ -376,7 +400,7 @@ function PANEL:SetPlayer(pl)
 
 	self.m_PingMeter:SetPlayer(pl)
 
-	self:Refresh()
+	self:RefreshPlayer()
 end
 
 function PANEL:GetPlayer()

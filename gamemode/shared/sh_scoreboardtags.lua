@@ -52,6 +52,9 @@ function GM:IsSpecialPerson(pl, image)
 	if pl:IsBot() then
 		img = "icon16/bug.png"
 		tooltip = translate.Get("tag_bot")
+		elseif pl:IsSupporter() then
+		img = "zsr/supportericon.png"
+		tooltip = translate.Get("tag_supporter")
 	elseif pl:IsSuperAdmin() then
 		img = "icon16/shield.png"
 		tooltip = translate.Get("tag_sa")

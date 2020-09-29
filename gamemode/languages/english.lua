@@ -974,6 +974,7 @@ LANGUAGE.tag_sa                                     = "Super Admin"
 LANGUAGE.tag_admin                                  = "Admin"
 LANGUAGE.tag_mod                                    = "Moderator"
 LANGUAGE.tag_user                                   = "User"
+LANGUAGE.tag_supporter                              = "ZSR Supporter"
 
 -- ALT menu
 
