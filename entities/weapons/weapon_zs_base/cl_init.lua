@@ -270,10 +270,7 @@ function SWEP:DrawWorldModel()
 	if self.Owner ~= MySelf then
 		local radius = GAMEMODE.TransparencyRadius ^ 2
 		if radius > 0 then
-			local eyepos = self.owner:EyePos()
-			if eyepos == nil then
-				return
-			end
+			local eyepos = EyePos()
 			local dist = self.Owner:NearestPoint(eyepos):DistToSqr(eyepos)
 			if dist < radius then
 				--Don't Draw it!

@@ -1128,7 +1128,8 @@ function GM:LastHuman(pl)
 end
 
 function GM:PlayerHealedTeamMember(pl, other, health, wep)
-	if self:GetWave() == 0 then return end
+	health = health - other:RemoveUselessDamage(health)
+	if self:GetWave() == 0 or health <= 0 or pl == other then return end
 
 	pl.HealedThisRound = pl.HealedThisRound + health
 	pl.CarryOverHealth = (pl.CarryOverHealth or 0) + health
@@ -1154,7 +1155,8 @@ function GM:ObjectPackedUp(pack, packer, owner)
 end
 
 function GM:PlayerRepairedObject(pl, other, health, wep)
-	if self:GetWave() == 0 then return end
+	health = health - other:RemoveUselessDamage(health)
+	if self:GetWave() == 0 or health <= 0 then return end
 
 	pl.RepairedThisRound = pl.RepairedThisRound + health
 	pl.CarryOverRepair = (pl.CarryOverRepair or 0) + health
@@ -3869,8 +3871,10 @@ function GM:PlayerSpawn(pl)
 
 		pl:CallZombieFunction0("OnSpawned")
 	elseif pl:Team() == TEAM_HUMAN then
+		pl.PointQueue = 0
 		pl.PackedItems = {}
-
+		pl:ClearUselessDamage()
+		
 		local desiredname = pl:GetInfo("cl_playermodel")
 		local modelname = player_manager.TranslatePlayerModel(#desiredname == 0 and self.RandomPlayerModels[math.random(#self.RandomPlayerModels)] or desiredname)
 		local lowermodelname = string.lower(modelname)

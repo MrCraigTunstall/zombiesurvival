@@ -109,6 +109,25 @@ function meta:GhostAllPlayersInMe(timeout, allowrepeat)
 	end
 end
 
+function meta:AddUselessDamage(damage)
+	self.UselessDamage = (self.UselessDamage or 0) + damage
+end
+
+function meta:RemoveUselessDamage(damage)
+	if self.UselessDamage then
+		damage = math.min(self.UselessDamage, damage)
+		self.UselessDamage = self.UselessDamage - damage
+
+		return damage
+	end
+
+	return 0
+end
+
+function meta:ClearUselessDamage()
+	self.UselessDamage = nil
+end
+
 local function SortItems(a, b)
 	if a.CleanupPriority == b.CleanupPriority then
 		return a.Created < b.Created
@@ -332,7 +351,7 @@ end
 
 -- Return true to override default behavior.
 function meta:DamageNails(attacker, inflictor, damage, dmginfo)
-	if not self:IsNailed() then return end
+	if not self:IsNailed() or self.m_NailsDontAbsorb then return end
 
 	-- Props that don't have barricade health yet might still be nailed to something.
 	local nails = self:GetLivingNails()
@@ -371,7 +390,6 @@ function meta:DamageNails(attacker, inflictor, damage, dmginfo)
 	self:ResetLastBarricadeAttacker(attacker, dmginfo)
 
 	if #nails <= 0 then return end
-
 	self:SetBarricadeHealth(self:GetBarricadeHealth() - damage)
 	for i, nail in ipairs(nails) do
 		nail:OnDamaged(damage, attacker, inflictor, dmginfo)
