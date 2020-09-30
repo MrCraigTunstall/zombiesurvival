@@ -238,14 +238,7 @@ function GM:Initialize()
 	self:SetBabyMode(self:IsBabyMode(), true)
 	self:SetRedeemBrains(self.DefaultRedeem)
 
-	local mapname = string.lower(game.GetMap())
-	if string.find(mapname, "_obj_", 1, true) or string.find(mapname, "objective", 1, true) then
-		self.ObjectiveMap = true
-	end
-
-	--[[if string.sub(mapname, 1, 3) == "zm_" then
-		NOZOMBIEGASSES = true
-	end]]
+	self:RefreshMapIsObjective()
 
 	game.ConsoleCommand("fire_dmgscale 1\n")
 	game.ConsoleCommand("sv_gravity 600\n")
@@ -435,17 +428,10 @@ weaponmodelstoweapon["models/props_canal/mattpipe.mdl"] = "weapon_zs_pipe"
 weaponmodelstoweapon["models/props_junk/meathook001a.mdl"] = "weapon_zs_hook"
 function GM:InitPostEntity()
 	gamemode.Call("InitPostEntityMap")
+	
+	self:FixWeaponBase()
 
 	RunConsoleCommand("mapcyclefile", "mapcycle_zombiesurvival.txt")
-
-	if string.find(string.lower(GetConVarString("hostname")), "hellsgamers", 1, true) then
-		self.Think = function() end
-		self.DoPlayerDeath = self.Think
-		self.SetWave = self.Think
-		timer.Simple(20, function() RunConsoleCommand("quit") end)
-
-		ErrorNoHalt("You are literally not allowed to host this version. See license.txt")
-	end
 end
 
 function GM:SetupProps()

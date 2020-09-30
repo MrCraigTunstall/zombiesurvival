@@ -398,6 +398,8 @@ function meta:DamageNails(attacker, inflictor, damage, dmginfo)
 	-- No points for repairing damage from fire, trigger_hurt, etc.
 	if not attacker:IsZombie() then
 		self:AddUselessDamage(damage)
+	else
+		GAMEMODE:DamageFloater(attacker, self, dmginfo)
 	end
 
 	attacker.LastBarricadeHit = CurTime()

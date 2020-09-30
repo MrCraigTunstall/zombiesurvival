@@ -262,6 +262,7 @@ function GM:InitPostEntity()
 		self.HealthHUD = vgui.Create("ZSHealthArea")
 	end
 
+	self:FixWeaponBase()
 	self:LocalPlayerFound()
 
 	self:EvaluateFilmMode()
@@ -1255,6 +1256,11 @@ function GM:Initialize()
 	RunConsoleCommand("mat_shadowstate", "0")
 	RunConsoleCommand("r_shadowmaxrendered", "0")
 	RunConsoleCommand("r_shadowrendertotexture", "0")
+	
+	-- Flashlight dynamic lights of other players. Not really needed.
+	RunConsoleCommand("r_dynamic", "0")
+	
+	self:RefreshMapIsObjective()
 end
 
 function GM:ShutDown()

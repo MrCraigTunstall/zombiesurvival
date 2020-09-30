@@ -138,6 +138,49 @@ function GM:AddCustomAmmo()
 	game.AddAmmoType({name = "dummy"})
 end
 
+function GM:RefreshMapIsObjective()
+	local mapname = string.lower(game.GetMap())
+	if string.find(mapname, "_obj_", 1, true) or string.find(mapname, "objective", 1, true) then
+		self.ObjectiveMap = true
+	else
+		self.ObjectiveMap = false
+	end
+end
+
+-- Utility function to setup a weapon's DefaultClip.
+function GM:SetupDefaultClip(tab)
+	tab.DefaultClip = math.ceil(tab.ClipSize * self.SurvivalClips * (tab.ClipMultiplier or 1))
+end
+
+-- Some weapons are derived from weapon_base and try to make use of .Owner
+function GM:FixWeaponBase()
+	local base = weapons.GetStored("weapon_base")
+
+	base.TranslateActivity = function(me, act)
+		if me.ActivityTranslate[act] ~= nil then
+			return me.ActivityTranslate[act]
+		end
+
+		return -1
+	end
+
+	base.TakePrimaryAmmo = function(me, num)
+		if me.Weapon:Clip1() <= 0 then
+			if me:Ammo1() <= 0 then return end
+
+			me:GetOwner():RemoveAmmo(num, me.Weapon:GetPrimaryAmmoType())
+
+			return
+		end
+
+		me.Weapon:SetClip1(me.Weapon:Clip1() - num)
+	end
+
+	base.Ammo1 = function(me)
+		return me:GetOwner():GetAmmoCount(me.Weapon:GetPrimaryAmmoType())
+	end
+end
+
 function GM:IsWeaponUnlocked(tab)
 	if self:GetWave() <= -1 or self:GetNumberOfWaves() <= -1 then return true end
 	return tab.Unlocked or self:GetWave() >= math.floor(tab.Wave * self:GetNumberOfWaves())
