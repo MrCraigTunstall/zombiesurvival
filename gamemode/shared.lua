@@ -434,20 +434,6 @@ end
 function GM:Move(pl, move)
 local M_Entity = FindMetaTable("Entity")
 local E_GetDTBool = M_Entity.GetDTBool
-	if pl:Team() ~= TEAM_UNDEAD then
-		if pl:GetBarricadeGhosting() and not E_GetDTBool(pl, 1) then
-			move:SetMaxSpeed(36)
-			move:SetMaxClientSpeed(36)
-		elseif move:GetForwardSpeed() < 0 then
-			move:SetMaxSpeed(move:GetMaxSpeed() * 0.5)
-			move:SetMaxClientSpeed(move:GetMaxClientSpeed() * 0.5)
-		elseif move:GetForwardSpeed() == 0 then
-			move:SetMaxSpeed(move:GetMaxSpeed() * 0.85)
-			move:SetMaxClientSpeed(move:GetMaxClientSpeed() * 0.85)
-		end
-	elseif pl:CallZombieFunction("Move", move) then
-		return
-	end
 	
 	if pl:Team() ~= TEAM_UNDEAD then
 		if pl:GetBarricadeGhosting() and pl.GhostCade and not E_GetDTBool(pl, 1) then
