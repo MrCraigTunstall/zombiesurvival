@@ -287,11 +287,6 @@ function MakepOptions()
 ////////// hud_options //////////
 ]]--
 
-	local check = vgui.Create("DCheckBoxLabel", Window)
-	check:SetText(translate.Get("options_old_hud"))
-	check:SetConVar("zs_classichud")
-	check:SizeToContents()
-	hud_options:AddItem(check)
 	
 	local check = vgui.Create("DCheckBoxLabel", Window)
 	check:SetText(translate.Get("options_no_ars_crate"))
