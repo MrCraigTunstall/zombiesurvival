@@ -715,9 +715,7 @@ LANGUAGE.wn_explosivecrowbar                        = "Взрывной лом"
 LANGUAGE.wn_explosiveredeemers                      = "Взрывные двойные пистолеты 'Спасители'"
 LANGUAGE.wn_claws                                   = "Когти"
 
--- Special Weapons (rape swep, admins only things)
-
-LANGUAGE.wns_rape                                   = "Изнасиловать"
+-- Special Weapons (admins only things)
 LANGUAGE.wn_gokufists                               = "Кулаки Гоку"
 
 -- Item Descriptions

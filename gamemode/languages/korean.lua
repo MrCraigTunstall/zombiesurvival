@@ -669,8 +669,7 @@ LANGUAGE.wn_suicidebmb                              = "자살 폭탄"
 LANGUAGE.wn_explosivecrowbar                        = "폭발의 빠루"
 LANGUAGE.wn_explosiveredeemers                      = "폭발의 '환생' 듀얼 엘리트"
 LANGUAGE.wn_claws                                   = "손톱"
--- Special Weapons (rape swep, admins only things)
-LANGUAGE.wns_rape                                   = "'겸열 삭제'"
+-- Special Weapons (admins only things)
 LANGUAGE.wn_gokufists                               = "고쿠의 주먹"
 -- Item Descriptions 
 LANGUAGE.z900_desk                                  = "Z9000 펄스 권총은 강력하진 않지만, 좀비를 느리게 할수 있다."

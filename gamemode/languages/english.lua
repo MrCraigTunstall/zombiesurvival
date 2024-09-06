@@ -727,9 +727,8 @@ LANGUAGE.wn_explosivecrowbar                        = "Explosive Crowbar"
 LANGUAGE.wn_explosiveredeemers                      = "Explosive 'Redeemers' Dual Handguns"
 LANGUAGE.wn_claws                                   = "Claws"
 
--- Special Weapons (rape swep, admins only things)
+-- Special Weapons (admins only things)
 
-LANGUAGE.wns_rape                                   = "Rape SWEP"
 LANGUAGE.wn_gokufists                               = "Goku's Fists"
 
 -- Item Descriptions 

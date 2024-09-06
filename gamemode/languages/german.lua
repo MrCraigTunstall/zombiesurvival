@@ -583,9 +583,8 @@ LANGUAGE.wn_explosivecrowbar						= "Explosive Brechstange"
 LANGUAGE.wn_explosiveredeemers						= "Explosive \"Redeemers\" Pistolen-Doppel"
 LANGUAGE.wn_claws									= "Klauen"
 
--- Special Weapons (rape swep, admins only things)
+-- Special Weapons (admins only things)
 
-LANGUAGE.wns_rape									= "Rape SWEP"
 LANGUAGE.wn_gokufists								= "Goku's Fäuste"
 
 -- Item Descriptions
