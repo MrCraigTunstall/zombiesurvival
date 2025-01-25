@@ -727,21 +727,21 @@ function GM:DrawHealthBar(x, y, health, maxhealth, bartexture, screenscale, pois
 		local barwidth = maxbarwidth * healthfrac
 		colHealth.g = 130 * healthfrac
 		colHealth.r = 130 - colHealth.g
-		surface.SetDrawColor(colHealth)
-		surface.DrawRect(barx, bary, barwidth, screenscale * 26)
+		surface_SetDrawColor(colHealth)
+		surface_DrawRect(barx, bary, barwidth, screenscale * 26)
 		if poisondamage then
-			surface.SetDrawColor(colPoison)
+			surface_SetDrawColor(colPoison)
 			local poisonbarwidth = maxbarwidth * (poisondamage / maxhealth)
-			surface.DrawRect(barx + barwidth, bary, math.min(poisonbarwidth, maxbarwidth - barwidth), screenscale * 16)
+			surface_DrawRect(barx + barwidth, bary, math.min(poisonbarwidth, maxbarwidth - barwidth), screenscale * 16)
 		end
 	end
 
-	surface.SetTexture(bartexture)
-	surface.SetDrawColor(150, 150, 150, 240)
-	surface.DrawTexturedRect(x, y, wid, hei)
+	surface_SetTexture(bartexture)
+	surface_SetDrawColor(150, 150, 150, 240)
+	surface_DrawTexturedRect(x, y, wid, hei)
 
-	draw.SimpleText(translate.Get("health"), "ZSHUDFontSmall", x + screenscale * 70, y + screenscale * 55, COLOR_GRAY, TEXT_ALIGN_LEFT)
-	draw.SimpleText(health, "ZSHUDFont", x + screenscale * 180, y + screenscale * 48, colHealth, TEXT_ALIGN_LEFT)
+	draw_SimpleText(translate.Get("health"), "ZSHUDFontSmall", x + screenscale * 70, y + screenscale * 55, COLOR_GRAY, TEXT_ALIGN_LEFT)
+	draw_SimpleText(health, "ZSHUDFont", x + screenscale * 180, y + screenscale * 48, colHealth, TEXT_ALIGN_LEFT)
 
 	local w, h = ScrW(), ScrH() -- Get Screen Size of local player
 
@@ -817,9 +817,14 @@ function GM:DrawHealthBar(x, y, health, maxhealth, bartexture, screenscale, pois
 	end
 end
 
+local texHumanHealthBar = surface.GetTextureID("zombiesurvival/healthbar__human")
 function GM:HumanHUD(screenscale)
 	local curtime = CurTime()
 	local w, h = ScrW(), ScrH()
+	
+	if GetConVar("zs_classichud"):GetBool() then
+	self:DrawHealthBar(screenscale * 24, h - 272 * screenscale, MySelf:Health(), MySelf:GetMaxHealth(), texHumanHealthBar, screenscale, MySelf:GetPoisonDamage())
+	end
 
 	if not self.RoundEnded then
 		if self:GetWave() == 0 and not self:GetWaveActive() then
@@ -865,6 +870,12 @@ function GM:_HUDPaint()
 	local screenscale = BetterScreenScale()
 
 	local myteam = MySelf:Team()
+	
+	if GetConVar("zs_classichud"):GetBool() then
+	if self.HealthHUD and self.HealthHUD:Valid() and self.HealthHUD:IsVisible() then
+		self.HealthHUD:SetVisible(false)
+		end
+	end
 
 	
 	self:HUDDrawTargetID(myteam, screenscale)
