@@ -71,6 +71,7 @@ local function SeedNavigation()
 		if not file.Exists(destination,"DATA") then
 			local source="gamemodes/"..GM.FolderName.."/gamemode/misc/navmeshes/ze_ffvii_mako_reactor_v5_3"..suffix
 			local data=file.Read(source,"GAME")
+			if not data then data=file.Read("data_static/zombiesurvival/navmeshes/ze_ffvii_mako_reactor_v5_3"..suffix,"GAME") end
 			if data and data~="" then file.CreateDir("d3bot/navmesh/map");file.Write(destination,data);written=true end
 		end
 	end

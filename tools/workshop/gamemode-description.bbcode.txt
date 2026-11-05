@@ -1,0 +1,30 @@
+[h1]Zombie Survival Redemption[/h1]
+Survive the waves, build barricades and fight back against the undead in this Garry's Mod gamemode based on JetBoom's Zombie Survival.
+
+[b]Install both project items:[/b]
+[list]
+[*]This gamemode.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=1357352304]Zombie Survival Redemption CONTENT ONLY[/url].
+[/list]
+Select Zombie Survival from Garry's Mod's gamemode menu. Zombie Survival and Zombie Escape maps are supported; maps are separate downloads. Single-player, listen/P2P hosting and dedicated-server operation are supported.
+
+[h1]November 2026 update[/h1]
+[list]
+[*]Redesigned HUD, health and boss displays, shops, scoreboard, F1 and other menus, with resolution scaling and 4K layout work.
+[*]Reworked human and zombie shops, buff descriptions, saved Worth carts and configurable mouse-exit shop closing.
+[*]Player, bot, entity, animation and networking improvements, plus reworked nails, prop phasing and deployable controls.
+[*]Shade, Zombine, progression, traits, returns and Zombie Escape fixes, including Mako round endings.
+[*]A project-authored sigil and completed coverage of the current 1,418 English entries across all ten supported languages.
+[/list]
+Performance depends on the map, hardware, bots and other addons; there is no universal 128-slot FPS guarantee.
+
+[h1]Server owners[/h1]
+Use the gamemode name zombiesurvival. This Workshop build registers the project's content item for client downloads. Set zs_content_workshop to 0 before the map starts to disable that registration, or set it to your own content item's numeric ID. Restart the map after changing resource settings.
+
+D3bot is optional and separately installed. No third-party zombie-skin Workshop addon is required. Python tools, Blender authoring sources, tests and backups are excluded from the Workshop packages.
+
+[h1]Source, help and credits[/h1]
+[url=https://github.com/MrCraigTunstall/zombiesurvival]Source and installation notes[/url]
+[url=https://github.com/MrCraigTunstall/zombiesurvival/issues]Report an issue[/url]
+
+Original Zombie Survival by William "JetBoom" Moodhe. Redemption by MrCraigTunstall and its contributors. Original contributor and asset credits are retained in the source repository and in-game credits.

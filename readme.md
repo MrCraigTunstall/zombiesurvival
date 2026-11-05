@@ -10,6 +10,8 @@ See [the update notes](docs/update-2026-11.md) for changes, installation details
 
 All ten supported languages cover the current 1,418 English entries. The [translation guide](docs/translations.md) covers language settings, placeholders and catalogue updates.
 
+The [Workshop packaging guide](tools/workshop/README.md) builds separate gamemode and content archives. Development tools, editable model sources, tests and backups stay in the source repository and are excluded from both Workshop packages.
+
 ## Helpful links
 
 * [Discord](https://discord.gg/0n9FJ3xt1jN7i3ZU) - Official support

@@ -1,0 +1,9 @@
+[h1]Zombie Survival Redemption content[/h1]
+Runtime models, materials, sounds and fonts for [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1357369797]Zombie Survival Redemption (Gamemode)[/url]. Install both project items to play.
+
+This item contains assets; the gamemode logic is supplied by the linked gamemode item. Maps and the optional D3bot server addon are separate downloads.
+
+The November 2026 package includes the current namespaced zombie and weapon assets, repaired Wraith materials, project-authored clothing texture work and sigil. It excludes Python tools, editable Blender/model sources, tests, backups and unused console/software model companions. No third-party zombie-skin Workshop addon is required.
+
+[url=https://github.com/MrCraigTunstall/zombiesurvival]Source, installation notes and contributor/asset credits[/url]
+[url=https://github.com/MrCraigTunstall/zombiesurvival/issues]Report an issue[/url]
