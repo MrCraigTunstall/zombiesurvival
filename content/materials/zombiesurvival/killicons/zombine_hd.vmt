@@ -1,6 +1,6 @@
 "UnlitGeneric"
 {
-	"$basetexture" "zombiesurvival/killicons/zombine_HD_2"
+	"$basetexture" "zombiesurvival/killicons/zombine_hd"
 	"$nolod" 1
 	"$nomip" 1
 	"$ignorez" 1

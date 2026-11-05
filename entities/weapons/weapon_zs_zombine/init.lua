@@ -1,48 +1,35 @@
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
-
 include("shared.lua")
 
-SWEP.MoanDelay = 1
-SWEP.SpawnUseDelay = 5
-
 function SWEP:Equip()
-
-	self:SetSpawnedTime( CurTime() + self.SpawnUseDelay )
-
+ self.NextMoanToggle = 0
+ self:SetSpawnedTime(CurTime() + self.SpawnUseDelay)
+ self:SetGrenadeTime(0)
+ self:SetGrenading(false)
 end
 
 function SWEP:Reload()
-	if CurTime() < self:GetNextSecondaryFire() then return end
-	self:SetNextSecondaryFire(CurTime() + self.MoanDelay)
-
-	if self:IsMoaning() then
-		self:StopMoaning()
-	else
-		self:StartMoaning()
-	end
-
+ local now = CurTime()
+ if now < (self.NextMoanToggle or 0) or self:IsInAttackAnim()
+  or self:GetGrenading() and now < self:GetGrenadeTime() then return end
+ self.NextMoanToggle = now + self.MoanDelay
+ if self:IsMoaning() then self:StopMoaning() else self:StartMoaning() end
 end
 
 function SWEP:SecondaryAttack()
-	if CLIENT then return end
-	if not self.Owner:OnGround() || self:GetGrenading() then return end
-	if CurTime() < self:GetSpawnedTime() then return end
-
-	self:DoAlert()
-	
-	self:SetGrenading(true)
-	
-	if SERVER and self.Owner:IsValid() then
-		self.Owner:GiveStatus( "zombine_grenade" )
-	end	
-	
-	self:SendWeaponAnim(ACT_VM_THROW)
-	self:StopMoaning()
-	
-	self:TakeAmmo()
-	
-	self:SetGrenadeTime( CurTime() + 0.5 ) // the +2 is for how long the third person grenade pull animation is.
-	
-	
+ local owner, now = self:GetOwner(), CurTime()
+ if not IsValid(owner) or not owner:Alive() or owner:Team() ~= TEAM_UNDEAD or not owner:OnGround()
+  or self:GetGrenading() or self:IsInAttackAnim() or now < self:GetSpawnedTime() or now < self:GetNextSecondaryFire()
+  or self:Clip2() < self.RequiredClip or owner:GetStatus("zombine_grenade") then return end
+ local status = owner:GiveStatus("zombine_grenade")
+ if not IsValid(status) then return end
+ self:SetGrenading(true)
+ self:SetGrenadeTime(now + self.GrenadePullTime)
+ self.NextMoanToggle = math.max(self.NextMoanToggle or 0, now + self.GrenadePullTime)
+ self:SetNextSecondaryFire(now + self.Secondary.Delay)
+ self:TakeAmmo()
+ self:StopMoaning()
+ self:DoAlert()
+ self:SendWeaponAnim(ACT_VM_DRAW)
 end

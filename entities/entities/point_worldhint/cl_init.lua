@@ -1,6 +1,7 @@
 include("shared.lua")
 
 function ENT:Initialize()
+	GAMEMODE:RegisterZSClassEntity(self)
 	self:DrawShadow(false)
 	self:SetMoveType(MOVETYPE_NONE)
 	self:SetSolid(SOLID_NONE)

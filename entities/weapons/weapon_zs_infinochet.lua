@@ -44,9 +44,8 @@ function SWEP:PrimaryAttack()
 end
 
 local function DoRicochet(attacker, hitpos, hitnormal, normal, damage)
-	attacker.RicochetBullet = true
-	attacker:FireBullets({Num = 1, Src = hitpos, Dir = 2 * hitnormal * hitnormal:Dot(normal * -1) + normal, Spread = Vector(0, 0, 0), Tracer = 1, TracerName = "rico_trace", Force = damage * 0.15, Damage = damage, Callback = GenericBulletCallback})
-	attacker.RicochetBullet = nil
+	if not IsValid(attacker) then return end
+	GAMEMODE:FireRicochetBullets(attacker, {Num = 1, Src = hitpos, Dir = 2 * hitnormal * hitnormal:Dot(normal * -1) + normal, Spread = Vector(0, 0, 0), Tracer = 1, TracerName = "rico_trace", Force = damage * 0.15, Damage = damage, Callback = GenericBulletCallback})
 end
 function SWEP.BulletCallback(attacker, tr, dmginfo)
 	if SERVER and tr.HitWorld and not tr.HitSky then

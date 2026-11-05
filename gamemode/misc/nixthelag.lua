@@ -1,4 +1,4 @@
-AddCSLuaFile("nixthelag.lua")
+AddCSLuaFile()
 
 -- Let's remove a bunch of expensive stuff that is never used.
 

@@ -45,10 +45,15 @@ function ENT:Think()
 	if MySelf:IsValid() and MySelf:Team() == TEAM_UNDEAD then
 		local blocked = false
 		local nearest = self:GetPos()
+		local distance = GAMEMODE.DynamicSpawnDist
+		local bound = distance * distance * 2.75
 		for _, human in pairs(team.GetPlayers(TEAM_HUMAN)) do
-			if util.SkewedDistance(human:GetPos(), nearest, 2.75) <= GAMEMODE.DynamicSpawnDist then
-				blocked = true
-				break
+			if IsValid(human) then
+				local position = human:GetPos()
+				if position:DistToSqr(nearest) <= bound and util.SkewedDistance(position, nearest, 2.75) <= distance then
+					blocked = true
+					break
+				end
 			end
 		end
 

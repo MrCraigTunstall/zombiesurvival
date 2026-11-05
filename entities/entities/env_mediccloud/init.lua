@@ -16,6 +16,7 @@ end
 
 function ENT:AcceptInput(name, activator, caller, arg)
 	if name ~= "heal" then return end
+	if self.Ticks <= 0 then return true end
 
 	self.Ticks = self.Ticks - 1
 
@@ -23,7 +24,8 @@ function ENT:AcceptInput(name, activator, caller, arg)
 	if not healer:IsValidLivingHuman() then healer = self end
 
 	local vPos = self:GetPos()
-	for _, ent in pairs(ents.FindInSphere(vPos, self.Radius * (healer.CloudRadius or 1))) do
+	local radius = self.Radius * (healer.CloudRadius or 1)
+	for _, ent in ipairs(ents.FindInSphere(vPos, radius)) do
 		if ent and ent:IsValidLivingHuman() and WorldVisible(vPos, ent:NearestPoint(vPos)) then
 			healer:HealPlayer(ent, self.HealPower, 0.5, true)
 		end

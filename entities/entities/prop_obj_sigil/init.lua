@@ -4,10 +4,11 @@ AddCSLuaFile("shared.lua")
 include("shared.lua")
 
 function ENT:Initialize()
+	GAMEMODE:RegisterZSClassEntity(self)
 	self:DrawShadow(false)
-	self:SetRenderFX(kRenderFxDistort)
+	self:SetRenderFX(kRenderFxNone)
 
-	self:SetModel("models/d3/other/concrete_obelisc/concrete_obelisc.mdl")
+	self:SetModel("models/zombiesurvival/sigil/sigil.mdl")
 	self:PhysicsInit(SOLID_VPHYSICS)
 	self:SetUseType(SIMPLE_USE)
 	self:CollisionRulesChanged()

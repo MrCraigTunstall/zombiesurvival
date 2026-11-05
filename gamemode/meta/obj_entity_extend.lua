@@ -5,97 +5,100 @@ local M_Player = FindMetaTable("Player")
 local P_Team = M_Player.Team
 local E_IsValid = meta.IsValid
 local vector_origin = vector_origin
-local util_SharedRandom = util.SharedRandom
-local util_TraceHull = util.TraceHull
-local util_TraceLine = util.TraceLine
 local TEAM_HUMAN = TEAM_HUMAN
 local TEAM_UNDEAD = TEAM_UNDEAD
 local HITGROUP_HEAD = HITGROUP_HEAD
-local MASK_SHOT = MASK_SHOT
-local pairs = pairs
-local CONTENTS_LIQUID = bit.bor(CONTENTS_WATER, CONTENTS_SLIME)
-local MASK_SHOT_HIT_WATER = bit.bor(MASK_SHOT, CONTENTS_LIQUID)
-local bullet_tr = {}
-local bullet_water_tr = {}
-local temp_angle = Angle(0, 0, 0)
-local temp_ignore_team
-local temp_has_spread
-local method_to_use, base_ang
-local bullet_trace = {mask = MASK_SHOT, output = bullet_tr}
-local temp_shooter = NULL
-local temp_attacker = NULL
-local attacker_player, inflictor_weapon
-local temp_vel_ents = {}
 
-local LASTHITCLIPHULL = false
-local ClipHullBulletsResult
-local ClipHullBulletsReturn = {effects = false, damage = false}
-local ClipHullBullets = {
-	Damage = 0,
-	Force = 0,
-	Tracer = 0,
-	Callback = function(from, tr, dmginfo)
-		ClipHullBulletsResult = tr
-		return ClipHullBulletsReturn
-	end
-}
+local clipHullFrames = {}
+local clipHullDepth = 0
+local function TracePlayerClipHull(self, distance, size, start, dir)
+ clipHullDepth = clipHullDepth + 1
+ local frame = clipHullFrames[clipHullDepth]
+ if not frame then
+  frame = {bullets = {}, response = {effects = false, damage = false}}
+  frame.callback = function(from, tr)
+   frame.result = tr
+   frame.response.effects, frame.response.damage = false, false
+   return frame.response
+  end
+  clipHullFrames[clipHullDepth] = frame
+ end
+ local bullets = frame.bullets
+ bullets.Damage, bullets.Force, bullets.Tracer = 0, 0, 0
+ bullets.Src, bullets.Dir, bullets.HullSize, bullets.Distance = start, dir, size, distance
+ bullets.Callback = frame.callback
+ frame.result = nil
+ local ok, failure = pcall(self.FireBullets, self, bullets)
+ local result = frame.result
+ frame.result = nil
+ for key in pairs(bullets) do bullets[key] = nil end
+ clipHullDepth = clipHullDepth - 1
+ if not ok then error(failure, 0) end
+ if result and result.HitNonWorld and result.Entity:IsValid() and result.Entity:IsPlayer() and distance >= 0 and result.HitPos:DistToSqr(start) <= distance * distance then
+  return result
+ end
+end
+
+local meleeLagDepth = setmetatable({}, {__mode = "k"})
+local function CompensatedMelee(self, method, ...)
+ local depth = meleeLagDepth[self] or 0
+ if depth == 0 then self:LagCompensation(true) end
+ meleeLagDepth[self] = depth + 1
+ local ok, result = pcall(method, self, ...)
+ if depth == 0 then
+  meleeLagDepth[self] = nil
+  self:LagCompensation(false)
+ else
+  meleeLagDepth[self] = depth
+ end
+ if not ok then error(result, 0) end
+ return result
+end
+
 function meta:ClipHullTraceHull(distance, size, start, dir)
-	start = start or self:GetShootPos()
-	dir = dir or self:GetAimVector()
-
-	ClipHullBullets.Src = start
-	ClipHullBullets.Dir = dir
-	ClipHullBullets.HullSize = size
-	ClipHullBullets.Distance = distance
-	ClipHullBulletsResult = nil
-	self:FireBullets(ClipHullBullets)
-
-	LASTHITCLIPHULL = false
-
-	if ClipHullBulletsResult and ClipHullBulletsResult.HitNonWorld and ClipHullBulletsResult.Entity:IsValid() and ClipHullBulletsResult.Entity:IsPlayer() and ClipHullBulletsResult.HitPos:Distance(start) <= distance then
-		LASTHITCLIPHULL = true
-		return ClipHullBulletsResult
-	end
-
-	return self:TraceHull(distance, mask, size, filter, start)
+ start = start or self:GetShootPos()
+ dir = dir or self:GetAimVector()
+ return TracePlayerClipHull(self, distance, size, start, dir) or self:TraceHull(distance, nil, size, nil, start)
 end
 
 function meta:ClipHullMeleeTrace(distance, size, filter, start)
-	local cliphullpretrace = self:ClipHullTraceHull(distance, size, start)
-	if cliphullpretrace and LASTHITCLIPHULL then
-		return cliphullpretrace
-	end
-
-	self:LagCompensation(true)
-	local t = self:MeleeTrace(distance, size, filter, start)
-	self:LagCompensation(false)
-
-	return t
+ start = start or self:GetShootPos()
+ local cliphullpretrace = TracePlayerClipHull(self, distance, size, start, self:GetAimVector())
+ if cliphullpretrace then return cliphullpretrace end
+ return CompensatedMelee(self, self.MeleeTrace, distance, size, filter, start)
 end
 
--- Extremely shitty workaround for util trace functions not using clip hulls
 function meta:PenetratingClipHullMeleeTrace(distance, size, prehit, start, dir)
-	local t
-	local cliphullpretrace = self:ClipHullTraceHull(distance, size, start, dir)
-	self:LagCompensation(true)
-	t = self:PenetratingMeleeTrace(distance, size, prehit, start, dir)
-	if cliphullpretrace and LASTHITCLIPHULL and cliphullpretrace.Entity ~= prehit and not (t[1] and t[1].Entity:IsValid() and t[1].Entity == cliphullpretrace.Entity) then
-		table.insert(t, 1, cliphullpretrace)
-	end
-	self:LagCompensation(false)
-
-	return t
+ start = start or self:GetShootPos()
+ dir = dir or self:GetAimVector()
+ local cliphullpretrace = TracePlayerClipHull(self, distance, size, start, dir)
+ local result = CompensatedMelee(self, self.PenetratingMeleeTrace, distance, size, prehit, start, dir)
+ if cliphullpretrace and cliphullpretrace.Entity ~= prehit and not (result[1] and result[1].Entity:IsValid() and result[1].Entity == cliphullpretrace.Entity) then
+  table.insert(result, 1, cliphullpretrace)
+ end
+ return result
 end
 
 function meta:ApplyPlayerProperties(ply)
-	self.GetPlayerColor = function() return ply:GetPlayerColor() end
-	self:SetBodygroup( ply:GetBodygroup(1), 1 )
-	self:SetMaterial( ply:GetMaterial() )
-	self:SetSkin( ply:GetSkin() or 1 )
-end
-
-function meta:RestartGesture(act)
-	-- was previously deprecated. will update later, this is to stop errors.
+	if not IsValid(self) or not IsValid(ply) or self == ply then return end
+	local getcolor = ply.GetPlayerColor
+	if type(getcolor) ~= "function" then return end
+	local color = getcolor(ply)
+	if not IsValid(self) or not IsValid(ply) then return end
+	local owner = ply
+	self.GetPlayerColor = function()
+		if owner then
+			if E_IsValid(owner) then color = getcolor(owner) else owner, getcolor = nil, nil end
+		end
+		return color
+	end
+	local groups = math.min(self:GetNumBodyGroups(), ply:GetNumBodyGroups())
+	for index = 0, groups - 1 do
+		local maximum = self:GetBodygroupCount(index) - 1
+		if maximum > 0 then self:SetBodygroup(index, math.max(0, math.min(ply:GetBodygroup(index), maximum))) end
+	end
+	self:SetMaterial(ply:GetMaterial())
+	self:SetSkin(math.max(0, math.min(ply:GetSkin() or 0, self:SkinCount() - 1)))
 end
 
 function meta:GetVolume()
@@ -103,13 +106,17 @@ function meta:GetVolume()
 	return (maxs.x - mins.x) + (maxs.y - mins.y) + (maxs.z - mins.z)
 end
 
-function meta:TakeSpecialDamage(damage, damagetype, attacker, inflictor, hitpos, damageforce)
-	attacker = attacker or self
-	if not attacker:IsValid() then attacker = self end
-	inflictor = inflictor or attacker
-	if not inflictor:IsValid() then inflictor = attacker end
+local function DamageSources(self, attacker, inflictor)
+	if not (attacker and (E_IsValid(attacker) or attacker:IsWorld())) then attacker = self end
+	if not (inflictor and (E_IsValid(inflictor) or inflictor:IsWorld())) then inflictor = attacker end
+	return attacker, inflictor
+end
 
-	local nearest = self:NearestPoint(inflictor:NearestPoint(self:LocalToWorld(self:OBBCenter())))
+function meta:TakeSpecialDamage(damage, damagetype, attacker, inflictor, hitpos, damageforce)
+	if not E_IsValid(self) then return end
+	attacker, inflictor = DamageSources(self, attacker, inflictor)
+
+	local nearest = hitpos or self:NearestPoint(inflictor:NearestPoint(self:LocalToWorld(self:OBBCenter())))
 
 	local dmginfo = DamageInfo()
 	dmginfo:SetDamage(damage)
@@ -125,31 +132,12 @@ function meta:TakeSpecialDamage(damage, damagetype, attacker, inflictor, hitpos,
 	return dmginfo
 end
 
-function meta:NearestBone(pos)
-	local count = self:GetBoneCount()
-	if count == 0 then return end
-
-	local nearest
-	local nearestdist
-
-	for boneid = 1, count - 1 do
-		local bonepos, boneang = self:GetBonePositionMatrixed(boneid)
-		local dist = bonepos:Distance(pos)
-
-		if not nearest or dist < nearestdist then
-			nearest = boneid
-			nearestdist = dist
-		end
-	end
-
-	return nearest
-end
-
 function meta:IsProjectile()
 	return IsValid(self) and self:GetCollisionGroup() == COLLISION_GROUP_PROJECTILE or self.AlwaysProjectile
 end
 
 function meta:SetupGenericProjectile(gravity)
+	if not E_IsValid(self) then return end
 	self:SetCustomCollisionCheck(true)
 	self:SetCollisionGroup(COLLISION_GROUP_PROJECTILE)
 
@@ -158,7 +146,7 @@ function meta:SetupGenericProjectile(gravity)
 		phys:SetMass(1)
 		phys:SetBuoyancyRatio(0.0001)
 		phys:EnableMotion(true)
-		if not gravity then phys:EnableGravity(gravity) end
+		phys:EnableGravity(gravity and true or false)
 		phys:EnableDrag(false)
 		phys:Wake()
 	end
@@ -169,14 +157,17 @@ function meta:ProjectileDamageSource()
 end
 
 function meta:ResetBones(onlyscale)
+	if not E_IsValid(self) then return end
+	local count = self:GetBoneCount() or 0
+	if count <= 0 then return end
 	local v = Vector(1, 1, 1)
 	if onlyscale then
-		for i=0, self:GetBoneCount() - 1 do
+		for i=0, count - 1 do
 			self:ManipulateBoneScale(i, v)
 		end
 	else
 		local a = Angle(0, 0, 0)
-		for i=0, self:GetBoneCount() - 1 do
+		for i=0, count - 1 do
 			self:ManipulateBoneScale(i, v)
 			self:ManipulateBoneAngles(i, a)
 			self:ManipulateBonePosition(i, vector_origin)
@@ -221,13 +212,30 @@ function meta:GetBonePositionMatrixed(index)
 	return self:GetPos(), self:GetAngles()
 end
 
--- This needs to be done otherwise the physics might crash.
-function meta:CollisionRulesChanged()
-	if not self.m_OldCollisionGroup then self.m_OldCollisionGroup = self:GetCollisionGroup() end
-	self:SetCollisionGroup(self.m_OldCollisionGroup == COLLISION_GROUP_DEBRIS and COLLISION_GROUP_WORLD or COLLISION_GROUP_DEBRIS)
-	self:SetCollisionGroup(self.m_OldCollisionGroup)
-	self.m_OldCollisionGroup = nil
+local GetBonePositionMatrixed = meta.GetBonePositionMatrixed
+function meta:NearestBone(pos)
+	if not E_IsValid(self) then return end
+	local count = self:GetBoneCount() or 0
+	if count <= 0 then return end
+	local getposition = self.GetBonePositionMatrixed
+	local standard = getposition == GetBonePositionMatrixed
+	local nearest, nearestdist
+	for boneid = 0, count - 1 do
+		local bonepos
+		if standard then
+			local matrix = self:GetBoneMatrix(boneid)
+			bonepos = matrix and matrix:GetTranslation() or self:GetPos()
+		else
+			bonepos = getposition(self, boneid)
+		end
+		local distance = bonepos:DistToSqr(pos)
+		if not nearest or distance < nearestdist then nearest, nearestdist = boneid, distance end
+	end
+	return nearest
 end
+
+ZSNativeEntityCollisionRulesChanged = ZSNativeEntityCollisionRulesChanged or meta.CollisionRulesChanged
+meta.CollisionRulesChanged = ZSNativeEntityCollisionRulesChanged
 
 function meta:GetIsNailed()
 	return self:GetNWBool("IsNailed", false)
@@ -247,46 +255,30 @@ function meta:SetAlpha(a)
 	self:SetColor(col)
 end
 
-local function barricadetimer(self, timername)
-	if self:IsValid() then
-		for _, e in pairs(ents.FindInBox(self:WorldSpaceAABB())) do
-			if e and e:IsValid() and e:IsPlayer() and e:Alive() then
-				return
-			end
-		end
-
-		self.IsBarricadeObject = nil
-		self:CollisionRulesChanged()
-	end
-
-	timer.Destroy(timername)
-end
-
 function meta:TemporaryBarricadeObject()
-	if self.IsBarricadeObject then return end
-
-	for _, e in pairs(ents.FindInBox(self:WorldSpaceAABB())) do
-		if e and e:IsValid() and e:IsPlayer() and e:Alive() then
-			self.IsBarricadeObject = true
-			self:CollisionRulesChanged()
-
-			local timername = "TemporaryBarricadeObject"..self:GetCreationID()
-			timer.CreateEx(timername, 0, 0, barricadetimer, self, timername)
-
-			return
-		end
-	end
+ if self.IsBarricadeObject then return end
+ if SERVER and GAMEMODE:HasTemporaryCollisionOverlap(self, true) then
+  GAMEMODE:SetTemporaryBarricadeGhostEligibility(self, true)
+  GAMEMODE:TrackTemporaryCollision(self, true)
+ end
 end
 
 function meta:IsBarricadeProp()
-	return self.IsBarricadeObject or self:IsNailed()
+ return GAMEMODE:IsEntityBarricadeGhostEligible(self)
 end
 
 function meta:GetHolder()
-	for _, ent in pairs(ents.FindByClass("status_human_holding")) do
-		if ent:GetObject() == self then
+	if not IsValid(self) or self.IsMarkedForDeletion and self:IsMarkedForDeletion() then return end
+	local cached = self.ZSHoldingStatus
+	if IsValid(cached) and not cached.Removing and not (cached.IsMarkedForDeletion and cached:IsMarkedForDeletion()) and cached:GetObject() == self and (not cached.HeldObject or cached.HeldObject == self) then
+		local owner = cached:GetOwner()
+		if IsValid(owner) and owner:IsPlayer() and owner:Alive() and (not cached.HeldOwner or cached.HeldOwner == owner) then return owner, cached end
+	end
+	self.ZSHoldingStatus = nil
+	for _, ent in ipairs(GAMEMODE:GetZSEquipmentEntities("status_human_holding")) do
+		if IsValid(ent) and not ent.Removing and not (ent.IsMarkedForDeletion and ent:IsMarkedForDeletion()) and ent:GetObject() == self and (not ent.HeldObject or ent.HeldObject == self) then
 			local owner = ent:GetOwner()
-			if owner:IsPlayer() and owner:Alive() then return owner, ent end
+			if IsValid(owner) and owner:IsPlayer() and owner:Alive() and (not ent.HeldOwner or ent.HeldOwner == owner) then self.ZSHoldingStatus = ent; return owner, ent end
 		end
 	end
 end
@@ -294,25 +286,33 @@ end
 function meta:ThrowFromPosition(pos, force, noknockdown)
 	if force == 0 or self:IsProjectile() or self.NoThrowFromPosition then return false end
 
-	if self:IsPlayer() and self:ActiveBarricadeGhosting() then return false end
+	local isplayer = self:IsPlayer()
+	if isplayer and self:ActiveBarricadeGhosting() then return false end
+	local movetype = self:GetMoveType()
 
-	if self:GetMoveType() == MOVETYPE_VPHYSICS then
+	if movetype == MOVETYPE_VPHYSICS then
 		local phys = self:GetPhysicsObject()
 		if phys:IsValid() and phys:IsMoveable() then
 			local nearest = self:NearestPoint(pos)
-			phys:ApplyForceOffset(force * 50 * (nearest - pos):GetNormalized(), nearest)
+			local dir = nearest - pos
+			dir:Normalize()
+			dir:Mul(force * 50)
+			phys:ApplyForceOffset(dir, nearest)
 		end
 
 		return true
-	elseif self:GetMoveType() >= MOVETYPE_WALK and self:GetMoveType() < MOVETYPE_PUSH then
+	elseif movetype >= MOVETYPE_WALK and movetype < MOVETYPE_PUSH then
 		self:SetGroundEntity(NULL)
-		if SERVER and not noknockdown and self:IsPlayer() then
+		if SERVER and not noknockdown and isplayer then
 			local absforce = math.abs(force)
 			if absforce >= 512 or self.Clumsy and self:Team() ~= TEAM_UNDEAD and absforce >= 32 then
 				self:KnockDown()
 			end
 		end
-		self:SetVelocity(force * (self:LocalToWorld(self:OBBCenter()) - pos):GetNormalized())
+		local dir = self:LocalToWorld(self:OBBCenter()) - pos
+		dir:Normalize()
+		dir:Mul(force)
+		self:SetVelocity(dir)
 
 		return true
 	end
@@ -322,9 +322,11 @@ function meta:ThrowFromPositionSetZ(pos, force, zmul, noknockdown)
 	if force == 0 or self:IsProjectile() or self.NoThrowFromPosition then return false end
 	zmul = zmul or 0.7
 
-	if self:IsPlayer() and self:ActiveBarricadeGhosting() then return false end
+	local isplayer = self:IsPlayer()
+	if isplayer and self:ActiveBarricadeGhosting() then return false end
+	local movetype = self:GetMoveType()
 
-	if self:GetMoveType() == MOVETYPE_VPHYSICS then
+	if movetype == MOVETYPE_VPHYSICS then
 		local phys = self:GetPhysicsObject()
 		if phys:IsValid() and phys:IsMoveable() then
 			local nearest = self:NearestPoint(pos)
@@ -332,13 +334,14 @@ function meta:ThrowFromPositionSetZ(pos, force, zmul, noknockdown)
 			dir.z = 0
 			dir:Normalize()
 			dir.z = zmul
-			phys:ApplyForceOffset(force * 50 * dir, nearest)
+			dir:Mul(force * 50)
+			phys:ApplyForceOffset(dir, nearest)
 		end
 
 		return true
-	elseif self:GetMoveType() >= MOVETYPE_WALK and self:GetMoveType() < MOVETYPE_PUSH then
+	elseif movetype >= MOVETYPE_WALK and movetype < MOVETYPE_PUSH then
 		self:SetGroundEntity(NULL)
-		if SERVER and not noknockdown and self:IsPlayer() then
+		if SERVER and not noknockdown and isplayer then
 			local absforce = math.max(math.abs(force) * math.abs(zmul), math.abs(force))
 			if absforce >= 512 or self.Clumsy and self:Team() ~= TEAM_UNDEAD and absforce >= 32 then
 				self:KnockDown()
@@ -349,7 +352,8 @@ function meta:ThrowFromPositionSetZ(pos, force, zmul, noknockdown)
 		dir.z = 0
 		dir:Normalize()
 		dir.z = zmul
-		self:SetVelocity(force * dir)
+		dir:Mul(force)
+		self:SetVelocity(dir)
 
 		return true
 	end
@@ -359,12 +363,14 @@ util.PrecacheSound("player/pl_pain5.wav")
 util.PrecacheSound("player/pl_pain6.wav")
 util.PrecacheSound("player/pl_pain7.wav")
 function meta:PoisonDamage(damage, attacker, inflictor, hitpos, noreduction)
+	if not E_IsValid(self) then return end
 	damage = damage or 1
 
+	local isplayer = self:IsPlayer()
+	if isplayer and (self:Team() ~= TEAM_HUMAN or GAMEMODE:HasPlayerTrait(self, "venomimmunity")) then return end
 	local dmginfo = DamageInfo()
 
-	if self:IsPlayer() then
-		if self:Team() ~= TEAM_HUMAN then return end
+	if isplayer then
 
 		if self.BuffResistant then
 			damage = damage / 2
@@ -376,9 +382,11 @@ function meta:PoisonDamage(damage, attacker, inflictor, hitpos, noreduction)
 
 		self:ViewPunch(Angle(math.random(-10, 10), math.random(-10, 10), math.random(-20, 20)))
 		self:EmitSound("player/pl_pain"..math.random(5, 7)..".wav")
+		if not E_IsValid(self) then return end
 
 		if SERVER then
-			self:GiveStatus("poisonrecovery"):AddDamage(math.floor(damage * 0.75))
+			local recovery = self:GiveStatus("poisonrecovery")
+			if IsValid(recovery) then recovery:AddDamage(math.floor(damage * 0.75)) end
 		end
 
 		dmginfo:SetDamageType(DMG_ACID)
@@ -389,8 +397,8 @@ function meta:PoisonDamage(damage, attacker, inflictor, hitpos, noreduction)
 		dmginfo:SetDamageType(DMG_SLASH) -- Fixes not doing damage to props.
 	end
 
-	attacker = attacker or self
-	inflictor = inflictor or attacker
+	if not E_IsValid(self) then return end
+	attacker, inflictor = DamageSources(self, attacker, inflictor)
 
 	dmginfo:SetDamagePosition(hitpos or self:NearestPoint(inflictor:NearestPoint(self:LocalToWorld(self:OBBCenter()))))
 	dmginfo:SetDamage(damage)
@@ -436,12 +444,14 @@ function meta:IsAPhysicsProp()
 	if not IsValid(self) then return false end
 	
 	if not self.CheckedIsPhysProp then
-		self.CheckedIsPhysProp = (string_sub(self:GetClass(), 1, 12) == "prop_physics" or string_sub(self:GetClass(), 1, 12) == "func_physbox") and 1 or 0
+		local class = string_sub(self:GetClass(), 1, 12)
+		self.CheckedIsPhysProp = (class == "prop_physics" or class == "func_physbox") and 1 or 0
 	end
 	return self.CheckedIsPhysProp==1
 end
 
-local OldSequenceDuration = meta.SequenceDuration
+meta.ZSOriginalSequenceDuration = meta.ZSOriginalSequenceDuration or meta.SequenceDuration
+local OldSequenceDuration = meta.ZSOriginalSequenceDuration
 function meta:SequenceDuration(seqid)
 	return OldSequenceDuration(self, seqid) or 0
 end
@@ -479,17 +489,6 @@ function meta:IsValidLivingZombie()
 end
 
 
-local function BaseBulletFilter(ent) 
-	if ent == temp_shooter or ent == temp_attacker or ent.NeverAlive or ent.SpawnProtection or ent.IgnoreBullets or ent:IsPlayer() and ent:Team() == temp_ignore_team then
-		return false
-	end
-
-	if ent.AlwaysImpactBullets then
-		return true
-	end
-	return true
-end
-
 function meta:SetLastHitGroup(group)
 
 	self.m_LastHitGroup = group
@@ -498,189 +497,4 @@ end
 
 function meta:LastHitGroup()
 	return self.m_LastHitGroup or HITGROUP_CHEST
-end
-
-local function HandleShotImpactingWater(damage)
-	-- Trace again with water enabled
-	bullet_trace.mask = MASK_SHOT_HIT_WATER
-	bullet_trace.output = bullet_water_tr
-	util_TraceLine(bullet_trace)
-	bullet_trace.output = bullet_tr
-	bullet_trace.mask = MASK_SHOT
-
-	if bullet_water_tr.AllSolid then return false end
-
-	local contents = util.PointContents(bullet_water_tr.HitPos - bullet_water_tr.HitNormal * 0.1)
-	if bit.band(contents, CONTENTS_LIQUID) == 0 then return false end
-
-	if IsFirstTimePredicted() then
-		local effectdata = EffectData()
-		effectdata:SetOrigin(bullet_water_tr.HitPos)
-		effectdata:SetNormal(bullet_water_tr.HitNormal)
-		effectdata:SetScale(math.Clamp(damage * 0.25, 5, 30))
-		effectdata:SetFlags(bit.band(contents, CONTENTS_SLIME) ~= 0 and 1 or 0)
-		util.Effect("gunshotsplash", effectdata)
-	end
-
-	return true
-end
-
-
-local wspawn = Entity(0)
-local function CheckFHB(tr)
-	local ent = tr.Entity
-	if ent == wspawn then
-		return
-	end
-
-	if ent.FHB and ent:IsValid() then
-		tr.Entity = ent:GetParent()
-	end
-end
-
-
-function meta:FireBulletsLua(src, dir, spread, num, damage, attacker, force_mul, tracer, callback, hull_size, hit_own_team, max_distance, filter, inflictor)
-	max_distance = max_distance or 56756
-	attacker = attacker or self
-
-	if not attacker:IsValid() then attacker = self end
-
-	force_mul = force_mul or 1
-	temp_shooter = self
-	temp_attacker = attacker
-	attacker_player = attacker:IsPlayer()
-	inflictor_weapon = inflictor and inflictor:IsWeapon()
-	bullet_trace.start = src
-
-	if filter then
-		bullet_trace.filter = filter
-	else
-		bullet_trace.filter = BaseBulletFilter
-
-		if not hit_own_team and attacker_player then
-			temp_ignore_team = attacker:Team()
-		else
-			temp_ignore_team = nil
-		end
-	end
-
-	if hull_size then
-		bullet_trace.maxs = Vector(hull_size, hull_size, hull_size) * 0.5
-		bullet_trace.mins = bullet_trace.maxs * -1
-		method_to_use = util_TraceHull
-	else
-		method_to_use = util_TraceLine
-	end
-
-	base_ang = dir:Angle()
-	temp_has_spread = spread > 0
-
-	for i=0, num - 1 do
-		if temp_has_spread then
-			temp_angle:Set(base_ang)
-			temp_angle:RotateAroundAxis(temp_angle:Forward(), inflictor_weapon and util_SharedRandom("bulletrotate" .. i, 0, 360) or math.Rand(0, 360))
-			temp_angle:RotateAroundAxis(temp_angle:Up(), inflictor_weapon and util_SharedRandom("bulletangle" .. i, -spread, spread) or math.Rand(-spread, spread))
-			dir = temp_angle:Forward()
-		end
-
-		bullet_trace.endpos = src + dir * max_distance
-		bullet_tr = method_to_use(bullet_trace)
-		CheckFHB(bullet_tr)
-
-		local hitwater
-
-		if bit.band(util.PointContents(bullet_tr.HitPos), CONTENTS_LIQUID) ~= 0 then
-			hitwater = HandleShotImpactingWater(damage)
-		end
-
-		local damageinfo = DamageInfo()
-		damageinfo:SetDamageType(DMG_BULLET)
-		damageinfo:SetDamage(damage)
-		damageinfo:SetDamagePosition(bullet_tr.HitPos)
-		damageinfo:SetAttacker(attacker)
-		damageinfo:SetInflictor(inflictor or self)
-
-		if force_mul > 0 then
-			damageinfo:SetDamageForce(force_mul * damage * 70 * dir:GetNormalized())
-		else
-			damageinfo:SetDamageForce(Vector(0, 0, 1))
-		end
-
-		local use_tracer = true
-		local use_impact = true
-		local use_ragdoll_impact = true
-		local use_damage = true
-
-		if callback then
-			local ret = callback(attacker, bullet_tr, damageinfo)
-			
-			if ret then
-				if ret.donothing then continue end
-				if ret.tracer ~= nil then use_tracer = ret.tracer end
-				if ret.impact ~= nil then use_impact = ret.impact end
-				if ret.ragdoll_impact ~= nil then use_ragdoll_impact = ret.ragdoll_impact end
-				if ret.damage ~= nil then use_damage = ret.damage end
-			end
-		end
-
-		local ent = bullet_tr.Entity
-		if ent:IsValid() then
-			if use_damage then
-				if ent:IsPlayer() then
-					temp_vel_ents[ent] = temp_vel_ents[ent] or ent:GetVelocity()
-
-					if SERVER then
-						ent:SetLastHitGroup(bullet_tr.HitGroup)
-					end
-				elseif attacker:IsValidPlayer() then
-					local phys = ent:GetPhysicsObject()
-					
-					if ent:GetMoveType() == MOVETYPE_VPHYSICS and phys:IsValid() and phys:IsMoveable() then
-						ent:SetPhysicsAttacker(attacker)
-					end
-				end
-				ent:DispatchTraceAttack(damageinfo, bullet_tr, dir)
-			end
-		end
-
-
-		if IsFirstTimePredicted() then
-			local effectdata = EffectData()
-			
-			effectdata:SetOrigin(bullet_tr.HitPos)
-			effectdata:SetStart(src)
-			effectdata:SetNormal(bullet_tr.HitNormal)
-
-			if hitwater then
-				if use_ragdoll_impact then
-					util.Effect("RagdollImpact", effectdata)
-				end
-
-			elseif use_impact and not bullet_tr.HitSky and bullet_tr.Fraction < 1 then
-				effectdata:SetSurfaceProp(bullet_tr.SurfaceProps)
-				effectdata:SetDamageType(DMG_BULLET)
-				effectdata:SetHitBox(bullet_tr.HitBox)
-				effectdata:SetEntity(ent)
-				util.Effect("Impact", effectdata)
-			end
-
-			if use_tracer then
-				if self:IsPlayer() and self:GetActiveWeapon():IsValid() then
-
-					effectdata:SetFlags( 0x0003 )
-					effectdata:SetEntity(self:GetActiveWeapon())
-					effectdata:SetAttachment(1)
-				else
-					effectdata:SetEntity(self)
-					effectdata:SetFlags( 0x0001 )
-				end
-				effectdata:SetScale(5000)
-				util.Effect(tracer or "Tracer", effectdata)
-			end
-		end
-	end
-	for ent, vel in pairs(temp_vel_ents) do
-		ent:SetLocalVelocity(vel)
-	end
-	table.Empty(temp_vel_ents)
 end

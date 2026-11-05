@@ -86,37 +86,68 @@ end
 
 if not CLIENT then return end
 
-local function CreateBoneOffsets(pl)
-	pl.m_NightmareBoneOffsetsNext = CurTime() + math.Rand(0.02, 0.1)
-
-	local offsets = {}
-	local angs = {}
-	for i=1, pl:GetBoneCount() - 1 do
+local boneStates = setmetatable({}, {__mode = "k"})
+local function CreateBoneOffsets(pl, state, now)
+	pl.m_NightmareBoneOffsetsNext = now + math.Rand(0.02, 0.1)
+	local offsets, angs = state.offsets, state.angles
+	table.Empty(offsets)
+	table.Empty(angs)
+	for i = 1, state.count - 1 do
 		if math.random(3) == 3 then
-			offsets[i] = VectorRand():GetNormalized() * math.Rand(0.5, 3)
+			local offset = VectorRand()
+			offset:Normalize()
+			offset:Mul(math.Rand(0.5, 3))
+			offsets[i] = offset
 		end
 		if math.random(5) == 5 then
-			angs[i] = Angle(math.Rand(-5, 5), math.Rand(-15, 15), math.Rand(-5, 5))
+			local angle = state.anglePool[i]
+			if not angle then
+				angle = Angle(0, 0, 0)
+				state.anglePool[i] = angle
+			end
+			angle.p, angle.y, angle.r = math.Rand(-5, 5), math.Rand(-15, 15), math.Rand(-5, 5)
+			angs[i] = angle
 		end
 	end
-	pl.m_NightmareBoneOffsets = offsets
-	pl.m_NightmareBoneAngles = angs
+	pl.m_NightmareBoneOffsets, pl.m_NightmareBoneAngles = offsets, angs
+end
+
+local function BoneState(pl)
+	local count = pl:GetBoneCount()
+	if not count or count <= 0 then return end
+	local model, now = pl:GetModel(), CurTime()
+	local state = boneStates[pl]
+	if not state or state.model ~= model or state.count ~= count then
+		state = {model = model, count = count, offsets = {}, angles = {}, anglePool = {}}
+		boneStates[pl] = state
+		pl.m_NightmareBoneOffsetsNext = 0
+	end
+	if pl.m_NightmareBoneOffsets ~= state.offsets or pl.m_NightmareBoneAngles ~= state.angles or now >= (pl.m_NightmareBoneOffsetsNext or 0) then
+		CreateBoneOffsets(pl, state, now)
+	end
+	return state, count
 end
 
 function CLASS:BuildBonePositions(pl)
-	if not pl.m_NightmareBoneOffsets or CurTime() >= pl.m_NightmareBoneOffsetsNext then
-		CreateBoneOffsets(pl)
+	local state, count = BoneState(pl)
+	if not state then return end
+	local offsets, angs = state.offsets, state.angles
+	for i = 1, count - 1 do
+		if offsets[i] then pl:ManipulateBonePosition(i, offsets[i]) end
+		if angs[i] then pl:ManipulateBoneAngles(i, angs[i]) end
 	end
+end
 
-	local offsets = pl.m_NightmareBoneOffsets
-	local angs = pl.m_NightmareBoneAngles
-	for i=1, pl:GetBoneCount() - 1 do
-		if offsets[i] then
-			pl:ManipulateBonePosition(i, offsets[i])
-		end
-		if angs[i] then
-			pl:ManipulateBoneAngles(i, angs[i])
-		end
+CLASS.ResetBoneBuildSource = CLASS.BuildBonePositions
+function CLASS:ResetAndBuildBonePositions(pl)
+	local unit, zeroAngle = Vector(1, 1, 1), Angle(0, 0, 0)
+	local state, count = BoneState(pl)
+	if not state then return end
+	local offsets, angs = state.offsets, state.angles
+	for bone = 0, count - 1 do
+		pl:ManipulateBoneScale(bone, unit)
+		pl:ManipulateBoneAngles(bone, bone > 0 and angs[bone] or zeroAngle)
+		pl:ManipulateBonePosition(bone, bone > 0 and offsets[bone] or vector_origin)
 	end
 end
 

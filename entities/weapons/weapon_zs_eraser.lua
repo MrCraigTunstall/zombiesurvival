@@ -43,7 +43,7 @@ function SWEP:EmitFireSound()
 end
 
 function SWEP:ShootBullets(dmg, numbul, cone)
-	if self:Clip1() == 1 then
+	if self:Clip1() == 0 then
 		dmg = dmg * 3
 	else
 		dmg = dmg + dmg * (1 - self:Clip1() / self.Primary.ClipSize)

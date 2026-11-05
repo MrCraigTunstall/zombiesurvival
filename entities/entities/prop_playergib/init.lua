@@ -77,20 +77,19 @@ function ENT:Think()
 end
 
 function ENT:StartTouch(ent)
-	if self.DieTime ~= 0 and ent:IsPlayer() and ent:Alive() and ent:Team() == TEAM_UNDEAD and ent:Health() < ent:GetMaxZombieHealth() then
-		self.DieTime = 0
-
-		ent:SetHealth(math.min(ent:GetMaxZombieHealth(), ent:Health() + 10))
-
-		self:EmitSound("physics/body/body_medium_break"..math.random(2, 4)..".wav")
-		util.Blood(self:GetPos(), math.random(2), Vector(0, 0, 1), 100, self:GetDTInt(0), true)
-
-	elseif self.DieTime ~= 0 and ent:IsPlayer() and ent:Alive() and ent:Team() ~= TEAM_UNDEAD and ent.Cannibal and ent:Health() <= 60 then		
-		self.DieTime = 0
-
-		ent:SetHealth(ent:Health() + 10)
-
-		self:EmitSound("physics/body/body_medium_break"..math.random(2, 4)..".wav")
-		util.Blood(self:GetPos(), math.random(2), Vector(0, 0, 1), 100, self:GetDTInt(0), true)
+	if self.DieTime == 0 or not ent:IsPlayer() or not ent:Alive() then return end
+	local teamid, health = ent:Team(), ent:Health()
+	local maximum
+	if teamid == TEAM_UNDEAD then
+		maximum = ent:GetMaxZombieHealth()
+	elseif teamid == TEAM_HUMAN and ent.Cannibal and health <= 60 then
+		maximum = ent:GetMaxHealth()
+	else
+		return
 	end
+	if health >= maximum then return end
+	self.DieTime = 0
+	ent:SetHealth(math.min(maximum, health + 10))
+	self:EmitSound("physics/body/body_medium_break"..math.random(2, 4)..".wav")
+	util.Blood(self:GetPos(), math.random(2), Vector(0, 0, 1), 100, self:GetDTInt(0), true)
 end

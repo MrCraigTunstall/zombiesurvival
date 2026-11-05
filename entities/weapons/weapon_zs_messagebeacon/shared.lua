@@ -9,15 +9,20 @@ SWEP.Primary.Ammo = "striderminigun"
 SWEP.Primary.Delay = 1
 SWEP.Primary.Automatic = true
 
-SWEP.Secondary.ClipSize = 1
-SWEP.Secondary.DefaultClip = 1
+SWEP.Secondary.ClipSize = -1
+SWEP.Secondary.DefaultClip = 0
 SWEP.Secondary.Automatic = false
-SWEP.Secondary.Ammo = "dummy"
+SWEP.Secondary.Ammo = "none"
 
 SWEP.WalkSpeed = SPEED_NORMAL
 SWEP.FullWalkSpeed = SPEED_SLOW
 
+function SWEP:GetSelectedMessageID()
+ return self:GetDTInt(1)
+end
+
 function SWEP:Initialize()
+ if SERVER then self:SetDTInt(1, self.MessageID or 1) end
 	self:SetWeaponHoldType("slam")
 	self:SetDeploySpeed(1.1)
 	self:HideViewAndWorldModel()

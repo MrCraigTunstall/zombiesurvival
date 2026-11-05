@@ -69,6 +69,7 @@ end
 
 function SWEP:Anim_OnRemove()
 	self:Anim_Holster()
+	if CLIENT then self:RemoveModels() end
 end
 
 if CLIENT then
@@ -121,8 +122,7 @@ if CLIENT then
 
 				model:SetAngles(ang)
 				--model:SetModelScale(v.size)
-				local matrix = Matrix()
-				matrix:Scale(v.size)
+				local matrix = ZSWeaponAnimation.ScaleMatrix(v)
 				model:EnableMatrix( "RenderMultiply", matrix )
 
 				if (v.material == "") then
@@ -203,6 +203,7 @@ if CLIENT then
 
 		end
 
+		local bone_ent
 		if (IsValid(self:GetOwner())) then
 			bone_ent = self:GetOwner()
 		else
@@ -238,8 +239,7 @@ if CLIENT then
 
 				model:SetAngles(ang)
 				--model:SetModelScale(v.size)
-				local matrix = Matrix()
-				matrix:Scale(v.size)
+				local matrix = ZSWeaponAnimation.ScaleMatrix(v)
 				model:EnableMatrix( "RenderMultiply", matrix )
 
 				if (v.material == "") then
@@ -299,7 +299,7 @@ if CLIENT then
 
 	function SWEP:GetBoneOrientation( basetab, tab, ent, bone_override )
 
-		local bone, pos, ang
+		local pos, ang
 		if (tab.rel and tab.rel != "") then
 
 			local v = basetab[tab.rel]
@@ -319,15 +319,9 @@ if CLIENT then
 
 		else
 
-			bone = ent:LookupBone(bone_override or tab.bone)
+			pos, ang = ZSWeaponAnimation.BoneTransform(ent, bone_override or tab.bone)
 
-			if (!bone) then return end
-
-			pos, ang = Vector(0,0,0), Angle(0,0,0)
-			local m = ent:GetBoneMatrix(bone)
-			if (m) then
-				pos, ang = m:GetTranslation(), m:GetAngles()
-			end
+			if not pos then return end
 
 			if (IsValid(self:GetOwner()) and self:GetOwner():IsPlayer() and
 				ent == self:GetOwner():GetViewModel() and self.ViewModelFlip) then
@@ -348,6 +342,7 @@ if CLIENT then
 			if (v.type == "Model" and v.model and v.model != "" and (!IsValid(v.modelEnt) or v.createdModel != v.model) and
 					string.find(v.model, ".mdl") and file.Exists (v.model, "GAME") ) then
 
+				ZSWeaponAnimation.RemoveModel(v)
 				v.modelEnt = ClientsideModel(v.model, RENDER_GROUP_VIEW_MODEL_OPAQUE)
 				if (IsValid(v.modelEnt)) then
 					v.modelEnt:SetPos(self:GetPos())
@@ -383,95 +378,14 @@ if CLIENT then
 
 	end
 
-	local allbones
-	local hasGarryFixedBoneScalingYet = true
-
 	function SWEP:UpdateBonePositions(vm)
-
-		if self.ViewModelBoneMods then
-
-			if (!vm:GetBoneCount()) then return end
-
-			-- !! WORKAROUND !! --
-			-- We need to check all model names :/
-			local loopthrough = self.ViewModelBoneMods
-			if (!hasGarryFixedBoneScalingYet) then
-				allbones = {}
-				for i=0, vm:GetBoneCount() do
-					local bonename = vm:GetBoneName(i)
-					if (self.ViewModelBoneMods[bonename]) then
-						allbones[bonename] = self.ViewModelBoneMods[bonename]
-					else
-						allbones[bonename] = {
-							scale = Vector(1,1,1),
-							pos = Vector(0,0,0),
-							angle = Angle(0,0,0)
-						}
-					end
-				end
-
-				loopthrough = allbones
-			end
-			-- !! ----------- !! --
-
-			for k, v in pairs( loopthrough ) do
-				local bone = vm:LookupBone(k)
-				if (!bone) then continue end
-
-				-- !! WORKAROUND !! --
-				local s = Vector(v.scale.x,v.scale.y,v.scale.z)
-				local p = Vector(v.pos.x,v.pos.y,v.pos.z)
-				local ms = Vector(1,1,1)
-				if (!hasGarryFixedBoneScalingYet) then
-					local cur = vm:GetBoneParent(bone)
-					while(cur >= 0) do
-						local pscale = loopthrough[vm:GetBoneName(cur)].scale
-						ms = ms * pscale
-						cur = vm:GetBoneParent(cur)
-					end
-				end
-
-				s = s * ms
-				-- !! ----------- !! --
-
-				if vm:GetManipulateBoneScale(bone) != s then
-					vm:ManipulateBoneScale( bone, s )
-				end
-				if vm:GetManipulateBoneAngles(bone) != v.angle then
-					vm:ManipulateBoneAngles( bone, v.angle )
-				end
-				if vm:GetManipulateBonePosition(bone) != p then
-					vm:ManipulateBonePosition( bone, p )
-				end
-			end
-		else
-			self:ResetBonePositions(vm)
-		end
-
+		return ZSWeaponAnimation.Update(self, vm, false)
 	end
 
 	function SWEP:ResetBonePositions(vm)
-		-- New code
-		vm:SetColor(color_white)
-		vm:SetMaterial("")
-		--------
-
-		if (!vm:GetBoneCount()) then return end
-		for i=0, vm:GetBoneCount() do
-			vm:ManipulateBoneScale( i, Vector(1, 1, 1) )
-			vm:ManipulateBoneAngles( i, Angle(0, 0, 0) )
-			vm:ManipulateBonePosition( i, Vector(0, 0, 0) )
-		end
-
+		return ZSWeaponAnimation.Reset(vm)
 	end
 
-	--[[*************************
-		Global utility code
-	*************************]]
-
-	-- Fully copies the table, meaning all tables inside this table are copied too and so on (normal table.Copy copies only their reference).
-	-- Does not copy entities of course, only copies their reference.
-	-- WARNING: do not use on tables that contain themselves somewhere down the line or you'll get an infinite loop
 	function table.FullCopy( tab )
 
 		if (!tab) then return nil end
@@ -500,20 +414,5 @@ end
 ----------------
 
 function SWEP:RemoveModels()
-	if (self.VElements) then
-		for k, v in pairs( self.VElements ) do
-			if (IsValid( v.modelEnt )) then
-				v.modelEnt:Remove()
-				v.modelEnt = nil
-			end
-		end
-	end
-	if (self.WElements) then
-		for k, v in pairs( self.WElements ) do
-			if (IsValid( v.modelEnt )) then
-				v.modelEnt:Remove()
-				v.modelEnt = nil
-			end
-		end
-	end
+	if CLIENT then return ZSWeaponAnimation.RemoveModels(self) end
 end

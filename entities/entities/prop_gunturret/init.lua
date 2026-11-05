@@ -6,7 +6,7 @@ include("shared.lua")
 ENT.LastHitSomething = 0
 
 local function RefreshTurretOwners(pl)
-	for _, ent in pairs(ents.FindByClass("prop_gunturret")) do
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_gunturret")) do
 		if ent:IsValid() and ent:GetObjectOwner() == pl then
 			ent:ClearObjectOwner()
 			ent:ClearTarget()
@@ -17,6 +17,7 @@ hook.Add("PlayerDisconnected", "GunTurret.PlayerDisconnected", RefreshTurretOwne
 hook.Add("OnPlayerChangedTeam", "GunTurret.OnPlayerChangedTeam", RefreshTurretOwners)
 
 function ENT:Initialize()
+	GAMEMODE:RegisterZSClassEntity(self)
 	self:SetModel("models/Combine_turrets/Floor_turret.mdl")
 	self:SetModelScale(self.ModelScale or 1, 0)
 	self:PhysicsInit(SOLID_VPHYSICS)
@@ -146,6 +147,13 @@ function ENT:Think()
 			if target:IsValid() then self:ClearTarget() end
 		else
 			if self:IsFiring() then self:SetFiring(false) end
+			if GAMEMODE:HasPlayerTrait(owner, "technicalaim") and CurTime() >= (self.NextTargetScan or 0) then
+				self.NextTargetScan = CurTime() + 0.1
+				local nearest = self:SearchNearestTarget()
+				if nearest ~= self:GetTarget() then
+					if nearest then self:SetTarget(nearest) else self:ClearTarget() end
+				end
+			end
 			local target = self:GetTarget()
 			if target:IsValid() then
 				if self:IsValidTarget(target) and CurTime() < self.LastHitSomething + 0.5 then
@@ -156,7 +164,11 @@ function ENT:Think()
 					self:EmitSound("npc/turret_floor/deploy.wav")
 				end
 			else
-				local target = self:SearchForTarget()
+				local target
+				if CurTime() >= (self.NextTargetScan or 0) then
+					self.NextTargetScan = CurTime() + 0.1
+					target = self:SearchForTarget()
+				end
 				if target then
 					self:SetTarget(target)
 					self:SetTargetReceived(CurTime())
@@ -219,6 +231,6 @@ function ENT:OnTakeDamage(dmginfo)
 	local attacker = dmginfo:GetAttacker()
 	if not (attacker:IsValid() and attacker:IsPlayer() and attacker:Team() == TEAM_HUMAN) then
 		self:ResetLastBarricadeAttacker(attacker, dmginfo)
-		self:SetObjectHealth(self:GetObjectHealth() - dmginfo:GetDamage())
+		GAMEMODE:DamageTraitObject(self, dmginfo)
 	end
 end

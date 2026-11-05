@@ -6,25 +6,29 @@ GM.EndGameTime = 35
 GM.ZE_FreezeTime = 20
 GM.ZE_TimeLimit = 60 * 16
 
-GM.DefaultZombieClass = GM.ZombieClasses["Super Zombie"].Index
+function GM:SelectZombieEscapeDefaultClass()
+	if not self.ZombieEscape or not self.ZombieClasses then return end
+	local class = self.ZombieClasses["Super Zombie"]
+	if class and type(class.Index) == "number" and self.ZombieClasses[class.Index] == class then self.DefaultZombieClass = class.Index end
+end
+GM:SelectZombieEscapeDefaultClass()
 
-local CSSWEAPONS = {"weapon_knife","weapon_glock","weapon_usp","weapon_p228","weapon_deagle",
-	"weapon_elite","weapon_fiveseven","weapon_m3","weapon_xm1014","weapon_galil",
-	"weapon_ak47","weapon_scout","weapon_sg552","weapon_awp","weapon_g3sg1",
-	"weapon_famas","weapon_m4a1","weapon_aug","weapon_sg550","weapon_mac10",
-	"weapon_tmp","weapon_mp5navy","weapon_ump45","weapon_p90","weapon_m249"}
+include("sh_mapweapons.lua")
 
 function GM:Move(pl, move)
 	if pl:Team() == TEAM_HUMAN then
 		if pl:GetBarricadeGhosting() then
 			move:SetMaxSpeed(36)
 			move:SetMaxClientSpeed(36)
-		elseif move:GetForwardSpeed() < 0 then
-			move:SetMaxSpeed(move:GetMaxSpeed() * 0.9)
-			move:SetMaxClientSpeed(move:GetMaxClientSpeed() * 0.9)
-		elseif move:GetForwardSpeed() == 0 then
-			move:SetMaxSpeed(move:GetMaxSpeed() * 0.95)
-			move:SetMaxClientSpeed(move:GetMaxClientSpeed() * 0.95)
+		else
+			local forward = move:GetForwardSpeed()
+			if forward < 0 then
+				move:SetMaxSpeed(move:GetMaxSpeed() * 0.9)
+				move:SetMaxClientSpeed(move:GetMaxClientSpeed() * 0.9)
+			elseif forward == 0 then
+				move:SetMaxSpeed(move:GetMaxSpeed() * 0.95)
+				move:SetMaxClientSpeed(move:GetMaxClientSpeed() * 0.95)
+			end
 		end
 	elseif pl:CallZombieFunction("Move", move) then
 		return
@@ -43,10 +47,9 @@ function GM:GetZombieDamageScale(pos, ignore)
 end
 
 function GM:ScalePlayerDamage(pl, hitgroup, dmginfo)
-	if dmginfo:IsBulletDamage() then
-		if hitgroup == HITGROUP_HEAD then
-			pl.m_LastHeadShot = CurTime()
-		end
+	if SERVER then self:ApplyTraitHeadshot(pl, hitgroup, dmginfo) end
+	if hitgroup == HITGROUP_HEAD and dmginfo:IsBulletDamage() then
+		pl.m_LastHeadShot = CurTime()
 	end
 
 	if not pl:CallZombieFunction("ScalePlayerDamage", hitgroup, dmginfo) then
@@ -64,69 +67,11 @@ function GM:ScalePlayerDamage(pl, hitgroup, dmginfo)
 	end
 end
 
--- Creates some dummy entities so we don't get spammed in the console.
+local function EscapeCollisionRule(ent1, ent2)
 
-local ENT = {}
-
-ENT.Type = "anim"
-ENT.RenderGroup = RENDERGROUP_NONE
-
-function ENT:Initialize()
-	self:SetNoDraw(true)
-end
-
-if SERVER then
-function ENT:Think()
-	self:Remove()
-end
-end
-
-hook.Add("Initialize", "RegisterDummyEntities", function()
-	scripted_ents.Register(ENT, "ammo_50ae")
-	scripted_ents.Register(ENT, "ammo_556mm_box")
-	scripted_ents.Register(ENT, "player_weaponstrip")
-	
-	--CSS Weapons for ZE map parenting
-	for i, weapon in pairs(CSSWEAPONS) do
-		weapons.Register({Base = "weapon_map_base"},weapon) 
-	end
-end)
-
--- HACK: func_physbox_multiplayer entities' collision groups seem to differ 
--- from CS:S. Some weapon pickups are surrounded by them and should be using
--- COLLISION_GROUP_DEBRIS. This fixes that when a player attempts to pickup
--- a weapon.
-local function PhysboxWeaponPickupFix(weap)
-	for _, ent in pairs(ents.FindInSphere(weap:GetPos(), 30)) do
-		if IsValid(ent) and ent:GetClass() == "func_physbox_multiplayer" then
-			ent:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-		end
-	end
-end
-
-hook.Add( "PlayerCanPickupWeapon", "RestrictMapWeapons", function( ply, wep )
-
-	local weps = ply:GetWeapons()
-		
-	--Only allow one special weapon per player
-	for k, v in pairs(weps) do
-		if table.HasValue( CSSWEAPONS, v:GetClass() ) or v:GetClass()=="weapon_map_base" then
-			return false
-		end
-	end
-	
-	if SERVER and wep.Base == "weapon_map_base" then
-		PhysboxWeaponPickupFix(wep)
-	end
-
-	return true
-end)
-
-hook.Add( "ShouldCollide", "CSSShouldCollide", function ( ent1, ent2 )
-
-	-- CS:S Collision Rules
 	local collisionGroup0 = ent1:GetCollisionGroup()
 	local collisionGroup1 = ent2:GetCollisionGroup()
+	if collisionGroup0 == collisionGroup1 then return end
 
 	if collisionGroup0 > collisionGroup1 then
 		local old = collisionGroup0
@@ -134,7 +79,7 @@ hook.Add( "ShouldCollide", "CSSShouldCollide", function ( ent1, ent2 )
 		collisionGroup1 = old
 	end
 
-	if collisionGroup0 == COLLISION_GROUP_PLAYER_MOVEMENT and 
+	if collisionGroup0 == COLLISION_GROUP_PLAYER_MOVEMENT and
 		collisionGroup1 == COLLISION_GROUP_WEAPON then
 		return false
 	end
@@ -148,7 +93,10 @@ hook.Add( "ShouldCollide", "CSSShouldCollide", function ( ent1, ent2 )
 		return true
 	end
 
-end )
+end
+
+local collisionHooks = hook.GetTable().ShouldCollide
+GM:BindZombieEscapeCollisionRule(not (collisionHooks and collisionHooks.CSSShouldCollide) and EscapeCollisionRule or nil)
 
 hook.Add( "OnEntityCreated", "CSSCustomCollisions", function( ent )
 	ent:SetCustomCollisionCheck(true)

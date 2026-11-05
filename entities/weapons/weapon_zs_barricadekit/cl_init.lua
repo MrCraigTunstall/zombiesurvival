@@ -32,13 +32,9 @@ end
 function SWEP:PrimaryAttack()
 end
 
+SWEP.GhostRotationInput = true
+
 function SWEP:Think()
-	if self.Owner:KeyDown(IN_ATTACK2) then
-		self:RotateGhost(FrameTime() * 60)
-	end
-	if self.Owner:KeyDown(IN_RELOAD) then
-		self:RotateGhost(FrameTime() * -60)
-	end
 end
 
 local nextclick = 0

@@ -6,22 +6,22 @@ if not killicon.GetFont then
 	local storedfonts = {}
 	local storedicons = {}
 
-	function killicon.AddFont(sClass, sFont, sLetter, cColor)
+	function killicon.AddFont(sClass, sFont, sLetter, cColor, heightScale)
+		storedicons[sClass] = nil
 		storedfonts[sClass] = {sFont, sLetter, cColor}
-		return killicon.OldAddFont(sClass, sFont, sLetter, cColor)
+		return killicon.OldAddFont(sClass, sFont, sLetter, cColor, heightScale)
 	end
 
 	function killicon.Add(sClass, sTexture, cColor)
+		storedfonts[sClass] = nil
 		storedicons[sClass] = {sTexture, cColor}
 		return killicon.OldAdd(sClass, sTexture, cColor)
 	end
 
 	function killicon.AddAlias(sClass, sBaseClass)
-		if storedfonts[sClass] then
-			return killicon.AddFont(sBaseClass, storedfonts[sClass][1], storedfonts[sClass][2], storedfonts[sClass][3])
-		elseif storedicons[sClass] then
-			return killicon.Add(sBaseClass, storedicons[sClass][1], storedicons[sClass][2])
-		end
+		storedfonts[sClass] = storedfonts[sBaseClass]
+		storedicons[sClass] = storedicons[sBaseClass]
+		return killicon.OldAddAlias(sClass, sBaseClass)
 	end
 
 	function killicon.Get(sClass)

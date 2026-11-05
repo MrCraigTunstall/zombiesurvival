@@ -12,6 +12,7 @@ ENT.ExplosionDelay = 1
 
 function ENT:SetExplodeTime(time)
 	self:SetDTFloat(0, time)
+	if SERVER then self:NextThink(CurTime()) end
 end
 
 function ENT:GetExplodeTime()

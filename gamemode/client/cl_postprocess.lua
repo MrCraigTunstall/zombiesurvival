@@ -149,7 +149,7 @@ function GM:_RenderScreenspaceEffects()
 		DrawSharpen(1, math_min(6, self.HurtEffect * 3))
 	end
 
-	if self.ColorModEnabled then
+	if self.ColorModEnabled and not self.MapColorModOverride then
 		if MySelf:Team() ~= TEAM_SPECTATOR and not MySelf:Alive() and MySelf:GetObserverMode() ~= OBS_MODE_CHASE then
 			if not MySelf:HasWon() then
 				tColorModDead["$pp_colour_colour"] = (1 - math_min(1, CurTime() - self.LastTimeAlive)) * 0.5

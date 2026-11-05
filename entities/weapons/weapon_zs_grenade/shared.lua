@@ -10,9 +10,9 @@ SWEP.Primary.Ammo = "grenade"
 SWEP.Primary.Delay = 1.25
 SWEP.Primary.DefaultClip = 1
 
-SWEP.Secondary.ClipSize = 1
-SWEP.Secondary.DefaultClip = 1
-SWEP.Secondary.Ammo = "dummy"
+SWEP.Secondary.ClipSize = -1
+SWEP.Secondary.DefaultClip = 0
+SWEP.Secondary.Ammo = "none"
 
 SWEP.WalkSpeed = SPEED_FAST
 
@@ -93,7 +93,9 @@ function SWEP:Holster()
 end
 
 function SWEP:Think()
-	if self.NextDeploy and self.NextDeploy <= CurTime() then
+	local nextDeploy = self.NextDeploy
+	if nextDeploy then
+		if nextDeploy > CurTime() then return end
 		self.NextDeploy = nil
 
 		if 0 < self:GetPrimaryAmmoCount() then

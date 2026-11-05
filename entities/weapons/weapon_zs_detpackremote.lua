@@ -39,7 +39,11 @@ end
 
 if SERVER then
 function SWEP:Think()
-	for _, ent in pairs(ents.FindByClass("prop_detpack")) do
+	local now = CurTime()
+	if now < (self.NextOwnerCheck or 0) then return end
+	self.NextOwnerCheck = now + 0.25
+	if not IsValid(self.Owner) then self:Remove(); return end
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_detpack")) do
 		if ent:GetOwner() == self.Owner then
 			return
 		end
@@ -50,11 +54,12 @@ end
 end
 
 function SWEP:PrimaryAttack()
+	self:SetNextPrimaryFire(CurTime() + 0.2)
 	self:SendWeaponAnim(ACT_SLAM_DETONATOR_DETONATE)
 
 	if CLIENT then return end
 
-	for _, ent in pairs(ents.FindByClass("prop_detpack")) do
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_detpack")) do
 		if ent:GetOwner() == self.Owner and ent:GetExplodeTime() == 0 then
 			ent:SetExplodeTime(CurTime() + ent.ExplosionDelay)
 		end

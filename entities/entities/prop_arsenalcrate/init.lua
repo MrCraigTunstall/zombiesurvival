@@ -4,7 +4,7 @@ AddCSLuaFile("shared.lua")
 include("shared.lua")
 
 local function RefreshCrateOwners(pl)
-	for _, ent in pairs(ents.FindByClass("prop_arsenalcrate")) do
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_arsenalcrate")) do
 		if ent:IsValid() and ent:GetObjectOwner() == pl then
 			ent:SetObjectOwner(NULL)
 		end
@@ -14,6 +14,7 @@ hook.Add("PlayerDisconnected", "ArsenalCrate.PlayerDisconnected", RefreshCrateOw
 hook.Add("OnPlayerChangedTeam", "ArsenalCrate.OnPlayerChangedTeam", RefreshCrateOwners)
 
 function ENT:Initialize()
+	GAMEMODE:RegisterZSClassEntity(self)
 	self:SetModel("models/Items/item_item_crate.mdl")
 	self:PhysicsInit(SOLID_VPHYSICS)
 	self:SetUseType(SIMPLE_USE)
@@ -25,6 +26,7 @@ function ENT:Initialize()
 
 	self:SetMaxObjectHealth(200)
 	self:SetObjectHealth(self:GetMaxObjectHealth())
+	self:NextThink(CurTime() + 1)
 end
 
 function ENT:KeyValue(key, value)
@@ -56,6 +58,7 @@ function ENT:SetObjectHealth(health)
 	self:SetDTFloat(0, health)
 	if health <= 0 and not self.Destroyed then
 		self.Destroyed = true
+		self:NextThink(CurTime())
 
 		local ent = ents.Create("prop_physics")
 		if ent:IsValid() then
@@ -78,7 +81,7 @@ function ENT:OnTakeDamage(dmginfo)
 	local attacker = dmginfo:GetAttacker()
 	if not (attacker:IsValid() and attacker:IsPlayer() and attacker:Team() == TEAM_HUMAN) then
 		self:ResetLastBarricadeAttacker(attacker, dmginfo)
-		self:SetObjectHealth(self:GetObjectHealth() - dmginfo:GetDamage())
+		GAMEMODE:DamageTraitObject(self, dmginfo)
 	end
 end
 
@@ -114,7 +117,7 @@ function ENT:OnPackedUp(pl)
 end
 
 function ENT:Think()
-	if self.Destroyed then
-		self:Remove()
-	end
+	if self.Destroyed then self:Remove() return end
+	self:NextThink(CurTime() + 1)
+	return true
 end

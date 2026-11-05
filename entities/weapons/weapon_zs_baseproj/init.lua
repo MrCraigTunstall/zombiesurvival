@@ -29,6 +29,7 @@ function SWEP:ShootBullets(damage, numshots, cone)
 			ent:SetPos(owner:GetShootPos())
 			ent:SetAngles(owner:EyeAngles())
 			ent:SetOwner(owner)
+			ent.ZSCrafter = self.ZSCrafter
 			ent.ProjDamage = self.Primary.Damage * (owner.ProjectileDamageMul or 1)
 			ent.ProjSource = self
 			ent.ShotMarker = i

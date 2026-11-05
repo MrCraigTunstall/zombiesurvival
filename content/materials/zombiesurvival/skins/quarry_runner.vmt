@@ -1,0 +1,8 @@
+"VertexLitGeneric"
+{
+ "$basetexture" "zombiesurvival/skins/quarry_runner"
+ "$bumpmap" "models/zombie_fast/fast_zombie_sheet_normal"
+ "$model" "1"
+ "$alphatest" "1"
+ "$halflambert" "1"
+}

@@ -40,10 +40,18 @@ function ENT:Draw()
 	vecRan = vecRan * math.Rand( 20, 40 )
 	vecRan.z = math.Rand( 10, 60 )
 	
-	local emitter = ParticleEmitter( pos )
-	emitter:SetNearClip( 48, 64 )
+	local emitter = self.GasEmitter
+	if not emitter or not emitter:IsValid() then
+		emitter = ParticleEmitter(pos)
+		if not emitter or not emitter:IsValid() then return end
+		self.GasEmitter = emitter
+		emitter:SetNearClip(48, 64)
+	else
+		emitter:SetPos(pos)
+	end
 
 	local particle = emitter:Add( particledata.particle, pos + vecRan )
+	if not particle then return end
 	particle:SetVelocity( Vector( math.Rand( -particledata.randXY, particledata.randXY ), math.Rand( -particledata.randXY, particledata.randXY ),  math.Rand( particledata.randZMin, particledata.randZMax ) )  )
 	particle:SetColor( particledata.color.r, particledata.color.g, particledata.color.b )
 	particle:SetAirResistance( particledata.airRecis )
@@ -55,5 +63,10 @@ function ENT:Draw()
 	particle:SetEndSize( particledata.sizeEnd )
 	particle:SetRollDelta( math.Rand( -particledata.rotRate, particledata.rotRate ) )
 
-	emitter:Finish()
+end
+
+function ENT:OnRemove()
+	local emitter = self.GasEmitter
+	self.GasEmitter = nil
+	if emitter and emitter:IsValid() then emitter:Finish() end
 end

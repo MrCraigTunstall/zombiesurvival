@@ -1,7 +1,7 @@
 SWEP.ZombieOnly = true
 SWEP.IsMelee = true
 
-SWEP.ViewModel = Model("models/Weapons/v_zombiearms.mdl")
+SWEP.ViewModel = Model("models/weapons/v_zombiearms.mdl")
 SWEP.WorldModel = "models/weapons/w_crowbar.mdl"
 
 SWEP.MeleeDelay = 0.74
@@ -67,9 +67,9 @@ function SWEP:CheckAttackAnimation()
 end
 
 function SWEP:CheckMoaning()
-	if self:IsMoaning() and self.Owner:Health() < self:GetMoanHealth() then
+	if self:IsMoaning() and not self.Owner.m_Zombie_MoanGuard and self.Owner:Health() < self:GetMoanHealth() then
 		self:SetNextSecondaryFire(CurTime() + 1)
-		self:StopMoaning()
+		self:StopMoaning(true)
 	end
 end
 
@@ -270,7 +270,8 @@ function SWEP:StartSwinging()
 	if self.MeleeDelay > 0 then
 		self:SetSwingEndTime(CurTime() + self.MeleeDelay)
 
-		local trace = self.Owner:MeleeTrace(self.MeleeReach, self.MeleeSize, player.GetAll())
+		local _, players = player.Iterator()
+		local trace = self.Owner:MeleeTrace(self.MeleeReach, self.MeleeSize, players)
 		if trace.HitNonWorld then
 			trace.IsPreHit = true
 			self.PreHit = trace
@@ -290,13 +291,11 @@ function SWEP:KnockedDown(status, exists)
 	self:StopSwinging()
 end
 
-function SWEP:StopMoaning()
-	if not self:IsMoaning() then return end
-	if not self.Owner.m_Zombie_MoanGuard then
-		self:SetMoaning(false)
-		self.Owner:ResetSpeed()
-		self:StopMoaningSound()
-	end
+function SWEP:StopMoaning(damaged)
+	if not self:IsMoaning() or damaged and self.Owner.m_Zombie_MoanGuard then return end
+	self:SetMoaning(false)
+	self.Owner:ResetSpeed()
+	self:StopMoaningSound()
 end
 
 function SWEP:StartMoaning()

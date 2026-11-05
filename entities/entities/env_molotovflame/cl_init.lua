@@ -19,6 +19,9 @@ end
 
 function ENT:OnRemove()
 	self.AmbientSound:Stop()
+	local emitter = self.CloudEmitter
+	self.CloudEmitter = nil
+	if emitter and emitter:IsValid() then emitter:Finish() end
 end
 
 function ENT:Draw()
@@ -42,22 +45,30 @@ function ENT:Draw()
 	self.DoEmit = true
 
 	local particle
-	local emitter = ParticleEmitter(pos)
-	emitter:SetNearClip(12, 16)
+	local emitter = self.CloudEmitter
+	if not emitter or not emitter:IsValid() then
+		emitter = ParticleEmitter(pos)
+		if not emitter then return end
+		self.CloudEmitter = emitter
+		emitter:SetNearClip(12, 16)
+	else
+		emitter:SetPos(pos)
+	end
 
 	for i=1, 75 do
 		local angler = AngleRand()
 		local dist = math.Rand(0, self.Radius)
 		particle = emitter:Add("effects/fire_cloud"..math.random(1, 2), pos + Vector(math.cos(angler.y) * dist, math.sin(angler.y) * dist, 0))
-		particle:SetColor(255, 220, 140)
-		particle:SetDieTime(math.Rand(1.35, 1.7))
-		particle:SetStartAlpha(200)
-		particle:SetEndAlpha(0)
-		particle:SetStartSize(0)
-		particle:SetEndSize(math.Rand(18, 24))
-		particle:SetRoll(math.Rand(0, 360))
-		particle:SetCollide(true)
+		if particle then
+			particle:SetColor(255, 220, 140)
+			particle:SetDieTime(math.Rand(1.35, 1.7))
+			particle:SetStartAlpha(200)
+			particle:SetEndAlpha(0)
+			particle:SetStartSize(0)
+			particle:SetEndSize(math.Rand(18, 24))
+			particle:SetRoll(math.Rand(0, 360))
+			particle:SetCollide(true)
+		end
 	end
 
-	emitter:Finish() emitter = nil collectgarbage("step", 64)
 end

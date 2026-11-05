@@ -2,6 +2,12 @@
 
 This is an experimental modification of the original Zombie Survival gamemode for Garry's Mod by JetBoom.
 
+## November 2026 source update
+
+The overhaul adds a redesigned, resolution-scaled HUD and menus; server-authoritative shops; reworked nails, prop phasing and deployment; Zombie Escape fixes; progression, traits and returns; and player, entity, networking and animation improvements.
+
+See [the update notes](docs/update-2026-11.md) for changes, installation details and the scope of the existing verification. This repository update does not update the Steam Workshop items automatically.
+
 ## Helpful links
 
 * [Discord](https://discord.gg/0n9FJ3xt1jN7i3ZU) - Official support
@@ -113,10 +119,10 @@ Created and programmed by William "JetBoom" Moodhe.
 1. Get srcds and configure it for garrysmod (requires steamcmd).
 2. Put the zombiesurvival folder in garrysmod/gamemodes with all the other gamemode folders.
 3. Get some maps! Zombie Survival maps are plentiful on the Internet and the game also supports many other map types: Counter Strike: Source, Zombie Mod, Zombie Horde, Zombie Panic! Source.
-4. Either setup a custom voting script or use mapcycle_zombiesurvival.txt. Make a file called mapcycle_zombiesurvival.txt in base garrysmod folder! Put in names of maps without the .bsp ending. One per line.
+4. Configure mapcycle_zombiesurvival.txt in the base garrysmod folder, with one installed map name per line and no .bsp extension. Players can use the built-in F1 map-voting menu or !votemap.
 5. Make your auto-start batch file or whatever you use. The line should look like this:
 ```
-srcds.exe -port 27015 -console -game garrysmod -secure +ip 185.38.148.139 +hostport 27015 +gamemode zombiesurvival +maxplayers 32 +map gm_construct +hostname "Your ZS Server"
+srcds.exe -port 27015 -console -game garrysmod -secure +hostport 27015 +gamemode zombiesurvival +maxplayers 32 +map gm_construct +hostname "Your ZS Server"
 ```
 6. Run it! You now have a server! See other guides on the web for setting up sv_downloadurl.
 

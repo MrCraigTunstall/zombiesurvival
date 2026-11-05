@@ -1,14 +1,16 @@
 include("shared.lua")
 
-function ENT:Initialize()
-	self:SetRenderBounds(Vector(-72, -72, -72), Vector(72, 72, 128))
+local hintColor = Color(255, 255, 255, 225)
+hook.Add("PostDrawTranslucentRenderables", "DrawArsenalHints", function(bDepth, bSkybox)
+	if bDepth or bSkybox then return end
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_arsenalcrate")) do
+		if IsValid(ent) then ent:DrawWorldHint() end
+	end
+end)
 
-	hook.Add("PostDrawTranslucentRenderables", "DrawArsenalHints", function( bDepth, bSkybox )
-		if ( bSkybox ) then return end
-		for _, ent in pairs(ents.FindByClass("prop_arsenalcrate")) do
-			ent:DrawWorldHint()
-		end
-	end)
+function ENT:Initialize()
+	GAMEMODE:RegisterZSClassEntity(self)
+	self:SetRenderBounds(Vector(-72, -72, -72), Vector(72, 72, 128))
 end
 
 function ENT:SetObjectHealth(health)
@@ -63,6 +65,6 @@ end
 
 function ENT:DrawWorldHint()
 	if MySelf:IsValid() and MySelf:Alive() and MySelf:Team() ~= TEAM_UNDEAD and MySelf:GetInfo("zs_noarscrate") == "0" then
-		DrawIconHint(translate.Get("arsenal_crate"), "zombiesurvival/arsenalcrate.png", self:GetPos() + Vector(0, 0, self:OBBMaxs().z / 2), nil, 0.75, Color(255, 255, 255, 225))
+		DrawIconHint(translate.Get("arsenal_crate"), "zombiesurvival/arsenalcrate.png", self:GetPos() + Vector(0, 0, self:OBBMaxs().z / 2), nil, 0.75, hintColor)
 	end
 end

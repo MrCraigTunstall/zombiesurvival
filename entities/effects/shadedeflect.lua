@@ -1,6 +1,6 @@
 util.PrecacheModel("models/props_phx/construct/metal_dome360.mdl")
 
-EFFECT.LifeTime = 2
+EFFECT.LifeTime = 0.35
 
 function EFFECT:Init(data)
 	local pos = data:GetOrigin()
@@ -20,15 +20,14 @@ function EFFECT:Init(data)
 end
 
 function EFFECT:Think()
-	return CurTime() < self.DieTime
+	return IsValid(self.Ent) and CurTime() < self.DieTime
 end
 
 local matRefract = Material("models/spawn_effect")
 function EFFECT:Render()
 	local ent = self.Ent
-	if ent:IsValid() then
-		self:SetPos(ent:LocalToWorld(self.Offset))
-	end
+	if not IsValid(ent) or ent:IsDormant() then return end
+	self:SetPos(ent:LocalToWorld(self.Offset))
 
 	render.UpdateRefractTexture()
 	matRefract:SetFloat("$refractamount", math.Clamp((self.DieTime - CurTime()) / self.LifeTime, 0, 1) ^ 2 * 0.05)

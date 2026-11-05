@@ -11,13 +11,9 @@
 	"$nojump" 0.0
 	"$jumpdistance" 0.25
 	"$translate1" "[0.0 0.0]"
-	"$translate2" "[0.0 0.0]"
-	"$scale2" "[0 0]"
 
 	"Proxies"
 	{
-		// The picture jumps when the random number $jumpchance is greater
-		// than $jumpchancethreshold.
 		"GaussianNoise"
 		{
 			"mean" 0.5
@@ -26,7 +22,6 @@
 			"maxVal" 1.0
 			"resultVar" "$jumpchance"
 		}
-		// If it jumps, the distance it jumps is also random
 		"GaussianNoise"
 		{
 			"mean" 0
@@ -49,27 +44,5 @@
 			"resultVar" "$basetexturetransform"
 		}
 
-		// Meanwhile, the screen noise is always changing locationrandomly,
-		// which makes it look like animated static.
-		"UniformNoise"
-		{
-			"minVal" 0.5
-			"maxVal" 2.0
-			"resultVar" "$translate2[0]"
-		}
-		"UniformNoise"
-		{
-			"minVal" 0.5
-			"maxVal" 2.0
-			"resultVar" "$translate2[1]"
-		}
-		"TextureTransform"
-		{
-			"translateVar" "$translate2"
-			"scaleVar" "$scale2"
-			"resultVar" "$texture2transform"
-		}
-
 	}
-		
 }

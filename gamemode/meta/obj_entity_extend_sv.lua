@@ -1,24 +1,33 @@
 local meta = FindMetaTable("Entity")
 if not meta then return end
 
+local function FiniteHealingNumber(value)
+	return type(value) == "number" and value == value and value > -math.huge and value < math.huge
+end
+
 function meta:HealPlayer(pl, amount, pointmul, nobymsg, poisononly)
+	if not IsValid(pl) then return end
+	pointmul = pointmul or 1
+	if not FiniteHealingNumber(amount) or amount <= 0 or not FiniteHealingNumber(pointmul) then return 0 end
 	local healed, rmv = 0, 0
 
-	local health, maxhealth = pl:Health(), pl:GetMaxHealth()
-	local missing_health = maxhealth - health
+	local health, missing_health
+	if not poisononly then
+		health = pl:Health()
+		missing_health = pl:GetMaxHealth() - health
+	end
 	local poison = pl:GetPoisonDamage()
-	local bleed = pl:GetBleedDamage()
+	local bleed = not poisononly and pl:GetBleedDamage() or 0
 
 	local healrec = (pl.HealingReceived or 1)
 	local healmul = self.MedicHealMul or 1
+	if not FiniteHealingNumber(healrec) or not FiniteHealingNumber(healmul) or healrec < 0 or healmul < 0 then return 0 end
 	local multiplier = healmul + healrec - 1
 	local regamount = healmul * amount
 
 	amount = amount * multiplier
 
-	if not pl:IsValid() then
-		return
-	end
+	if not FiniteHealingNumber(amount) or amount <= 0 or not FiniteHealingNumber(regamount) then return 0 end
 
 	-- Heal bleed first.
 	if not poisononly and bleed > 0 and pl.AddBleedDamage then
@@ -38,24 +47,23 @@ function meta:HealPlayer(pl, amount, pointmul, nobymsg, poisononly)
 
 	-- Then heal missing health.
 	if not poisononly and missing_health > 0 and amount > 0 then
-		rmv = math.min(amount, missing_health)
-		pl:SetHealth(health + rmv)
-		healed = healed + rmv
-		amount = amount - rmv
+		local targethealth = health + math.min(amount, missing_health)
+		targethealth = targethealth < 0 and math.ceil(targethealth) or math.floor(targethealth)
+		rmv = targethealth - health
+		if rmv > 0 then
+			pl:SetHealth(targethealth)
+			healed = healed + rmv
+			amount = amount - rmv
+		end
 	end
 
-	pointmul = (pointmul or 1) / (math.max(healed, regamount) / regamount)
-
 	if healed > 0 and self:IsPlayer() then
+		pointmul = regamount > 0 and pointmul / (math.max(healed, regamount) / regamount) or 0
 		gamemode.Call("PlayerHealedTeamMember", self, pl, healed, self:GetActiveWeapon(), pointmul, nobymsg, healed >= 10)
 	end
 
 	return healed
 end
-
-local healthpropscalar = {
-	["models/props_c17/door01_left.mdl"] = 0.7
-}
 
 function meta:GetDefaultBarricadeHealth()
 	local mass = 2
@@ -74,8 +82,15 @@ end
 function meta:HitFence(data, phys)
 	local pos = phys:GetPos()
 	local vel = data.OurOldVelocity
-	local endpos = data.HitPos + vel:GetNormalized()
-	if util.TraceLine({start = pos, endpos = endpos, mask = MASK_SOLID, filter = self}).Hit and not util.TraceLine({start = pos, endpos = endpos, mask = MASK_SHOT, filter = self}).Hit then -- Essentially hit a fence or passable object.
+	local endpos = vel:GetNormalized()
+	endpos:Add(data.HitPos)
+	local trace = {start = pos, endpos = endpos, mask = MASK_SOLID, filter = self}
+	local solid = util.TraceLine(trace).Hit
+	if solid then
+		for key in pairs(trace) do trace[key] = nil end
+		trace.start, trace.endpos, trace.mask, trace.filter = pos, endpos, MASK_SHOT, self
+	end
+	if solid and not util.TraceLine(trace).Hit then
 		self:SetPos(data.HitPos)
 		phys:SetPos(data.HitPos)
 		phys:SetVelocityInstantaneous(vel)
@@ -86,111 +101,76 @@ function meta:HitFence(data, phys)
 	return false
 end
 
-function meta:GhostAllPlayersInMe(timeout, allowrepeat)
-	if not allowrepeat then
-		if self.GhostedBefore then return end
-		self.GhostedBefore = true
+function meta:GhostAllPlayersInMe(timeout, allowrepeat, collisionGroup)
+	if not IsValid(self) or self:IsMarkedForDeletion() or not allowrepeat and self.GhostedBefore then return end
+	local ent = self.ZSGhostController
+	local group = collisionGroup == nil and self:GetCollisionGroup() or collisionGroup
+	if group == COLLISION_GROUP_DEBRIS_TRIGGER then
+		if IsValid(ent) and not ent.Removing and not ent:IsMarkedForDeletion() and ent:GetProp() == self then
+			if collisionGroup ~= nil then self:SetCollisionGroup(group) self:CollisionRulesChanged() end
+			ent:OnRemove()
+			ent:Remove()
+		end
+		return
 	end
-
-	if self.PreHoldCollisionGroup and self.PreHoldCollisionGroup == COLLISION_GROUP_DEBRIS_TRIGGER then return end
-
-	local ent = ents.Create("point_propnocollide")
-	if ent:IsValid() then
+	if IsValid(ent) and not ent.Removing and not ent:IsMarkedForDeletion() and ent:GetProp() == self then
+		if collisionGroup ~= nil then ent:SetProp(self, collisionGroup) end
+	else
+		self.ZSGhostController = nil
+		ent = ents.Create("point_propnocollide")
+		if not IsValid(ent) then return end
 		ent:SetPos(self:GetPos())
 		ent:Spawn()
-		if timeout then
-			ent:SetTimeOut(CurTime() + timeout)
+		if not IsValid(self) or self:IsMarkedForDeletion() or not IsValid(ent) then
+			if IsValid(ent) then ent:Remove() end
+			return
 		end
+		if timeout then ent:SetTimeOut(CurTime() + timeout) end
 		ent:SetTeam(TEAM_HUMAN)
-
-		ent:SetProp(self)
-
-		return ent
+		ent:SetProp(self, collisionGroup)
 	end
+	if not IsValid(self) or self:IsMarkedForDeletion() then
+		if IsValid(ent) and (ent:GetProp() == self or not IsValid(ent:GetProp())) then ent:Remove() end
+		return
+	end
+	if not IsValid(ent) or ent.Removing or ent:IsMarkedForDeletion() or ent:GetProp() ~= self then
+		if self.ZSGhostController == ent then self.ZSGhostController = nil end
+		if IsValid(ent) and (ent.Removing or ent:IsMarkedForDeletion() or not IsValid(ent:GetProp())) then ent:Remove() end
+		ent = nil
+		for _, candidate in ipairs(GAMEMODE:GetZSEquipmentEntities("point_propnocollide")) do
+			if IsValid(candidate) and not candidate.Removing and not candidate:IsMarkedForDeletion() and candidate:GetProp() == self then ent = candidate break end
+		end
+	end
+	if not ent then return end
+	self.ZSGhostController = ent
+	if not allowrepeat then self.GhostedBefore = true end
+	return ent
 end
 
 function meta:AddUselessDamage(damage)
-	self.UselessDamage = (self.UselessDamage or 0) + damage
+	if not FiniteHealingNumber(damage) or damage < 0 then return end
+	local debt = self.UselessDamage or 0
+	if not FiniteHealingNumber(debt) or debt < 0 then debt = 0 end
+	local total = debt + damage
+	if FiniteHealingNumber(total) then self.UselessDamage = total end
 end
 
 function meta:RemoveUselessDamage(damage)
-	if self.UselessDamage then
-		damage = math.min(self.UselessDamage, damage)
-		self.UselessDamage = self.UselessDamage - damage
-
-		return damage
-	end
-
-	return 0
+	if not FiniteHealingNumber(damage) or damage < 0 then return 0 end
+	local debt = self.UselessDamage
+	if not FiniteHealingNumber(debt) or debt < 0 then return 0 end
+	damage = math.min(debt, damage)
+	self.UselessDamage = debt - damage
+	return damage
 end
 
 function meta:ClearUselessDamage()
 	self.UselessDamage = nil
 end
 
-local function SortItems(a, b)
-	if a.CleanupPriority == b.CleanupPriority then
-		return a.Created < b.Created
-	end
-
-	return a.CleanupPriority < b.CleanupPriority
-end
-local function CheckItemCreated(self)
-	if not self:IsValid() or self.PlacedInMap then return end
-
-	local tab = {}
-	for _, ent in pairs(ents.FindByClass("prop_ammo")) do
-		if not ent.PlacedInMap then
-			table.insert(tab, ent)
-		end
-	end
-	for _, ent in pairs(ents.FindByClass("prop_weapon")) do
-		if not ent.PlacedInMap then
-			table.insert(tab, ent)
-		end
-	end
-
-	if #tab > GAMEMODE.MaxDroppedItems then
-		table.sort(tab, SortItems)
-		for i = 1, GAMEMODE.MaxDroppedItems do
-			tab[i]:Remove()
-		end
-	end
-end
 function meta:ItemCreated()
 	self.Created = self.Created or CurTime()
-	timer.Simple(0, function() CheckItemCreated(self) end)
-end
-
-function meta:FireOutput(outpt, activator, caller, args)
-	local intab = self[outpt]
-	if intab then
-		for key, tab in pairs(intab) do
-			local param = ((tab.args == "") and args) or tab.args
-			for __, subent in pairs(self:FindByNameHammer(tab.entityname, activator, caller)) do
-				local delay = tonumber(tab.delay)
-				if delay == nil or delay <= 0 then
-					subent:Input(tab.input, activator, caller, param)
-				else
-					local inp = tab.input
-					timer.Simple(delay, function() if subent:IsValid() then subent:Input(inp, activator, caller, param) end end)
-				end
-			end
-		end
-	end
-end
-
-function meta:AddOnOutput(key, value)
-	self[key] = self[key] or {}
-	local tab = string.Explode(",", value)
-	table.insert(self[key], {entityname=tab[1], input=tab[2], args=tab[3], delay=tab[4], reps=tab[5]})
-end
-
-function meta:FindByNameHammer(name, activator, caller)
-	if name == "!self" then return {self} end
-	if name == "!activator" then return {activator} end
-	if name == "!caller" then return {caller} end
-	return ents.FindByName(name)
+	GAMEMODE:QueueDroppedItemCleanup()
 end
 
 function meta:IsNailed()
@@ -206,20 +186,19 @@ function meta:IsNailed()
 end
 
 function meta:IsNailedToWorld(hierarchy)
-	if self:IsNailed() then
+	if self.Nails then
 		for _, nail in pairs(self.Nails) do
-			if nail:GetAttachEntity():IsWorld() then
-				return true
+			if IsValid(nail) then
+				local base, attached = nail:GetBaseEntity(), nail:GetAttachEntity()
+				if (base == self or attached == self) and attached and attached:IsWorld() then return true end
 			end
 		end
 	end
-
 	if hierarchy then
-		for _, ent in pairs(self:GetAllConstrainedEntities()) do
-			if ent ~= self and ent:IsValid() and ent:IsNailedToWorld() then return true end
+		for ent in pairs(constraint.GetAllConstrainedEntities(self) or {}) do
+			if ent ~= self and IsValid(ent) and ent:IsNailedToWorld() then return true end
 		end
 	end
-
 	return false
 end
 
@@ -256,7 +235,7 @@ function constraint.GetAllConstrainedEntitiesOrdered(ent)
 
 	if allcons then
 		for k, v in pairs(allcons) do
-			table.insert(tab, v)
+			tab[#tab + 1] = v
 		end
 	end
 
@@ -273,19 +252,20 @@ function meta:GetAllConstrainedEntities()
 end
 
 function meta:PackUp(pl)
-	if not self.CanPackUp then return end
+	if not IsValid(self) or not self.CanPackUp or not IsValid(pl) or not pl:IsPlayer() or not pl:Alive() or pl:Team() ~= TEAM_HUMAN then return end
 
 	local cur = pl:GetStatus("packup")
 	if cur and cur:IsValid() then return end
 
 	local status = pl:GiveStatus("packup")
-	if status:IsValid() then
+	if IsValid(status) then
+		if not IsValid(self) or not IsValid(pl) then status:Remove() return end
 		status:SetPackUpEntity(self)
 		status:SetEndTime(CurTime() + (self.PackUpTime or 4))
 
 		if self.GetObjectOwner then
 			local owner = self:GetObjectOwner()
-			if owner:IsValid() and owner:Team() ~= TEAM_UNDEAD and owner ~= pl and not gamemode.Call("PlayerIsAdmin", pl) then
+			if IsValid(owner) and owner:IsPlayer() and owner:Team() ~= TEAM_UNDEAD and owner ~= pl and not gamemode.Call("PlayerIsAdmin", pl) then
 				status:SetNotOwner(true)
 			end
 		end
@@ -293,32 +273,32 @@ function meta:PackUp(pl)
 end
 
 function meta:SigilTeleport(pl)
-	if pl:Team() ~= TEAM_SURVIVOR or not pl:Alive() or pl:GetBarricadeGhosting() then return end
+	if not IsValid(self) or not IsValid(pl) or not pl:IsPlayer() or pl:Team() ~= TEAM_SURVIVOR or not pl:Alive() or pl:GetBarricadeGhosting() or pl.ZSReturns and pl.ZSReturns.divinehatred then return end
 	
 	local cur = pl:GetStatus("sigil_teleport")
 	if cur and cur:IsValid() then return end
 
 	local status = pl:GiveStatus("sigil_teleport")
-	if status:IsValid() then
+	if IsValid(status) then
+		if not IsValid(self) or not IsValid(pl) then status:Remove() return end
 		status:SetCurrentSigil(self)
 		status:SetEndTime(CurTime() + (pl.FastTeleport and GAMEMODE.SigilTeleportTimeTrait or GAMEMODE.SigilTeleportTime))
 	end
 end
 
 function meta:GetPropsInContraption()
-	local allcons = constraint.GetAllConstrainedEntities(self)
-	if not allcons or #allcons == 0 then
-		return 1
+	local count = 0
+	for ent in pairs(constraint.GetAllConstrainedEntities(self) or {}) do
+		if IsValid(ent) and not ent:IsWorld() then count = count + 1 end
 	end
-
-	return #allcons
+	return math.max(1, count)
 end
 
 function meta:HumanNearby()
-	for _, pl in pairs(team.GetPlayers(TEAM_HUMAN)) do
-		local plpos = pl:GetPos()
-		if pl:Alive() and self:NearestPoint(plpos):Distance(plpos) <= 512 then
-			return true
+	for _, pl in player.Iterator() do
+		if pl:Team() == TEAM_HUMAN and pl:Alive() then
+			local plpos = pl:GetPos()
+			if self:NearestPoint(plpos):DistToSqr(plpos) <= 512 * 512 then return true end
 		end
 	end
 end
@@ -340,7 +320,7 @@ function meta:ResetLastBarricadeAttacker(attacker, dmginfo)
 	end
 end
 
-meta.OldSetPhysicsAttacker = meta.SetPhysicsAttacker
+meta.OldSetPhysicsAttacker = meta.OldSetPhysicsAttacker or meta.SetPhysicsAttacker
 function meta:SetPhysicsAttacker(ent)
 	if string.sub(self:GetClass(), 1, 12) == "func_physbox" and ent:IsValid() then
 		self.PBAttacker = ent
@@ -355,12 +335,13 @@ function meta:DamageNails(attacker, inflictor, damage, dmginfo)
 
 	-- Props that don't have barricade health yet might still be nailed to something.
 	local nails = self:GetLivingNails()
-	local isattach = false
-	for i, nail in ipairs(nails) do
-		isattach = self == nail:GetAttachEntity() or isattach
+	if self:GetBarricadeHealth() <= 0 then
+		local isattach = false
+		for _, nail in ipairs(nails) do
+			if self == nail:GetAttachEntity() then isattach = true break end
+		end
+		if not isattach then return end
 	end
-
-	if self:GetBarricadeHealth() <= 0 and not isattach then return end
 
 	if not gamemode.Call("CanDamageNail", self, attacker, inflictor, damage, dmginfo) then
 		if dmginfo then
@@ -372,7 +353,7 @@ function meta:DamageNails(attacker, inflictor, damage, dmginfo)
 	end
 
 	-- No physics damage to props. Stops ramming/thrown weapons damaging them.
-	if damage < 0 or dmginfo:GetDamageType() == DMG_CRUSH then
+	if damage < 0 or bit.band(dmginfo:GetDamageType(), DMG_CRUSH) ~= 0 then
 		if dmginfo then
 			dmginfo:SetDamage(0)
 		end
@@ -390,7 +371,9 @@ function meta:DamageNails(attacker, inflictor, damage, dmginfo)
 	self:ResetLastBarricadeAttacker(attacker, dmginfo)
 
 	if #nails <= 0 then return end
-	self:SetBarricadeHealth(self:GetBarricadeHealth() - damage)
+	local health = self:GetBarricadeHealth()
+	if health > 0 and damage >= health and damage < math.huge then GAMEMODE:TriggerTraitExplosiveTouch(self, attacker, nails) end
+	self:SetBarricadeHealth(health - damage)
 	for i, nail in ipairs(nails) do
 		nail:OnDamaged(damage, attacker, inflictor, dmginfo)
 	end
@@ -434,7 +417,7 @@ function meta:GetNails()
 	if self.Nails then
 		for _, nail in pairs(self.Nails) do
 			if nail and nail:IsValid() then
-				table.insert(tab, nail)
+				tab[#tab + 1] = nail
 			end
 		end
 	end
@@ -448,7 +431,7 @@ function meta:GetLivingNails()
 	if self.Nails then
 		for _, nail in pairs(self.Nails) do
 			if nail and nail:IsValid() and nail:GetNailHealth() > 0 then
-				table.insert(tab, nail)
+				tab[#tab + 1] = nail
 			end
 		end
 	end
@@ -456,13 +439,15 @@ function meta:GetLivingNails()
 	return tab
 end
 
-function meta:NumLivingNails()
+function meta:NumLivingNails(limit)
 	local amount = 0
+	if limit and limit <= 0 then return 0 end
 
 	if self.Nails then
 		for _, nail in pairs(self.Nails) do
 			if nail and nail:IsValid() and nail:GetNailHealth() > 0 then
 				amount = amount + 1
+				if limit and amount >= limit then return amount end
 			end
 		end
 	end
@@ -482,16 +467,18 @@ function meta:GetFirstNail()
 end
 
 local function GetNailOwner(nail, filter)
-	for _, ent in pairs(ents.GetAll()) do
-		if ent and ent ~= filter and ent.Nails and ent:IsValid() then
-			for __, n in pairs(ent.Nails) do
-				if n == nail then
-					return ent
-				end
-			end
+	local ent = nail:GetBaseEntity()
+	if ent and ent ~= filter and ent.Nails and ent:IsValid() then
+		for _, candidate in pairs(ent.Nails) do
+			if candidate == nail then return ent end
 		end
 	end
-
+	ent = nail:GetAttachEntity()
+	if ent and ent ~= filter and ent.Nails and ent:IsValid() then
+		for _, candidate in pairs(ent.Nails) do
+			if candidate == nail then return ent end
+		end
+	end
 	return game.GetWorld()
 end
 
@@ -504,12 +491,20 @@ function meta:RemoveNail(nail, dontremoveentity, removedby, forceremoveconstrain
 
 	if not nail or not nail:IsValid() then return end
 
+	if nail.m_IsRemoving then return end
+	local attached = false
+	for _, candidate in ipairs(self.Nails or {}) do
+		if candidate == nail then attached = true break end
+	end
+	if not attached then return end
+
 	local cons = nail:GetNailConstraint()
 	local othernails = 0
 	if not forceremoveconstraint then
-		for _, othernail in pairs(ents.FindByClass("prop_nail")) do
-			if othernail ~= nail and not nail.m_IsRemoving and othernail:GetNailConstraint():IsValid() and othernail:GetNailConstraint() == cons then
-				othernails = othernails + 1
+		for _, othernail in pairs(self.Nails or {}) do
+			if othernail ~= nail and IsValid(othernail) and not othernail.m_IsRemoving and othernail:GetNailConstraint() == cons then
+				othernails = 1
+				break
 			end
 		end
 	end
@@ -557,11 +552,13 @@ function meta:RemoveNail(nail, dontremoveentity, removedby, forceremoveconstrain
 	gamemode.Call("OnNailRemoved", nail, self, ent2, removedby)
 
 	if not dontremoveentity then
-		nail:Remove()
 		nail.m_IsRemoving = true
+		nail:Remove()
 	end
 
 	self:RecalculateNailBonuses()
+	if not self:IsWorld() then self:SetIsNailed(self:IsNailed()) end
+	if ent2 and ent2:IsValid() and not ent2:IsWorld() then ent2:SetIsNailed(ent2:IsNailed()) end
 	self:CollisionRulesChanged()
 
 	if ent2 and ent2:IsValid() then
@@ -578,67 +575,27 @@ end
 
 function meta:SetIsNailed(IsNailed)
 	self:SetNWBool("IsNailed", IsNailed)
-end
-
-local function barricadetimer(self, timername)
-	if self:IsValid() then
-		for _, e in pairs(ents.FindInBox(self:WorldSpaceAABB())) do
-			if e and e:IsValid() and e:IsPlayer() and e:Alive() then
-				return
-			end
-		end
-
-		self.IsBarricadeObject = nil
-		self:CollisionRulesChanged()
-	end
-
-	timer.Remove(timername)
-end
-function meta:TemporaryBarricadeObject()
-	if self.IsBarricadeObject then return end
-
-	for _, e in pairs(ents.FindInBox(self:WorldSpaceAABB())) do
-		if e and e:IsValid() and e:IsPlayer() and e:Alive() then
-			self.IsBarricadeObject = true
-			self:CollisionRulesChanged()
-
-			local timername = "TemporaryBarricadeObject"..self:GetCreationID()
-			timer.Create(timername, 0, 0, function() barricadetimer(self, timername) end)
-
-			return
-		end
-	end
+	GAMEMODE:SyncBarricadeGhostPropEligibility(self)
 end
 
 function meta:RecalculateNailBonuses()
 	local max_health = self:GetMaxBarricadeHealth()
 	if max_health == 0 then return end
 
-	local num_extra_nails = math.Clamp(self:NumLivingNails() - 1, 0, 3)
-	local repairs_frac = self:GetBarricadeRepairs() / self:GetMaxBarricadeRepairs()
-
+	local num_extra_nails = math.Clamp(self:NumLivingNails(4) - 1, 0, 3)
 	self.OriginalMaxHealth = self.OriginalMaxHealth or max_health
-	self.OriginalMaxBarricadeRepairs = self.OriginalMaxBarricadeRepairs or max_repairs
-
-	local health = self:GetBarricadeHealth()
 	local new_max_health = self.OriginalMaxHealth + num_extra_nails * GAMEMODE.ExtraHealthPerExtraNail
+	if new_max_health == max_health or self.ZSLastNailBonusTarget == new_max_health and self.ZSLastNailBonusMaximum == max_health then return end
+	local max_repairs = self:GetMaxBarricadeRepairs()
+	local repairs_frac = max_repairs > 0 and self:GetBarricadeRepairs() / max_repairs or 0
+	local health = self:GetBarricadeHealth()
 	self:SetMaxBarricadeHealth(new_max_health)
 	self:SetBarricadeHealth(health / max_health * new_max_health)
 
 	self:SetBarricadeRepairs(repairs_frac * self:GetMaxBarricadeRepairs())
+	self.ZSLastNailBonusTarget = new_max_health
+	self.ZSLastNailBonusMaximum = self:GetMaxBarricadeHealth()
 end
 
-GM.CachedInvisibleEntities = {}
-timer.Create("CachedInvisibleEntities", 1, 0, function()
-	if not GAMEMODE then return end
-	GAMEMODE.CachedInvisibleEntities = {}
-
-	local invisents = player.GetAll()
-	for _, ent in pairs(ents.GetAll()) do
-		if ent.IgnoreTraces or ent.NoBlockExplosions then
-			invisents[#invisents + 1] = ent
-		end
-	end
-
-	GAMEMODE.CachedInvisibleEntities = invisents
-end)
+timer.Remove("CachedInvisibleEntities")
+GM.CachedInvisibleEntities = nil

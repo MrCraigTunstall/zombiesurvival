@@ -22,118 +22,84 @@ GM.LifeStatsLifeTime = 5
 GM.RewardIcons = {}
 GM.RewardIcons["weapon_zs_barricadekit"] = "models/props_debris/wood_board05a.mdl"
 
-GM.CrosshairColor = Color(CreateClientConVar("zs_crosshair_colr", "255", true, false):GetInt(), CreateClientConVar("zs_crosshair_colg", "255", true, false):GetInt(), CreateClientConVar("zs_crosshair_colb", "255", true, false):GetInt(), 220)
-GM.CrosshairColor2 = Color(CreateClientConVar("zs_crosshair_colr2", "220", true, false):GetInt(), CreateClientConVar("zs_crosshair_colg2", "0", true, false):GetInt(), CreateClientConVar("zs_crosshair_colb2", "0", true, false):GetInt(), 220)
-cvars.AddChangeCallback("zs_crosshair_colr", function(cvar, oldvalue, newvalue) GAMEMODE.CrosshairColor.r = tonumber(newvalue) or 255 end)
-cvars.AddChangeCallback("zs_crosshair_colg", function(cvar, oldvalue, newvalue) GAMEMODE.CrosshairColor.g = tonumber(newvalue) or 255 end)
-cvars.AddChangeCallback("zs_crosshair_colb", function(cvar, oldvalue, newvalue) GAMEMODE.CrosshairColor.b = tonumber(newvalue) or 255 end)
-cvars.AddChangeCallback("zs_crosshair_colr2", function(cvar, oldvalue, newvalue) GAMEMODE.CrosshairColor2.r = tonumber(newvalue) or 255 end)
-cvars.AddChangeCallback("zs_crosshair_colg2", function(cvar, oldvalue, newvalue) GAMEMODE.CrosshairColor2.g = tonumber(newvalue) or 255 end)
-cvars.AddChangeCallback("zs_crosshair_colb2", function(cvar, oldvalue, newvalue) GAMEMODE.CrosshairColor2.b = tonumber(newvalue) or 255 end)
-
-GM.FilmMode = CreateClientConVar("zs_filmmode", "0", true, false):GetBool()
-cvars.AddChangeCallback("zs_filmmode", function(cvar, oldvalue, newvalue)
-	GAMEMODE.FilmMode = tonumber(newvalue) == 1
-
-	GAMEMODE:EvaluateFilmMode()
-end)
-
-CreateClientConVar("zs_noarscrate", "0", true, true)
-CreateClientConVar("zs_nostatusarscrate", "0", true, true)
-CreateClientConVar("zs_noresupply", "0", true, true)
-CreateClientConVar("zs_noredeem", "0", true, true)
-CreateClientConVar("zs_nobandit", "0", true, true)
-CreateClientConVar("zs_alwaysvolunteer", "0", true, true)
-CreateClientConVar("zs_nobosspick", "0", true, true)
-CreateClientConVar("zs_intro", "1", true, true)
-CreateClientConVar("zs_classichud", "1", true, false)
-CreateClientConVar("zs_nodiscord", "0", true, true)
-
-GM.SuicideOnChangeClass = CreateClientConVar("zs_suicideonchange", "1", true, false):GetBool()
-cvars.AddChangeCallback("zs_suicideonchange", function(cvar, oldvalue, newvalue)
-	GAMEMODE.SuicideOnChangeClass = tonumber(newvalue) == 1
-end)
-
-GM.BeatsEnabled = CreateClientConVar("zs_beats", "1", true, false):GetBool()
-cvars.AddChangeCallback("zs_beats", function(cvar, oldvalue, newvalue)
-	GAMEMODE.BeatsEnabled = tonumber(newvalue) == 1
-end)
-
-GM.BeatsVolume = math.Clamp(CreateClientConVar("zs_beatsvolume", 80, true, false):GetInt(), 0, 100) / 100
-cvars.AddChangeCallback("zs_beatsvolume", function(cvar, oldvalue, newvalue)
-	GAMEMODE.BeatsVolume = math.Clamp(tonumber(newvalue) or 0, 0, 100) / 100
-end)
-
-GM.AlwaysShowNails = CreateClientConVar("zs_alwaysshownails", "0", true, false):GetBool()
-cvars.AddChangeCallback("zs_alwaysshownails", function(cvar, oldvalue, newvalue)
-	GAMEMODE.AlwaysShowNails = tonumber(newvalue) == 1
-end)
-
-GM.OldBaseOutlinedHUD = CreateClientConVar("zs_oldbaseoutlinedhud", "0", true, false):GetBool()
-cvars.AddChangeCallback("zs_oldbaseoutlinedhud", function(cvar, oldvalue, newvalue)
-	GAMEMODE.OldBaseOutlinedHUD = tonumber(newvalue) == 1
-end)
-
-GM.NoCrosshairRotate = CreateClientConVar("zs_nocrosshairrotate", "0", true, false):GetBool()
-cvars.AddChangeCallback("zs_nocrosshairrotate", function(cvar, oldvalue, newvalue)
-	GAMEMODE.NoCrosshairRotate = tonumber(newvalue) == 1
-end)
-
-GM.TransparencyRadius = math.Clamp(CreateClientConVar("zs_transparencyradius", 140, true, false):GetInt(), 0, 512)
-cvars.AddChangeCallback("zs_transparencyradius", function(cvar, oldvalue, newvalue)
-	GAMEMODE.TransparencyRadius = math.Clamp(tonumber(newvalue) or 0, 0, 512)
-end)
-
-GM.MovementViewRoll = CreateClientConVar("zs_movementviewroll", "1", true, false):GetBool()
-cvars.AddChangeCallback("zs_movementviewroll", function(cvar, oldvalue, newvalue)
-	GAMEMODE.MovementViewRoll = tonumber(newvalue) == 1
-end)
-
-GM.WeaponHUDMode = CreateClientConVar("zs_weaponhudmode", "0", true, false):GetInt()
-cvars.AddChangeCallback("zs_weaponhudmode", function(cvar, oldvalue, newvalue)
-	GAMEMODE.WeaponHUDMode = tonumber(newvalue) or 0
-end)
-
-GM.DrawPainFlash = CreateClientConVar("zs_drawpainflash", "1", true, false):GetBool()
-cvars.AddChangeCallback("zs_drawpainflash", function(cvar, oldvalue, newvalue)
-	GAMEMODE.DrawPainFlash = tonumber(newvalue) == 1
-end)
-
-GM.PropRotationSnap = math.Clamp(CreateClientConVar("zs_proprotationsnap", 0, true, false):GetInt(), 0, 45)
-cvars.AddChangeCallback("zs_proprotationsnap", function(cvar, oldvalue, newvalue)
-	GAMEMODE.PropRotationSnap = math.Clamp(tonumber(newvalue) or 0, 0, 45)
-end)
-
-GM.PropRotationSensitivity = math.Clamp(CreateClientConVar("zs_proprotationsens", 1, true, false):GetFloat(), 0.1, 4)
-cvars.AddChangeCallback("zs_proprotationsens", function(cvar, oldvalue, newvalue)
-	GAMEMODE.PropRotationSensitivity = math.Clamp(tonumber(newvalue) or 1, 0.1, 4)
-end)
-
-CreateConVar( "cl_playercolor", "0.24 0.34 0.41", { FCVAR_ARCHIVE, FCVAR_USERINFO }, "The value is a Vector - so between 0-1 - not between 0-255" )
-CreateConVar( "cl_weaponcolor", "0.30 1.80 2.10", { FCVAR_ARCHIVE, FCVAR_USERINFO }, "The value is a Vector - so between 0-1 - not between 0-255" )
-
-GM.BeatSetHuman = CreateClientConVar("zs_beatset_human", "default", true, false):GetString()
-cvars.AddChangeCallback("zs_beatset_human", function(cvar, oldvalue, newvalue)
-	newvalue = tostring(newvalue)
-	if newvalue == "default" then
-		GAMEMODE.BeatSetHuman = GAMEMODE.BeatSetHumanDefault
-	else
-		GAMEMODE.BeatSetHuman = newvalue
+local function Number(default, minimum, maximum, integer, scale)
+	return function(_, value)
+		value = tonumber(value)
+		if not value or value ~= value or value == math.huge or value == -math.huge then value = default end
+		value = math.Clamp(value, minimum, maximum)
+		if integer then value = math.floor(value) end
+		return scale and value / scale or value
 	end
-end)
-if GM.BeatSetHuman == "default" then
-	GM.BeatSetHuman = GM.BeatSetHumanDefault
 end
 
-GM.BeatSetZombie = CreateClientConVar("zs_beatset_zombie", "default", true, false):GetString()
-cvars.AddChangeCallback("zs_beatset_zombie", function(cvar, oldvalue, newvalue)
-	newvalue = tostring(newvalue)
-	if newvalue == "default" then
-		GAMEMODE.BeatSetZombie = GAMEMODE.BeatSetZombieDefault
-	else
-		GAMEMODE.BeatSetZombie = newvalue
-	end
-end)
-if GM.BeatSetZombie == "default" then
-	GM.BeatSetZombie = GM.BeatSetZombieDefault
+local function Boolean(convar)
+	return convar:GetBool()
 end
+
+local function Bind(name, default, field, read, changed, channel)
+	local convar = CreateClientConVar(name, tostring(default), true, false)
+	local function Apply(gm, value, initial)
+		if channel then gm[field][channel] = value return end
+		if gm[field] == value then return end
+		gm[field] = value
+		if changed and not initial then gm[changed](gm) end
+	end
+	Apply(GM, read(convar, convar:GetString(), GM), true)
+	cvars.AddChangeCallback(name, function(_, _, value)
+		Apply(GAMEMODE, read(convar, value, GAMEMODE))
+	end, "ZSClientOption_" .. name)
+end
+
+GM.CrosshairColor, GM.CrosshairColor2 = Color(255, 255, 255, 220), Color(220, 0, 0, 220)
+for _, entry in ipairs({
+	{"zs_crosshair_colr", 255, "CrosshairColor", "r"},
+	{"zs_crosshair_colg", 255, "CrosshairColor", "g"},
+	{"zs_crosshair_colb", 255, "CrosshairColor", "b"},
+	{"zs_crosshair_colr2", 220, "CrosshairColor2", "r"},
+	{"zs_crosshair_colg2", 0, "CrosshairColor2", "g"},
+	{"zs_crosshair_colb2", 0, "CrosshairColor2", "b"}
+}) do
+	Bind(entry[1], entry[2], entry[3], Number(entry[2], 0, 255, true), nil, entry[4])
+end
+
+Bind("zs_filmmode", 0, "FilmMode", Boolean, "EvaluateFilmMode")
+Bind("zs_suicideonchange", 1, "SuicideOnChangeClass", Boolean)
+Bind("zs_beats", 1, "BeatsEnabled", Boolean)
+Bind("zs_alwaysshownails", 0, "AlwaysShowNails", Boolean)
+Bind("zs_oldbaseoutlinedhud", 0, "OldBaseOutlinedHUD", Boolean)
+Bind("zs_nocrosshairrotate", 0, "NoCrosshairRotate", Boolean)
+Bind("zs_movementviewroll", 1, "MovementViewRoll", Boolean)
+Bind("zs_drawpainflash", 1, "DrawPainFlash", Boolean)
+Bind("zs_beatsvolume", 80, "BeatsVolume", Number(80, 0, 100, false, 100))
+Bind("zs_transparencyradius", 140, "TransparencyRadius", Number(140, 0, 512))
+Bind("zs_proprotationsnap", 0, "PropRotationSnap", Number(0, 0, 45))
+Bind("zs_proprotationsens", 1, "PropRotationSensitivity", Number(1, 0.1, 4))
+Bind("zs_weaponhudmode", 0, "WeaponHUDMode", function(_, value)
+	value = tonumber(value)
+	return value == 1 and 1 or value == 2 and 2 or 0
+end)
+
+for _, entry in ipairs({
+	{"zs_noarscrate", "0", true},
+	{"zs_nostatusarscrate", "0", true},
+	{"zs_noresupply", "0", true},
+	{"zs_noredeem", "0", true},
+	{"zs_nobandit", "0", true},
+	{"zs_alwaysvolunteer", "0", true},
+	{"zs_nobosspick", "0", true},
+	{"zs_intro", "1", true},
+	{"zs_classichud", "0", false},
+	{"zs_nodiscord", "0", true}
+}) do
+	CreateClientConVar(entry[1], entry[2], true, entry[3])
+end
+
+CreateConVar("cl_playercolor", "0.24 0.34 0.41", {FCVAR_ARCHIVE, FCVAR_USERINFO}, "The value is a Vector - so between 0-1 - not between 0-255")
+CreateConVar("cl_weaponcolor", "0.30 1.80 2.10", {FCVAR_ARCHIVE, FCVAR_USERINFO}, "The value is a Vector - so between 0-1 - not between 0-255")
+
+Bind("zs_beatset_human", "default", "BeatSetHuman", function(_, value, gm)
+	return value == "default" and gm.BeatSetHumanDefault or tostring(value)
+end)
+Bind("zs_beatset_zombie", "default", "BeatSetZombie", function(_, value, gm)
+	return value == "default" and gm.BeatSetZombieDefault or tostring(value)
+end)

@@ -1,265 +1,182 @@
--- This rewrites a few drawing methods to be slightly faster.
--- This file is to be included before everything else.
-
--- WARNING: Removes the functionality of any drawing functions returning values (except GetFontHeight).
--- This doesn't really matter in most cases because A: nobody uses it and B: they were returning wrong values most of the time anyway.
-
-AddCSLuaFile("buffthefps.lua")
-
+AddCSLuaFile()
 if SERVER or BuffedFPS then return end
 BuffedFPS = true
 
-local surface = surface
-local Color = Color
-local color_white = color_white
+local setFont, textSize, textPos = surface.SetFont, surface.GetTextSize, surface.SetTextPos
+local textColor, drawText = surface.SetTextColor, surface.DrawText
+local setTexture, drawColor = surface.SetTexture, surface.SetDrawColor
+local rect, texturedRect, texturedUV = surface.DrawRect, surface.DrawTexturedRect, surface.DrawTexturedRectUV
+local ceil, floor, min, max, round = math.ceil, math.floor, math.min, math.max, math.Round
+local find, gmatch = string.find, string.gmatch
+local corners = {surface.GetTextureID("gui/corner8"), surface.GetTextureID("gui/corner16"), surface.GetTextureID("gui/corner32"), surface.GetTextureID("gui/corner64"), surface.GetTextureID("gui/corner512")}
+local white = surface.GetTextureID("vgui/white")
+local fontHeights = {}
+local fontMetrics, metricSlots, metricCursor = {}, {}, 1
+local createFont = surface.CreateFont
+surface.CreateFont = function(name, ...)
+	fontHeights[name] = nil
+	fontMetrics[name] = nil
+	return createFont(name, ...)
+end
 
-local TEXT_ALIGN_LEFT = 0
-local TEXT_ALIGN_CENTER	= 1
-local TEXT_ALIGN_RIGHT = 2
-local TEXT_ALIGN_TOP = 3
-local TEXT_ALIGN_BOTTOM	= 4
---[[TEXT_ALIGN_LEFT		= 0
-TEXT_ALIGN_CENTER	= 1
-TEXT_ALIGN_RIGHT	= 2
-TEXT_ALIGN_TOP		= 3
-TEXT_ALIGN_BOTTOM	= 4]]
-
-local surface_SetFont = surface.SetFont
-local surface_GetTextSize = surface.GetTextSize
-local surface_SetTextPos = surface.SetTextPos
-local surface_SetTextColor = surface.SetTextColor
-local surface_DrawText = surface.DrawText
-local surface_SetTexture = surface.SetTexture
-local surface_SetDrawColor = surface.SetDrawColor
-local surface_DrawRect = surface.DrawRect
-local surface_DrawTexturedRect = surface.DrawTexturedRect
-local surface_DrawTexturedRectRotated = surface.DrawTexturedRectRotated
-local surface_GetTextureID = surface.GetTextureID
-
-local string_sub = string.sub
-
-local math_ceil = math.ceil
-
-local Tex_Corner8 = surface_GetTextureID( "gui/corner8" )
-local Tex_Corner16 = surface_GetTextureID( "gui/corner16" )
-local Tex_white = surface_GetTextureID( "vgui/white" )
+local function measureText(text, font)
+	local bucket = fontMetrics[font]
+	local entry = bucket and bucket.values[text]
+	if entry then return entry.width, entry.height end
+	local width, height = textSize(text)
+	if #text > 1024 then return width, height end
+	entry = metricSlots[metricCursor]
+	if entry then
+		local previous = entry.bucket
+		previous.values[entry.text] = nil
+		previous.count = previous.count - 1
+		if previous.count == 0 and fontMetrics[entry.font] == previous then fontMetrics[entry.font] = nil end
+	else
+		entry = {}
+		metricSlots[metricCursor] = entry
+	end
+	bucket = fontMetrics[font]
+	if not bucket then bucket = {count = 0, values = {}}; fontMetrics[font] = bucket end
+	entry.font, entry.text, entry.bucket, entry.width, entry.height = font, text, bucket, width, height
+	bucket.values[text], bucket.count = entry, bucket.count + 1
+	metricCursor = metricCursor % 2048 + 1
+	return width, height
+end
 
 function GM:MouthMoveAnimation(ply)
 	return
 end
 
--- Just an FYI that this is around 450 times faster than using surface.GetTextSize when cached.
-local CachedFontHeights = {}
-local function draw_GetFontHeight(font)
-	if CachedFontHeights[font] then
-		return CachedFontHeights[font] 
-	end
-
-	surface_SetFont(font)
-	local w, h = surface_GetTextSize("W")
-	CachedFontHeights[font] = h
-
-	return h
+local function fontHeight(font)
+	font = font or "DermaDefault"
+	local height = fontHeights[font]
+	if height ~= nil then return height end
+	setFont(font)
+	local _, measured = textSize("W")
+	fontHeights[font] = measured
+	return measured
 end
 
-local function draw_SimpleText(text, font, x, y, colour, xalign, yalign)
-	surface_SetFont(font)
-
-	if xalign == TEXT_ALIGN_CENTER then
-		local w, h = surface_GetTextSize( text )
-		x = x - w / 2
-	elseif xalign == TEXT_ALIGN_RIGHT then
-		local w, h = surface_GetTextSize( text )
-		x = x - w
-	end
-
-	if yalign == TEXT_ALIGN_CENTER then
-		local h = draw_GetFontHeight(font)
-		y = y - h / 2
-	elseif yalign == TEXT_ALIGN_BOTTOM then
-		local h = draw_GetFontHeight(font)
-		y = y - h
-	end
-
-	surface_SetTextPos(x, y)
-	if colour then
-		surface_SetTextColor(colour.r, colour.g, colour.b, colour.a)
-	else
-		surface_SetTextColor(255, 255, 255, 255)
-	end
-	surface_DrawText(text)
+local function paintText(text, x, y, color, xalign, yalign, width, height)
+	if xalign == 1 then x = x - width / 2 elseif xalign == 2 then x = x - width end
+	if yalign == 1 then y = y - height / 2 elseif yalign == 4 then y = y - height end
+	textPos(ceil(x), ceil(y))
+	if color then textColor(color.r, color.g, color.b, color.a) else textColor(255, 255, 255, 255) end
+	drawText(text)
 end
 
-local function draw_DrawText(text, font, x, y, colour, xalign )
-	local curX = x
-	local curY = y
-	local curString = ""
-	
-	surface_SetFont(font)
-	local lineHeight = draw_GetFontHeight(font)
-	
-	for i=1, #text do
-		local ch = string_sub(text, i, i)
-		if ch == "\n" then
-			if #curString > 0 then
-				draw_SimpleText(curString, font, curX, curY, colour, xalign)
+local function simpleText(text, font, x, y, color, xalign, yalign)
+	text = tostring(text)
+	font = font or "DermaDefault"
+	setFont(font)
+	local width, height = measureText(text, font)
+	paintText(text, x or 0, y or 0, color, xalign, yalign, width, height)
+	return width, height
+end
+
+local function roundedBoxEx(radius, x, y, width, height, color, tl, tr, bl, br)
+	if width <= 0 or height <= 0 then return end
+	drawColor(color.r, color.g, color.b, color.a)
+	if radius <= 0 then rect(x, y, width, height); return end
+	x, y, width, height = round(x), round(y), round(width), round(height)
+	radius = min(round(radius), floor(width / 2), floor(height / 2))
+	if radius <= 0 then rect(x, y, width, height); return end
+	rect(x + radius, y, width - radius * 2, height)
+	rect(x, y + radius, radius, height - radius * 2)
+	rect(x + width - radius, y + radius, radius, height - radius * 2)
+	local texture = radius > 64 and corners[5] or radius > 32 and corners[4] or radius > 16 and corners[3] or radius > 8 and corners[2] or corners[1]
+	setTexture(texture)
+	if tl then texturedUV(x, y, radius, radius, 0, 0, 1, 1) else rect(x, y, radius, radius) end
+	if tr then texturedUV(x + width - radius, y, radius, radius, 1, 0, 0, 1) else rect(x + width - radius, y, radius, radius) end
+	if bl then texturedUV(x, y + height - radius, radius, radius, 0, 1, 1, 0) else rect(x, y + height - radius, radius, radius) end
+	if br then texturedUV(x + width - radius, y + height - radius, radius, radius, 1, 1, 0, 0) else rect(x + width - radius, y + height - radius, radius, radius) end
+end
+
+local function roundedBox(radius, x, y, width, height, color)
+	return roundedBoxEx(radius, x, y, width, height, color, true, true, true, true)
+end
+
+local function multilineText(text, font, x, y, color, xalign)
+	font, x, y = font or "DermaDefault", x or 0, y or 0
+	text = tostring(text)
+	setFont(font)
+	local _, lineHeight = textSize("\n")
+	local curX, curY = x, y
+	for line in gmatch(text, "[^\n]*") do
+		if #line == 0 then
+			curX, curY = x, curY + lineHeight / 2
+		elseif find(line, "\t", 1, true) then
+			for tabs, segment in gmatch(line, "(\t*)([^\t]*)") do
+				curX = ceil((curX + 50 * max(#tabs - 1, 0)) / 50) * 50
+				if #segment > 0 then
+					local width, height = measureText(segment, font)
+					paintText(segment, curX, curY, color, xalign, nil, width, height)
+					curX = curX + width
+				end
 			end
-			
-			curY = curY + lineHeight / 2
-			curX = x
-			curString = ""
-		elseif ch == "\t" then
-			if #curString > 0 then
-				draw_SimpleText(curString, font, curX, curY, colour, xalign)
-			end
-			local tmpSizeX,tmpSizeY =  surface_GetTextSize(curString)
-			curX = math_ceil( (curX + tmpSizeX) / 50 ) * 50
-			curString = ""
 		else
-			curString = curString .. ch
+			local width = (xalign == 1 or xalign == 2) and measureText(line, font) or 0
+			paintText(line, curX, curY, color, xalign, nil, width, 0)
 		end
-	end	
-	if #curString > 0 then
-		draw_SimpleText(curString, font, curX, curY, colour, xalign)
 	end
 end
 
-local function draw_RoundedBox(bordersize, x, y, w, h, color)
-	surface_SetDrawColor(color)
-
-	surface_DrawRect(x + bordersize, y, w - bordersize * 2, h)
-	surface_DrawRect(x, y + bordersize, bordersize, h - bordersize * 2)
-	surface_DrawRect(x + w - bordersize, y + bordersize, bordersize, h - bordersize * 2)
-
-	surface_SetTexture(bordersize > 8 and Tex_Corner16 or Tex_Corner8)
-	surface_DrawTexturedRectRotated( x + bordersize/2 , y + bordersize/2, bordersize, bordersize, 0 ) 
-	surface_DrawTexturedRectRotated( x + w - bordersize/2 , y + bordersize/2, bordersize, bordersize, 270 ) 
-	surface_DrawTexturedRectRotated( x + bordersize/2 , y + h -bordersize/2, bordersize, bordersize, 90 )
- 	surface_DrawTexturedRectRotated( x + w - bordersize/2 , y + h - bordersize/2, bordersize, bordersize, 180 )
+function draw.WordBox(radius, x, y, text, font, color, fontColor, xalign, yalign)
+	setFont(font)
+	local width, height = measureText(text, font)
+	if xalign == 1 then x = x - radius - width / 2 elseif xalign == 2 then x = x - radius * 2 - width end
+	if yalign == 1 then y = y - radius - height / 2 elseif yalign == 4 then y = y - radius * 2 - height end
+	roundedBox(radius, x, y, width + radius * 2, height + radius * 2, color)
+	textColor(fontColor.r, fontColor.g, fontColor.b, fontColor.a)
+	textPos(x + radius, y + radius)
+	drawText(text)
+	return width + radius * 2, height + radius * 2
 end
 
-local function draw_Text(tab)
-	local text = tab.text
+local shadow = {r = 0, g = 0, b = 0, a = 200}
+function draw.TextShadow(tab, distance, alpha)
+	local text = tostring(tab.text)
 	local font = tab.font or "DermaDefault"
-	local x = tab.pos[1] or 0
-	local y = tab.pos[2] or 0
-	local xalign = tab.xalign
-	local yalign = tab.yalign
-
-	surface_SetFont(font)
-
-	if xalign == TEXT_ALIGN_CENTER then
-		local w, h = surface_GetTextSize( text )
-		x = x - w / 2
-	elseif xalign == TEXT_ALIGN_RIGHT then
-		local w, h = surface_GetTextSize( text )
-		x = x - w
-	end
-
-	if yalign == TEXT_ALIGN_CENTER then
-		local h = draw_GetFontHeight(font)
-		y = y - h / 2
-	end
-
-	surface_SetTextPos(x, y)
-
-	if tab.color then
-		surface_SetTextColor(tab.color)
-	else
-		surface_SetTextColor(255, 255, 255, 255)
-	end
-
-	surface_DrawText(text)
-end
-
-function draw.WordBox( bordersize, x, y, text, font, color, fontcolor )
-	surface_SetFont( font )
-	local w, h = surface_GetTextSize( text )
-	
-	draw_RoundedBox( bordersize, x, y, w+bordersize*2, h+bordersize*2, color )
-
-	surface_SetTextColor( fontcolor.r, fontcolor.g, fontcolor.b, fontcolor.a )
-	surface_SetTextPos( x + bordersize, y + bordersize )
-	surface_DrawText( text )
-end
-
-function draw.TextShadow( tab, distance, alpha )
-
-	alpha = alpha or 200
-
-	local color = tab.color
-	local pos 	= tab.pos
-	tab.color = Color( 0, 0, 0, alpha )
-	tab.pos = { pos[1] + distance, pos[2] + distance }
-
-	draw_Text( tab )
-	
-	tab.color = color
-	tab.pos = pos
-	
-	draw_Text( tab )
+	setFont(font)
+	local width, height = measureText(text, font)
+	shadow.a = alpha or 200
+	paintText(text, tab.pos[1] + distance, tab.pos[2] + distance, shadow, tab.xalign, tab.yalign, width, height)
+	paintText(text, tab.pos[1], tab.pos[2], tab.color, tab.xalign, tab.yalign, width, height)
+	return width, height
 end
 
 function draw.TexturedQuad(tab)
-	surface_SetTexture(tab.texture)
-	surface_SetDrawColor(tab.color or color_white)
-	surface_DrawTexturedRect(tab.x, tab.y, tab.w, tab.h)
+	local color = tab.color or color_white
+	setTexture(tab.texture)
+	drawColor(color.r, color.g, color.b, color.a)
+	texturedRect(tab.x, tab.y, tab.w, tab.h)
 end
 
 function draw.NoTexture()
-	surface_SetTexture( Tex_white )
+	setTexture(white)
 end
 
-function draw.RoundedBoxEx( bordersize, x, y, w, h, color, a, b, c, d )
-	surface_SetDrawColor(color)
-	
-	-- Draw as much of the rect as we can without textures
-	surface_DrawRect(x + bordersize, y, w - bordersize * 2, h)
-	surface_DrawRect(x, y + bordersize, bordersize, h - bordersize * 2)
-	surface_DrawRect(x + w - bordersize, y + bordersize, bordersize, h - bordersize * 2)
-
-	surface_SetTexture(bordersize > 8 and Tex_Corner16 or Tex_Corner8)
-
-	if a then
-		surface_DrawTexturedRectRotated( x + bordersize/2 , y + bordersize/2, bordersize, bordersize, 0 ) 
-	else
-		surface_DrawRect( x, y, bordersize, bordersize )
-	end
-	
-	if b then
-		surface_DrawTexturedRectRotated( x + w - bordersize/2 , y + bordersize/2, bordersize, bordersize, 270 ) 
-	else
-		surface_DrawRect( x + w - bordersize, y, bordersize, bordersize )
-	end
- 
-	if c then
-		surface_DrawTexturedRectRotated( x + bordersize/2 , y + h -bordersize/2, bordersize, bordersize, 90 )
-	else
-		surface_DrawRect( x, y + h - bordersize, bordersize, bordersize )
-	end
- 
-	if d then
-		surface_DrawTexturedRectRotated( x + w - bordersize/2 , y + h - bordersize/2, bordersize, bordersize, 180 )
-	else
-		surface_DrawRect( x + w - bordersize, y + h - bordersize, bordersize, bordersize )
-	end
-end
-
-function draw.SimpleTextOutlined(text, font, x, y, colour, xalign, yalign, outlinewidth, outlinecolour)
-	local steps = (outlinewidth*2) / 3
-	if steps < 1 then steps = 1 end
-	
-	for _x=-outlinewidth, outlinewidth, steps do
-		for _y=-outlinewidth, outlinewidth, steps do
-			draw_SimpleText(text, font, x + _x, y + _y, outlinecolour, xalign, yalign)
+function draw.SimpleTextOutlined(text, font, x, y, color, xalign, yalign, outlineWidth, outlineColor)
+	text, x, y = tostring(text), x or 0, y or 0
+	font = font or "DermaDefault"
+	setFont(font)
+	local width, height = measureText(text, font)
+	local step = max(outlineWidth * 2 / 3, 1)
+	for dx = -outlineWidth, outlineWidth, step do
+		for dy = -outlineWidth, outlineWidth, step do
+			paintText(text, x + dx, y + dy, outlineColor, xalign, yalign, width, height)
 		end
 	end
-	
-	draw_SimpleText(text, font, x, y, colour, xalign, yalign)
+	paintText(text, x, y, color, xalign, yalign, width, height)
+	return width, height
 end
 
-draw.GetFontHeight = draw_GetFontHeight
-draw.SimpleText = draw_SimpleText
-draw.DrawText = draw_DrawText
-draw.RoundedBox = draw_RoundedBox
-draw.Text = draw_Text
+function draw.Text(tab)
+	return simpleText(tab.text, tab.font, tab.pos[1], tab.pos[2], tab.color, tab.xalign, tab.yalign)
+end
+
+draw.GetFontHeight = fontHeight
+draw.SimpleText = simpleText
+draw.DrawText = multilineText
+draw.RoundedBox = roundedBox
+draw.RoundedBoxEx = roundedBoxEx

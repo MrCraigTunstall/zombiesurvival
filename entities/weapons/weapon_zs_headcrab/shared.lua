@@ -32,10 +32,12 @@ if SERVER then SWEP.NextHeal = 0 end
 function SWEP:Think()
 	local curtime = CurTime()
 	local owner = self.Owner
+	local burrowtime = self:GetBurrowTime()
 
-	if self:GetBurrowTime() > 0 and curtime >= self:GetBurrowTime() then
+	if burrowtime > 0 and curtime >= burrowtime then
 		if not self:CanBurrow() then
 			self:SetBurrowTime(-(curtime + self.BurrowTime))
+			owner:DrawShadow(true)
 		else
 			owner:DrawShadow(false)
 			if SERVER and curtime >= self.NextHeal then
@@ -46,7 +48,7 @@ function SWEP:Think()
 				end
 			end
 		end
-	elseif self:GetBurrowTime() < 0 and curtime >= -self:GetBurrowTime() then
+	elseif burrowtime < 0 and curtime >= -burrowtime then
 		self:SetBurrowTime(0)
 	elseif self:GetPouncing() then
 		if owner:IsOnGround() or 1 < owner:WaterLevel() then
@@ -138,22 +140,28 @@ function SWEP:Reload()
 	local owner = self.Owner
 	if self:GetPouncing() or CurTime() < self:GetNextPrimaryFire() or not owner:IsOnGround() then return end
 
-	if self:GetBurrowTime() == 0 then
+	local burrowtime = self:GetBurrowTime()
+	if burrowtime == 0 then
 		if self:CanBurrow() then
 			self:SetBurrowTime(CurTime() + self.BurrowTime)
 			if SERVER then owner:EmitSound("npc/antlion/digdown1.wav", 60, 100) end
 		end
-	elseif self:GetBurrowTime() > 0 and CurTime() >= self:GetBurrowTime() then
+	elseif burrowtime > 0 and CurTime() >= burrowtime then
 		self:SetBurrowTime(-(CurTime() + self.BurrowTime))
 		if SERVER then owner:EmitSound("npc/antlion/digup1.wav", 60, 100) end
 		owner:DrawShadow(true)
 	end
 end
 
+local burrowtrace = {mask = MASK_SOLID_BRUSHONLY, endpos = Vector(), output = {}}
 function SWEP:CanBurrow()
 	local owner = self.Owner
-	local tr = util.TraceLine({start = owner:GetPos(), endpos = owner:GetPos() - owner:GetUp() * 8, mask = MASK_SOLID_BRUSHONLY})
-	return tr.HitWorld and (tr.MatType == MAT_DIRT or tr.MatType == MAT_SAND or tr.MatType == MAT_SLOSH or tr.MatType == MAT_FOILAGE or tr.MatType == 88)
+	local start = owner:GetPos()
+	local up = owner:GetUp()
+	burrowtrace.start = start
+	burrowtrace.endpos:SetUnpacked(start.x - up.x * 8, start.y - up.y * 8, start.z - up.z * 8)
+	local tr = util.TraceLine(burrowtrace)
+	return tr.HitWorld and (tr.MatType == MAT_DIRT or tr.MatType == MAT_SAND or tr.MatType == MAT_SLOSH or tr.MatType == MAT_FOLIAGE or tr.MatType == 88)
 end
 
 function SWEP:Move(mv)

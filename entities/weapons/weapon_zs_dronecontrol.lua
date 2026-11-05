@@ -50,14 +50,14 @@ function SWEP:Think()
 		self:SendWeaponAnim(ACT_VM_IDLE)
 	end
 
-	if SERVER then
-		for _, ent in pairs(ents.FindByClass("prop_drone")) do
-			if ent:GetOwner() == self.Owner then
-				return
-			end
+	if SERVER and CurTime() >= (self.NextOwnedCheck or 0) then
+		self.NextOwnedCheck = CurTime() + 0.1
+		local owner = self:GetOwner()
+		if not IsValid(owner) then return end
+		for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_drone")) do
+			if IsValid(ent) and not ent:IsMarkedForDeletion() and ent:GetOwner() == owner then return end
 		end
-
-		self.Owner:StripWeapon(self:GetClass())
+		owner:StripWeapon(self:GetClass())
 	end
 end
 

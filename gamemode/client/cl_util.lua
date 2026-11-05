@@ -18,7 +18,7 @@ end
 
 -- Scales the screen based around 1080p but doesn't make things TOO tiny on low resolutions.
 function BetterScreenScale()
-	return math.Clamp(ScrH() / 1080, 0.6, 1)
+	return math.Clamp(ScrH() / 1080, 0.6, 2)
 end
 
 function render.GetLightRGB(pos)
@@ -61,4 +61,24 @@ function EasyButton(parent, text, xpadding, ypadding)
 	end
 
 	return dpanel
+end
+
+
+function GM:GetEquipmentSmokeParticle(ent, position, nearClip, farClip)
+	local emitter = ent.EquipmentSmokeEmitter
+	if not emitter or not emitter:IsValid() then
+		emitter = ParticleEmitter(position)
+		if not emitter then return end
+		ent.EquipmentSmokeEmitter = emitter
+		emitter:SetNearClip(nearClip, farClip)
+	else
+		emitter:SetPos(position)
+	end
+	return emitter:Add("particles/smokey", position)
+end
+
+function GM:RemoveEquipmentSmokeEmitter(ent)
+	local emitter = ent.EquipmentSmokeEmitter
+	ent.EquipmentSmokeEmitter = nil
+	if emitter and emitter:IsValid() then emitter:Finish() end
 end

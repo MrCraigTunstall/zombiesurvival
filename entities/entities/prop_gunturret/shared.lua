@@ -1,4 +1,5 @@
 ENT.Type = "anim"
+ENT.TraitCombine = true
 ENT.RenderGroup = RENDERGROUP_BOTH
 
 ENT.SearchDistance = 768
@@ -19,8 +20,25 @@ ENT.CanPackUp = true
 ENT.IsBarricadeObject = true
 ENT.AlwaysGhostable = true
 
-local NextCache = 0
-local CachedFilter = {}
+local nextCandidates = 0
+local candidates = {}
+local candidatePool = {}
+
+local function CandidateOrder(a, b)
+	return a.distance < b.distance or a.distance == b.distance and a.index < b.index
+end
+
+local function SiftTarget(ranked, index, count)
+	local rank = ranked[index]
+	while index * 2 <= count do
+		local child = index * 2
+		if child < count and CandidateOrder(ranked[child + 1], ranked[child]) then child = child + 1 end
+		if not CandidateOrder(ranked[child], rank) then break end
+		ranked[index] = ranked[child]
+		index = child
+	end
+	ranked[index] = rank
+end
 
 function ENT:GetLocalAnglesToTarget(target)
 	return self:WorldToLocalAngles(self:GetAnglesToTarget(target))
@@ -39,7 +57,62 @@ function ENT:GetAnglesToPos(pos)
 end
 
 function ENT:IsValidTarget(target)
-	return target:IsPlayer() and target:Team() == TEAM_UNDEAD and target:Alive() and self:GetForward():Dot(self:GetAnglesToTarget(target):Forward()) >= self.MinimumAimDot and TrueVisible(self:ShootPos(), self:GetTargetPos(target), self)
+	if not IsValid(target) or not target:IsPlayer() or target:Team() ~= TEAM_UNDEAD or not target:Alive() then return false end
+	local shootpos, targetpos = self:ShootPos(), self:GetTargetPos(target)
+	local delta = targetpos - shootpos
+	return delta:LengthSqr() <= self.SearchDistance * self.SearchDistance and self:GetForward():Dot(delta:GetNormalized()) >= self.MinimumAimDot
+		and TrueVisible(shootpos, targetpos, self)
+end
+
+function ENT:SearchNearestTarget()
+	local now = CurTime()
+	if now >= nextCandidates then
+		nextCandidates = now + 0.1
+		local count = 0
+		for _, pl in player.Iterator() do
+			if pl:Team() == TEAM_UNDEAD and pl:Alive() then
+				count = count + 1
+				local entry = candidatePool[count]
+				if not entry then entry = {}; candidatePool[count] = entry end
+				entry.player, entry.position, entry.index = pl, self:GetTargetPos(pl), pl:EntIndex()
+				candidates[count] = entry
+			end
+		end
+		for index = #candidates, count + 1, -1 do candidates[index] = nil end
+		for index = count + 1, #candidatePool do candidatePool[index].player, candidatePool[index].position = nil, nil end
+	end
+	local shootpos, forward, limit = self:ShootPos(), self:GetForward(), self.SearchDistance * self.SearchDistance
+	local ranked, pool = self.ZSTargetRanking or {}, self.ZSTargetPool or {}
+	self.ZSTargetRanking, self.ZSTargetPool = ranked, pool
+	local count = 0
+	for _, entry in ipairs(candidates) do
+		local pl = entry.player
+		if IsValid(pl) and pl:Team() == TEAM_UNDEAD and pl:Alive() then
+			local delta = entry.position - shootpos
+			local distance = delta:LengthSqr()
+			if distance <= limit then
+				delta:Normalize()
+				if forward:Dot(delta) >= self.MinimumAimDot then
+					count = count + 1
+					local rank = pool[count]
+					if not rank then rank = {}; pool[count] = rank end
+					rank.player, rank.position, rank.index, rank.distance = pl, entry.position, entry.index, distance
+					ranked[count] = rank
+				end
+			end
+		end
+	end
+	for index = #ranked, count + 1, -1 do ranked[index] = nil end
+	for index = count + 1, #pool do pool[index].player, pool[index].position = nil, nil end
+	for index = math.floor(count / 2), 1, -1 do SiftTarget(ranked, index, count) end
+	while count > 0 do
+		local rank = ranked[1]
+		if TrueVisible(shootpos, rank.position, self) then return rank.player end
+		local last = ranked[count]
+		ranked[count] = nil
+		count = count - 1
+		if count > 0 then ranked[1] = last; SiftTarget(ranked, 1, count) end
+	end
 end
 
 function ENT:GetManualTrace()
@@ -83,16 +156,17 @@ end
 
 -- Getting all of some team is straining every frame when there's 5 or so turrets. I could probably use CONTENTS_TEAM* if I knew what they did.
 function ENT:GetCachedScanFilter()
-	if CurTime() < NextCache and CachedFilter then return CachedFilter end
+	if CurTime() < (self.NextScanFilterCache or 0) and self.CachedScanFilter then return self.CachedScanFilter end
 
-	CachedFilter = self:GetScanFilter()
-	NextCache = CurTime() + 1
+	self.CachedScanFilter = self:GetScanFilter()
+	self.NextScanFilterCache = CurTime() + 1
 
-	return CachedFilter
+	return self.CachedScanFilter
 end
 
 local tabSearch = {mask = MASK_SHOT}
 function ENT:SearchForTarget()
+	if SERVER and GAMEMODE:HasPlayerTrait(self:GetObjectOwner(), "technicalaim") then return self:SearchNearestTarget() end
 	local shootpos = self:ShootPos()
 
 	tabSearch.start = shootpos
@@ -110,7 +184,7 @@ function ENT:GetTargetPos(target)
 		local boneid = target:GetHitBoxBone(HITGROUP_HEAD, 0)
 		if boneid and boneid > 0 then
 			local p, a = target:GetBonePosition(boneid)
-			if pl then
+			if p then
 				return p
 			end
 		end

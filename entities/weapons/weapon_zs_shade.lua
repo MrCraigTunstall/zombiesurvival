@@ -18,104 +18,95 @@ function SWEP:Initialize()
 	self:HideWorldModel()
 end
 
+function SWEP:SetupDataTables()
+	self:NetworkVar("Entity", 20, "ShadeControl")
+end
+
+function SWEP:ReleaseShadeControl()
+	if SERVER then GAMEMODE:ReleaseShadeControl(self:GetOwner(), self) end
+end
+
 function SWEP:Think()
 end
 
 function SWEP:PrimaryAttack()
-	if CurTime() <= self:GetNextPrimaryFire() then return end
-	self:SetNextSecondaryFire(CurTime() + 1.5)
-
-	for _, ent in pairs(ents.FindByClass("env_shadecontrol")) do
-		if ent:IsValid() and ent:GetOwner() == self.Owner then
-			local obj = ent:GetParent()
-			if obj:IsValid() then
-				self.Owner:DoAttackEvent()
-
-				if CLIENT then return end
-
-				local filt = team.GetPlayers(TEAM_UNDEAD)
-				table.insert(filt, obj)
-				
-				if self.Owner.m_Shade_Force then
-					vel = (self.Owner:TraceLine(10240, MASK_SOLID, filt).HitPos - obj:LocalToWorld(obj:OBBCenter())):GetNormalized() * self.MutationMultiplier
-				else
-					vel = (self.Owner:TraceLine(10240, MASK_SOLID, filt).HitPos - obj:LocalToWorld(obj:OBBCenter())):GetNormalized() * self.PhysicsForce
-				end
-
-				local phys = obj:GetPhysicsObject()
-				if phys:IsValid() and phys:IsMoveable() and phys:GetMass() <= 300 then
-					phys:Wake()
-					phys:SetVelocity(vel)
-					obj:SetPhysicsAttacker(self.Owner)
-					phys:AddGameFlag(FVPHYSICS_WAS_THROWN)
-
-					obj:EmitSound(")weapons/physcannon/superphys_launch"..math.random(4)..".wav")
-				end
-			end
-
-			ent:Remove()
-		end
+	local now = CurTime()
+	if now <= self:GetNextPrimaryFire() then return end
+	local owner = self:GetOwner()
+	if not IsValid(owner) then return end
+	self:SetNextPrimaryFire(now + 1.5)
+	self:SetNextSecondaryFire(now + 0.4)
+	if CLIENT then
+		if IsValid(self:GetShadeControl()) then owner:DoAttackEvent() end
+		return
 	end
+	if not GAMEMODE:IsShadeControllerOwner(owner, self) then self:ReleaseShadeControl() return end
+	local control = GAMEMODE:GetShadeControl(owner)
+	if not IsValid(control) then return end
+	local obj = control:GetParent()
+	if GAMEMODE:CanShadeHoldObject(obj) then
+		local filter = team.GetPlayers(TEAM_UNDEAD)
+		filter[#filter + 1] = obj
+		local trace = owner:TraceLine(10240, MASK_SOLID, filter)
+		local velocity = trace.HitPos - obj:WorldSpaceCenter()
+		velocity:Normalize()
+		velocity:Mul(owner.m_Shade_Force and self.MutationMultiplier or self.PhysicsForce)
+		local phys = obj:GetPhysicsObject()
+		phys:Wake()
+		phys:SetVelocity(velocity)
+		obj:SetPhysicsAttacker(owner, 10)
+		phys:AddGameFlag(FVPHYSICS_WAS_THROWN)
+		obj:EmitSound(")weapons/physcannon/superphys_launch" .. math.random(4) .. ".wav")
+		owner:DoAttackEvent()
+	end
+	self:ReleaseShadeControl()
 end
 
 function SWEP:SecondaryAttack()
-	if CurTime() <= self:GetNextSecondaryFire() then return end
-	self:SetNextPrimaryFire(CurTime() + 0.25)
-	self:SetNextSecondaryFire(CurTime() + 0.4)
-
+	local now = CurTime()
+	if now <= self:GetNextSecondaryFire() then return end
+	local owner = self:GetOwner()
+	if not IsValid(owner) then return end
+	self:SetNextPrimaryFire(now + 0.25)
+	self:SetNextSecondaryFire(now + 0.4)
 	if CLIENT then return end
-
-	for _, ent in pairs(ents.FindByClass("env_shadecontrol")) do
-		if ent:IsValid() and ent:GetOwner() == self.Owner then
-			ent:Remove()
-			return
-		end
-	end
-
-	local ent = self:GetOwner():TraceHull(400, MASK_SOLID, 4, player.GetAll()).Entity
-	if ent:IsValid() and ent:IsPhysicsModel() then
-		local phys = ent:GetPhysicsObject()
-		if phys:IsValid() and phys:IsMoveable() and phys:GetMass() <= 300 then
-			for _, ent2 in pairs(ents.FindByClass("env_shadecontrol")) do
-				if ent2:IsValid() and ent2:GetParent() == ent then
-					ent2:Remove()
-					return
-				end
-			end
-
-			local con = ents.Create("env_shadecontrol")
-			if con:IsValid() then
-				con:Spawn()
-				con:SetOwner(self.Owner)
-				con:AttachTo(ent)
-
-				ent:EmitSound(")weapons/physcannon/physcannon_claws_close.wav")
-			end
-		end
-	end
+	if not GAMEMODE:IsShadeControllerOwner(owner, self) then self:ReleaseShadeControl() return end
+	if GAMEMODE:GetShadeControl(owner) then self:ReleaseShadeControl() return end
+	local obj = owner:TraceHull(400, MASK_SOLID, 4, {"player"}).Entity
+	if not GAMEMODE:CanShadeHoldObject(obj) or GAMEMODE:GetShadeObjectControl(obj) then return end
+	local control = ents.Create("env_shadecontrol")
+	if not IsValid(control) then return end
+	control:SetOwner(owner)
+	control:SetControllerWeapon(self)
+	control:Spawn()
+	if control:AttachTo(obj, self) then obj:EmitSound(")weapons/physcannon/physcannon_claws_close.wav") end
 end
 
 function SWEP:Reload()
+	self:ReleaseShadeControl()
 end
 
 function SWEP:OnRemove()
+	self:ReleaseShadeControl()
 end
 
 function SWEP:Holster()
+	self:ReleaseShadeControl()
+	return true
 end
 
 if not CLIENT then return end
 
 function SWEP:PreDrawViewModel(vm)
-	local owner = self.Owner
-	if owner:IsValid() then
+	local owner = self:GetOwner()
+	if IsValid(owner) then
 		owner:CallZombieFunction("PreRenderEffects", vm)
 	end
 end
 
 function SWEP:PostDrawViewModel(vm)
-	local owner = self.Owner
-	if owner:IsValid() then
+	local owner = self:GetOwner()
+	if IsValid(owner) then
 		owner:CallZombieFunction("PostRenderEffects", vm)
 	end
 end

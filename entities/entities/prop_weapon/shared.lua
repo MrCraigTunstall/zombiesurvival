@@ -24,6 +24,7 @@ function ENT:HumanHoldable(pl)
 end
 
 function ENT:SetWeaponType(class)
+	if self:GetWeaponType() ~= class then self.ZSCrafter, self.ZSForgeLevel = nil, nil end
 	local weptab = weapons.GetStored(class)
 	local sandbox_tab = self.SandBoxTable
 	if weptab then

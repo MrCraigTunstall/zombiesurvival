@@ -1,0 +1,6 @@
+"VertexLitGeneric"
+{
+ "$basetexture" "zombiesurvival/doll/arm"
+ "$model" "1"
+ "$surfaceprop" "flesh"
+}

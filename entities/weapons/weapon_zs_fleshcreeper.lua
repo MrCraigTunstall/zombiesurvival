@@ -20,6 +20,11 @@ AccessorFuncDT(SWEP, "AttackAnimTime", "Float", 3)
 SWEP.NextDigSound = 0
 SWEP.NextMessage = 0
 
+local nestFloorOffset = Vector(0, 0, -48)
+local function IgnorePlayers(ent)
+	return not ent:IsPlayer()
+end
+
 function SWEP:Think()
 	self.BaseClass.Think(self)
 
@@ -69,14 +74,12 @@ function SWEP:BuildingThink()
 	local owner = self.Owner
 	local pos = owner:WorldSpaceCenter()
 	local ang = owner:EyeAngles()
-	local zombies = team.GetPlayers(TEAM_UNDEAD)
 	ang.pitch = 0
 	ang.roll = 0
 	local forward = ang:Forward()
-	local right = ang:Right()
 	local endpos = pos + forward * 32
 
-	local tr = util.TraceLine({start = pos, endpos = endpos, filter = player.GetAll(), mask = MASK_PLAYERSOLID})
+	local tr = util.TraceLine({start = pos, endpos = endpos, filter = IgnorePlayers, mask = MASK_PLAYERSOLID})
 	local trent = tr.Entity
 
 	if trent and trent:IsValid() and trent:GetClass() == "prop_creepernest" then
@@ -100,7 +103,8 @@ function SWEP:BuildingThink()
 		return
 	end
 
-	tr = util.TraceLine({start = endpos, endpos = endpos + Vector(0, 0, -48), filter = zombies, mask = MASK_PLAYERSOLID})
+	local zombies = team.GetPlayers(TEAM_UNDEAD)
+	tr = util.TraceLine({start = endpos, endpos = endpos + nestFloorOffset, filter = zombies, mask = MASK_PLAYERSOLID})
 	local hitnormal = tr.HitNormal
 	local z = hitnormal.z
 	if not tr.HitWorld or tr.HitSky or z < 0.75 then
@@ -109,11 +113,12 @@ function SWEP:BuildingThink()
 	end
 
 	local hitpos = tr.HitPos
+	local right = ang:Right()
 
 	for x = -20, 20, 20 do
 		for y = -20, 20, 20 do
 			local start = endpos + x * right + y * forward
-			tr = util.TraceLine({start = start, endpos = start + Vector(0, 0, -48), filter = zombies, mask = MASK_PLAYERSOLID})
+			tr = util.TraceLine({start = start, endpos = start + nestFloorOffset, filter = zombies, mask = MASK_PLAYERSOLID})
 			if not tr.HitWorld or tr.HitSky or math.abs(tr.HitNormal.z - z) >= 0.2 then
 				self:SendMessage("not_enough_room_for_a_nest")
 				return
@@ -131,7 +136,7 @@ function SWEP:BuildingThink()
 	end
 
 	-- See if there's a nest nearby.
-	for _, ent in pairs(ents.FindByClass("prop_creepernest")) do
+	for _, ent in ipairs(GAMEMODE:GetZSEquipmentEntities("prop_creepernest", true)) do
 		if util.SkewedDistance(ent:GetPos(), hitpos, 2.5) <= GAMEMODE.DynamicSpawnDistBuild then
 			self:SendMessage("too_close_to_another_nest")
 			return
@@ -153,7 +158,7 @@ function SWEP:BuildingThink()
 
 	local ent = ents.Create("prop_creepernest")
 	if ent:IsValid() then
-		nestang = hitnormal:Angle()
+		local nestang = hitnormal:Angle()
 		nestang:RotateAroundAxis(nestang:Right(), 270)
 
 		ent:SetPos(hitpos)

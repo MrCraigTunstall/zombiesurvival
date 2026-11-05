@@ -81,7 +81,7 @@ function CLASS:CalcMainActivity(pl, velocity)
 	if wep:IsValid() and wep.GetCharge then
 		local charge = wep:GetCharge()
 		if charge > 0 then
-			pl.CalcSeqOverride = pl:LookupSequence("taunt_zombie_original")
+			pl.CalcSeqOverride = GAMEMODE:GetAnimationSequence(pl, "taunt_zombie_original")
 			return true
 		end
 	end

@@ -9,9 +9,9 @@ SWEP.Primary.Ammo = "airboatgun"
 SWEP.Primary.Delay = 1
 SWEP.Primary.Automatic = true
 
-SWEP.Secondary.ClipSize = 1
-SWEP.Secondary.DefaultClip = 1
-SWEP.Secondary.Ammo = "dummy"
+SWEP.Secondary.ClipSize = -1
+SWEP.Secondary.DefaultClip = 0
+SWEP.Secondary.Ammo = "none"
 SWEP.Secondary.Automatic = false
 
 SWEP.WalkSpeed = SPEED_NORMAL
@@ -44,6 +44,7 @@ function SWEP:Reload()
 end
 
 function SWEP:CanPrimaryAttack()
+	if GAMEMODE:IsTraderOnlyRound() then return false end
 	if self.Owner:IsHolding() or self.Owner:GetBarricadeGhosting() then return false end
 
 	if self:GetPrimaryAmmoCount() <= 0 then
@@ -67,10 +68,11 @@ function SWEP:Deploy()
 end
 
 function SWEP:SpawnArsenal()
+	if GAMEMODE:IsTraderOnlyRound() then return end
 	local owner = self.Owner
 	if not owner:IsValid() then return end
 
-	for _, ent in pairs(ents.FindByClass("status_arsenalcrate")) do
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("status_arsenalcrate")) do
 		if ent:GetOwner() == owner then return end
 	end
 

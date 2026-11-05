@@ -34,7 +34,15 @@ function SWEP:RemoveGhost()
 	end
 end
 
+util.AddNetworkString("zs_beaconmenu")
+
 function SWEP:SecondaryAttack()
+ if not game.SinglePlayer() then return end
+ local owner = self:GetOwner()
+ if not IsValid(owner) or owner:IsBot() then return end
+ net.Start("zs_beaconmenu")
+ net.WriteEntity(self)
+ net.Send(owner)
 end
 
 function SWEP:PrimaryAttack()
@@ -44,11 +52,8 @@ function SWEP:PrimaryAttack()
 
 	local status = owner.status_ghost_messagebeacon
 	if not (status and status:IsValid()) then return end
-	status:RecalculateValidity()
-	if not status:GetValidPlacement() then return end
-
 	local pos, ang = status:RecalculateValidity()
-	if not pos or not ang then return end
+	if not pos or not ang or not status:GetValidPlacement() then return end
 
 	self:SetNextPrimaryAttack(CurTime() + self.Primary.Delay)
 
@@ -88,10 +93,13 @@ end
 
 SWEP.MessageID = 1
 concommand.Add("setmessagebeaconmessage", function(sender, command, arguments)
-	if not sender:IsValid() then return end
+	if not IsValid(sender) or not sender:IsPlayer() then return end
 
 	local wep = sender:GetActiveWeapon()
 	if wep:IsValid() and wep:GetClass() == "weapon_zs_messagebeacon" then
-		wep.MessageID = math.Clamp(math.floor(tonumbersafe(arguments[1]) or 1), 1, #GAMEMODE.ValidBeaconMessages)
+		local id = tonumber(arguments[1])
+		if not id or id ~= id or id == math.huge or id == -math.huge or #GAMEMODE.ValidBeaconMessages == 0 then return end
+		wep.MessageID = math.Clamp(math.floor(id), 1, #GAMEMODE.ValidBeaconMessages)
+		wep:SetDTInt(1, wep.MessageID)
 	end
 end)

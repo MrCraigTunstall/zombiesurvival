@@ -1,6 +1,7 @@
 INC_SERVER()
 
 function ENT:Initialize()
+	self.Owner = self:GetOwner()
 	self:SetModel("models/props_junk/glassbottle01a.mdl")
 	self:PhysicsInit(SOLID_VPHYSICS)
 	self:SetupGenericProjectile(true)
@@ -25,10 +26,11 @@ end
 function ENT:OnRemove()
 	local ent = ents.Create("env_molotovflame")
 	if ent:IsValid() then
-		ent:SetPos(self.PhysicsData.HitPos or self:GetPos())
-		ent:SetOwner(self.Owner or self:GetOwner())
+		ent:SetPos(self.PhysicsData and self.PhysicsData.HitPos or self:GetPos())
+		local owner = self.Owner or self:GetOwner()
+		ent:SetOwner(IsValid(owner) and owner or game.GetWorld())
+		ent.ZSCrafter = self.ZSCrafter
 		ent:Spawn()
-		ent:DropToFloor()
 	end
 end
 
@@ -55,14 +57,7 @@ function ENT:Explode(hitpos, hitnormal)
 	if owner:IsValidHuman() then
 		for ent, dmg in pairs(util.BlastDamageExAlloc(self, owner, hitpos, 128, 60, DMG_SLASH)) do
 			if ent:IsValidLivingPlayer() and (ent:Team() == TEAM_UNDEAD or ent == owner) then
-				ent:Ignite(dmg / 7)
-				for __, fire in pairs(ents.FindByClass("entityflame")) do
-					if fire:IsValid() and fire:GetParent() == ent then
-						fire:SetOwner(owner)
-						fire:SetPhysicsAttacker(owner)
-						fire.AttackerForward = owner
-					end
-				end
+				GAMEMODE:IgniteMolotovTarget(ent, owner, dmg / 7, self.ZSCrafter)
 			end
 		end
 	end

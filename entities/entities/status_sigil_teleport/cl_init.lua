@@ -1,48 +1,33 @@
 include("shared.lua")
 
+function ENT:BindTeleportOwner()
+ local owner = self:GetOwner()
+ if not IsValid(owner) then return end
+ self.TeleportOwner = owner
+ self.Owner = owner
+ local data = owner:GetTable()
+ data.Teleport = self
+ data.status_sigil_teleport = self
+end
+
 function ENT:Initialize()
-	self:DrawShadow(false)
-	self:SetRenderBounds(Vector(-40, -40, -18), Vector(40, 40, 80))
-
-	if self:GetStartTime() == 0 then
-		self:SetStartTime(CurTime())
-	end
-
-	self:GetOwner().Teleport = self
+ self:DrawShadow(false)
+ self:SetRenderBounds(Vector(-40, -40, -18), Vector(40, 40, 80))
+ self:BindTeleportOwner()
 end
 
 function ENT:OnRemove()
-	self:GetOwner().Teleport = nil
+ local owner = self.TeleportOwner or self:GetOwner()
+ self.TeleportOwner = nil
+ if not IsValid(owner) then return end
+ local data = owner:GetTable()
+ if data.Teleport == self then data.Teleport = nil end
+ if data.status_sigil_teleport == self then data.status_sigil_teleport = nil end
 end
 
 function ENT:Think()
+ if not IsValid(self.TeleportOwner) then self:BindTeleportOwner() end
 end
 
 function ENT:Draw()
-
 end
-
-local colTeleport = Color(255, 255, 255)
-local function drawBar(x, y, fraction, screenscale, destName)
-	
-	local maxbarwidth = 270 * screenscale
-	local barheight = 11 * screenscale
-	local barwidth = maxbarwidth * math.Clamp(fraction, 0, 1)
-	local startx = x - maxbarwidth * 0.5
-	
-	surface.SetDrawColor(0, 0, 0, 220)
-	surface.DrawRect(startx, y, maxbarwidth, barheight)
-	surface.SetDrawColor(colTeleport)
-	surface.DrawRect(startx + 3, y + 3, barwidth - 6, barheight - 6)
-	surface.DrawOutlinedRect(startx, y, maxbarwidth, barheight)
-	
-	draw.SimpleText(translate.Format("sigil_teleporting", destName), "ZSHUDFontSmall", x, y - draw.GetFontHeight("ZSHUDFontSmall") - 2, col, TEXT_ALIGN_CENTER)
-end
-
-hook.Add("HUDPaint", "HUDPaint_Teleport", function()
-	local teleport = LocalPlayer().Teleport
-	if IsValid(teleport) and IsValid(teleport:GetDestSigil()) then
-		local destName = teleport:GetDestSigil():GetSigilLetter()
-		drawBar(ScrW() * 0.5, ScrH() * 0.55, 1 - teleport:GetTimeRemaining() / teleport:GetMaxTime(), BetterScreenScale(), destName)
-	end
-end)

@@ -2,7 +2,7 @@ util.AddNetworkString("SMAddSpray")
 util.AddNetworkString("SMClearDecals")
 util.AddNetworkString("SMSpray")
 
-CreateConVar("spraymon_nodelay", 1, FCVAR_SERVER_CAN_EXECUTE, "no delay for 0:nobody | 1:admins | 2:superadmins")
+local noDelay = CreateConVar("spraymon_nodelay", 1, FCVAR_SERVER_CAN_EXECUTE, "no delay for 0:nobody | 1:admins | 2:superadmins/owner")
 CreateConVar("spraymon_nooverspraying", 0, FCVAR_REPLICATED, "anti over spraying: 0 | 1")
 
 hook.Add("PlayerSpray", "SMSendSpray", function(ply)
@@ -19,17 +19,26 @@ hook.Add("PlayerSpray", "SMSendSpray", function(ply)
 end)
 
 local plymeta = FindMetaTable("Player")
-local old = plymeta.ConCommand
-plymeta.ConCommand = function(self, cmd, ...)
-	if string.find(cmd, "r_cleardecals") then
+plymeta.ZSSprayConCommand = plymeta.ZSSprayConCommand or {Original = plymeta.ConCommand}
+local commands = plymeta.ZSSprayConCommand
+commands.Notify = function(self, cmd)
+	if not self:IsBot() and string.find(cmd, "r_cleardecals", 1, true) then
 		net.Start("SMClearDecals")
 		net.Send(self)
 	end
-	return old(self, cmd, ...)
+end
+if not commands.Wrapper then
+	commands.Wrapper = function(self, cmd, ...)
+		commands.Notify(self, cmd)
+		return commands.Original(self, cmd, ...)
+	end
+	plymeta.ConCommand = commands.Wrapper
 end
 
 net.Receive("SMSpray", function(_, ply)
-	if GetConVarNumber("spraymon_nodelay") > 0 and (GetConVarNumber("spraymon_nodelay") > 1 and ply:IsUserGroup("owner")) then
+	if not IsValid(ply) or not ply:IsPlayer() then return end
+	local mode = noDelay:GetInt()
+	if mode > 0 and (ply:IsUserGroup("owner") or mode == 1 and ply:IsAdmin() or mode >= 2 and ply:IsSuperAdmin()) then
 		ply:AllowImmediateDecalPainting()
 	end
 end)

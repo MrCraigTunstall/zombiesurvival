@@ -45,9 +45,9 @@ SWEP.Primary.Ammo = "manhack"
 SWEP.Primary.Delay = 1
 SWEP.Primary.DefaultClip = 1
 
-SWEP.Secondary.ClipSize = 1
-SWEP.Secondary.DefaultClip = 1
-SWEP.Secondary.Ammo = "dummy"
+SWEP.Secondary.ClipSize = -1
+SWEP.Secondary.DefaultClip = 0
+SWEP.Secondary.Ammo = "none"
 
 SWEP.WalkSpeed = SPEED_FAST
 
@@ -63,7 +63,7 @@ end
 function SWEP:CanPrimaryAttack()
 	if self.Owner:IsHolding() or self.Owner:GetBarricadeGhosting() then return false end
 
-	for _, ent in pairs(ents.FindByClass("prop_manhac*")) do
+	for _, ent in ipairs(GAMEMODE:GetZSEquipmentEntities("prop_manhac*")) do
 		if ent:GetOwner() == self.Owner then return false end
 	end
 
@@ -91,11 +91,13 @@ function SWEP:PrimaryAttack()
 		if ent:IsValid() then
 			ent:SetPos(owner:GetShootPos())
 			ent:SetOwner(owner)
+			ent.ZSCrafter = self.ZSCrafter
 			ent:Spawn()
 
 			local stored = owner:PopPackedItem(ent:GetClass())
 			if stored then
 				ent:SetObjectHealth(stored[1])
+				ent.ZSCrafter = stored[2]
 			end
 
 			ent:EmitSound("WeaponFrag.Throw")

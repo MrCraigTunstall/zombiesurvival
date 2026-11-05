@@ -2,15 +2,18 @@ include("shared.lua")
 
 ENT.Dinged = true
 
+hook.Add("PostDrawTranslucentRenderables", "DrawResupplyHints", function(bDepth, bSkybox)
+	if bDepth or bSkybox then return end
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_resupplybox")) do
+		if IsValid(ent) then ent:DrawWorldHint() end
+	end
+end)
+
 function ENT:Initialize()
+	GAMEMODE:RegisterZSClassEntity(self)
 	self:SetRenderBounds(Vector(-72, -72, -72), Vector(72, 72, 128))
 
-	hook.Add("PostDrawTranslucentRenderables", "DrawResupplyHints", function( bDepth, bSkybox )
-		if ( bSkybox ) then return end
-		for _, ent in pairs(ents.FindByClass("prop_resupplybox")) do
-			ent:DrawWorldHint()
-		end
-	end)
+
 end
 
 function ENT:SetObjectHealth(health)

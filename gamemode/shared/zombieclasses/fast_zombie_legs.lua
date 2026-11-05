@@ -101,7 +101,7 @@ end
 function CLASS:CalcMainActivity(pl, velocity)
 	local feign = pl.FeignDeath
 	if feign and feign:IsValid() then
-		pl.CalcSeqOverride = pl:LookupSequence("zombie_slump_rise_02_fast")
+		pl.CalcSeqOverride = GAMEMODE:GetAnimationSequence(pl, "zombie_slump_rise_02_fast")
 	elseif velocity:Length2D() <= 0.5 then
 		pl.CalcIdeal = ACT_HL2MP_IDLE_ZOMBIE
 	else
@@ -137,6 +137,7 @@ end
 if not CLIENT then return end
 
 -- This whole point of this is to stop drawing decals on the upper part of the model. It doesn't actually do anything to the visible model.
+local kickAngles = setmetatable({}, {__mode = "k"})
 local undo = false
 function CLASS:PrePlayerDraw(pl)
 	local boneid = pl:LookupBone("ValveBiped.Bip01_Spine")
@@ -165,8 +166,9 @@ function CLASS:BuildBonePositions(pl)
 
 	local wep = pl:GetActiveWeapon()
 	if wep:IsValid() then
-		if wep.GetSwingEndTime and wep:GetSwingEndTime() > 0 then
-			desired = 1 - math.Clamp((wep:GetSwingEndTime() - CurTime()) / wep.MeleeDelay, 0, 1)
+		local swingEnd = wep.GetSwingEndTime and wep:GetSwingEndTime()
+		if swingEnd and swingEnd > 0 then
+			desired = 1 - math.Clamp((swingEnd - CurTime()) / wep.MeleeDelay, 0, 1)
 		end
 
 		if wep:GetDTBool(3) then
@@ -184,7 +186,14 @@ function CLASS:BuildBonePositions(pl)
 
 	local boneid = pl:LookupBone(bone)
 	if boneid and boneid > 0 then
-		pl:ManipulateBoneAngles(boneid, pl.m_KickDelta * Angle(bone == "ValveBiped.Bip01_L_Thigh" and 0 or 20, -110, 30))
+		local angle = kickAngles[pl]
+		if not angle then
+			angle = Angle(0, 0, 0)
+			kickAngles[pl] = angle
+		end
+		angle.p = bone == "ValveBiped.Bip01_L_Thigh" and 0 or pl.m_KickDelta * 20
+		angle.y, angle.r = pl.m_KickDelta * -110, pl.m_KickDelta * 30
+		pl:ManipulateBoneAngles(boneid, angle)
 	end
 end
 

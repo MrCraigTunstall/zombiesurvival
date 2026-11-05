@@ -18,9 +18,9 @@ SWEP.MeleeRange = 65
 SWEP.MeleeSize = 1.5
 SWEP.MeleeKnockBack = 0
 
-SWEP.Secondary.ClipSize = 1
-SWEP.Secondary.DefaultClip = 1
-SWEP.Secondary.Ammo = "dummy"
+SWEP.Secondary.ClipSize = -1
+SWEP.Secondary.DefaultClip = 0
+SWEP.Secondary.Ammo = "none"
 SWEP.Secondary.Automatic = true
 
 SWEP.WalkSpeed = SPEED_FAST
@@ -113,7 +113,7 @@ end
 
 function SWEP:PrimaryAttack()
 	if not self:CanPrimaryAttack() then return end
-	self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
+	self:SetNextPrimaryFire(CurTime() + self.Primary.Delay * GAMEMODE:GetTraitSwingScale(self))
 
 	if self.SwingTime == 0 then
 		self:MeleeSwing()
@@ -140,7 +140,7 @@ function SWEP:StartSwinging()
 		self.IdleAnimation = CurTime() + self:SequenceDuration()
 	end
 	self:PlayStartSwingSound()
-	self:SetSwingEnd(CurTime() + self.SwingTime)
+	self:SetSwingEnd(CurTime() + self.SwingTime * GAMEMODE:GetTraitSwingScale(self))
 end
 
 function SWEP:MeleeSwing()
@@ -189,13 +189,14 @@ function SWEP:MeleeSwing()
 			if hitent:GetClass() == "func_breakable_surf" then
 				hitent:Fire("break", "", 0.01) -- Delayed because no way to do prediction.
 			else
-				local dmginfo = DamageInfo()
-				dmginfo:SetDamagePosition(tr.HitPos)
-				dmginfo:SetDamage(damage)
-				dmginfo:SetAttacker(owner)
-				dmginfo:SetInflictor(self)
-				dmginfo:SetDamageType(self.DamageType)
+
 				if hitent:IsPlayer() then
+					local dmginfo = DamageInfo()
+					dmginfo:SetDamagePosition(tr.HitPos)
+					dmginfo:SetDamage(damage)
+					dmginfo:SetAttacker(owner)
+					dmginfo:SetInflictor(self)
+					dmginfo:SetDamageType(self.DamageType)
 					hitent:MeleeViewPunch(damage)
 					if hitent:IsHeadcrab() then
 						damage = damage * 2
@@ -209,25 +210,31 @@ function SWEP:MeleeSwing()
 					if hitent:IsPlayer() and hitent:WouldDieFrom(damage, dmginfo:GetDamagePosition()) then
 						dmginfo:SetDamageForce(math.min(self.MeleeDamage, 50) * 400 * owner:GetAimVector())
 					end
-				end
-
-				if hitent:IsPlayer() then
 					hitent:TakeDamageInfo(dmginfo)
 				else
+					local damageType = self.DamageType
+					local hitPosition = Vector(tr.HitPos.x, tr.HitPos.y, tr.HitPos.z)
 					-- Again, no way to do prediction.
 					timer.Simple(0, function()
 						if hitent:IsValid() then
 							-- Workaround for propbroken not calling.
 							local h = hitent:Health()
+							local attacker = IsValid(owner) and owner or game.GetWorld()
+							local dmginfo = DamageInfo()
+							dmginfo:SetDamagePosition(hitPosition)
+							dmginfo:SetDamage(damage)
+							dmginfo:SetAttacker(attacker)
+							dmginfo:SetInflictor(IsValid(self) and self or attacker)
+							dmginfo:SetDamageType(damageType)
 
 							hitent:TakeDamageInfo(dmginfo)
 
 							if hitent:Health() <= 0 and h ~= hitent:Health() then
-								gamemode.Call("PropBroken", hitent, owner)
+								gamemode.Call("PropBroken", hitent, attacker)
 							end
 
 							local phys = hitent:GetPhysicsObject()
-							if hitent:GetMoveType() == MOVETYPE_VPHYSICS and phys:IsValid() and phys:IsMoveable() then
+							if IsValid(owner) and hitent:GetMoveType() == MOVETYPE_VPHYSICS and phys:IsValid() and phys:IsMoveable() then
 								hitent:SetPhysicsAttacker(owner)
 							end
 						end

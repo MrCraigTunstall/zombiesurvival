@@ -50,34 +50,26 @@ function SWEP:Think()
 		self:SendWeaponAnim(ACT_VM_IDLE)
 	end
 
-	if SERVER then
-		self:ControlClosestTurret()
-
-		for _, ent in pairs(ents.FindByClass("prop_gunturret")) do
-			if ent:GetObjectOwner() == self.Owner then
-				return
-			end
-		end
-
-		self.Owner:StripWeapon(self:GetClass())
+	if SERVER and CurTime() >= (self.NextOwnedCheck or 0) then
+		self.NextOwnedCheck = CurTime() + 0.1
+		local owner = self:GetOwner()
+		if IsValid(owner) and not self:ControlClosestTurret() then owner:StripWeapon(self:GetClass()) end
 	end
 end
 
 function SWEP:ControlClosestTurret()
+	local owner = self:GetOwner()
+	if not IsValid(owner) then return end
 	local closest, closestdist
-	local ownerpos = self.Owner:GetPos()
-	for _, ent in pairs(ents.FindByClass("prop_gunturret")) do
-		if ent:GetObjectOwner() == self.Owner then
-			local dist = ent:NearestPoint(ownerpos):Distance(ownerpos)
-			if not closestdist or dist < closestdist then
-				closest = ent
-				closestdist = dist
-			end
+	local ownerpos = owner:GetPos()
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_gunturret")) do
+		if IsValid(ent) and not ent:IsMarkedForDeletion() and ent:GetObjectOwner() == owner then
+			local dist = ent:NearestPoint(ownerpos):DistToSqr(ownerpos)
+			if not closestdist or dist < closestdist then closest, closestdist = ent, dist end
 		end
 	end
-	if closest then
-		self:SetTurret(closest)
-	end
+	if self:GetTurret() ~= (closest or NULL) then self:SetTurret(closest or NULL) end
+	return closest
 end
 
 function SWEP:PrimaryAttack()

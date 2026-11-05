@@ -24,7 +24,9 @@ if CLIENT then
     }
 end
  
-SWEP.Base = "weapon_zs_base"
+SWEP.Base = "weapon_zs_base"
+SWEP.TraitExplosive = true
+SWEP.ExplosionDamage = 250
  
 SWEP.HoldType = "revolver"
  
@@ -61,18 +63,14 @@ SWEP.IronSightsAng = Vector(0, 0, 1)
  
 --SWEP.TracerName = "rico_trace"
 
-function SWEP.BulletCallback(attacker, tr, dmginfo)
-	if not attacker:IsValid() or not attacker:IsPlayer() then return end
-
-	local e = EffectData()
-		e:SetOrigin(tr.HitPos)
-		e:SetNormal(tr.HitNormal)
-		e:SetRadius(200)
-		e:SetMagnitude(10)
-		e:SetScale(1)
-	util.Effect("meteorexplosion", e)
-
-	util.BlastDamage2(self, attacker, tr.HitPos, 500, 250)
-
-	GenericBulletCallback(attacker, tr, dmginfo)
+function SWEP.BulletCallback(attacker, tr, dmginfo)
+	if not IsValid(attacker) or not attacker:IsPlayer() then return end
+	if IsFirstTimePredicted() then
+		local effect = EffectData()
+		effect:SetOrigin(tr.HitPos); effect:SetNormal(tr.HitNormal)
+		effect:SetRadius(200); effect:SetMagnitude(10); effect:SetScale(1)
+		util.Effect("meteorexplosion", effect)
+	end
+	util.BlastBulletDamage(dmginfo, attacker, tr.HitPos, 500, 250)
+	GenericBulletCallback(attacker, tr, dmginfo)
 end

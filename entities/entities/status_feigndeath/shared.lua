@@ -8,6 +8,13 @@ function ENT:Move(pl, move)
 	move:SetMaxClientSpeed(0)
 end
 
+hook.Add("Move", "ZSFeignDeathMove", function(pl, move)
+	local status = pl.FeignDeath
+	if status and status:IsValid() then
+		return status:Move(pl, move)
+	end
+end)
+
 function ENT:SetState(state)
 	self:SetDTInt(0, state)
 end

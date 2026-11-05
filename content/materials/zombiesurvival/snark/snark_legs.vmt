@@ -1,0 +1,8 @@
+"VertexLitGeneric"
+{
+ "$basetexture" "zombiesurvival/snark/white"
+ "$model" "1"
+ "$color2" "[0.065 0.09 0.04]"
+ "$phong" "1"
+ "$phongexponent" "12"
+}

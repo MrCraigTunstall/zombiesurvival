@@ -1,19 +1,22 @@
-function player.GetAllActive()
-	local t = {}
+local previousGetAllActive = player.GetAllActive
+if previousGetAllActive == nil or debug.getinfo(previousGetAllActive, "S").source:find("sh_util.lua", 1, true) then
+	function player.GetAllActive()
+		local t = {}
 
-	for _, pl in pairs(player.GetAll()) do
-		if not pl:IsSpectator() then
-			t[#t + 1] = pl
+		for _, pl in player.Iterator() do
+			if not pl:IsSpectator() then
+				t[#t + 1] = pl
+			end
 		end
-	end
 
-	return t
+		return t
+	end
 end
 
 function player.GetAllSpectators()
 	local t = {}
 
-	for _, pl in pairs(player.GetAll()) do
+	for _, pl in player.Iterator() do
 		if pl:IsSpectator() then
 			t[#t + 1] = pl
 		end
@@ -25,7 +28,7 @@ end
 -- Takes a table of false/trues with numbers as the keys, compresses to array of chars (8 bits), in other words a string, for storage in files.
 -- The net library already uses the smallest number of bits needed so this is only for storing data.
 function util.CompressBitTable(t)
-	local buf = ""
+	local buf = {}
 	local maxvalue = 0
 
 	t = table.ToAssoc(t)
@@ -44,17 +47,17 @@ function util.CompressBitTable(t)
 			end
 		end
 
-		buf = buf..string.char(byte)
+		buf[on_byte] = string.char(byte)
 	end
 
-	return buf
+	return table.concat(buf)
 end
 
 function util.DecompressBitTable(str, associative)
 	local t = {}
 
 	for on_byte = 1, #str do
-		local byte = str:sub(on_byte, on_byte):byte()
+		local byte = str:byte(on_byte)
 		for bit_slot = 1, 8 do
 			if bit.band(byte, 1) == 1 then
 				local v = bit_slot + 8 * (on_byte - 1)
@@ -73,7 +76,7 @@ end
 
 function table.IsAssoc(t)
 	for _, v in pairs(t) do
-		if v == true then
+		if type(v) == "boolean" then
 			return true
 		end
 
@@ -112,96 +115,27 @@ function table.ToKeyValues(t)
 end
 
 function FindStartingItem(id)
-	if not id then return end
-
-	local t
-
-	local num = tonumber(id)
-	if num then
-		t = GAMEMODE.Items[num]
-	else
-		for i, tab in pairs(GAMEMODE.Items) do
-			if tab.Signature == id then
-				t = tab
-				break
-			end
-		end
-	end
-
+	local t = FindItem(id)
 	if t and t.WorthShop then return t end
 end
 
 function FindItem(id)
-	if not id then return end
-
-	local t
-
+	if type(id) ~= "string" and type(id) ~= "number" then return end
 	local num = tonumber(id)
 	if num then
-		t = GAMEMODE.Items[num]
-	else
-		for i, tab in pairs(GAMEMODE.Items) do
-			if tab.Signature == id then
-				t = tab
-				break
-			end
-		end
+		if num % 1 ~= 0 then return end
+		return GAMEMODE.Items[num]
 	end
-
-	return t
-end
-
---Mutation
-function FindMutation(id)
-	if not id then return end
-
-	local t
-
-	local num = tonumber(id)
-	if num then
-		t = GAMEMODE.Mutations[num]
-	else
-		for i, tab in pairs(GAMEMODE.Mutations) do
-			if tab.Signature == id then
-				t = tab
-				break
-			end
-		end
-	end
-
-	if t and t.MutationShop then return t end
-end
-
-function TrueVisible(posa, posb, filter)
-	local filt = ents.FindByClass("projectile_*")
-	filt = table.Add(filt, player.GetAll())
-	if filter then
-		filt[#filt + 1] = filter
-	end
-
-	return not util.TraceLine({start = posa, endpos = posb, filter = filt, mask = MASK_SHOT}).Hit
-end
-
-function TrueVisibleFilters(posa, posb, ...)
-	local filt = ents.FindByClass("projectile_*")
-	filt = table.Add(filt, player.GetAll())
-	if ... ~= nil then
-		for k, v in pairs({...}) do
-			filt[#filt + 1] = v
-		end
-	end
-
-	return not util.TraceLine({start = posa, endpos = posb, filter = filt, mask = MASK_SHOT}).Hit
+	return GAMEMODE.ItemsBySignature[id]
 end
 
 MASK_SHOT_OPAQUE = bit.bor(MASK_SHOT, CONTENTS_OPAQUE)
 -- Literally if photon particles can reach point b from point a.
 function LightVisible(posa, posb, ...)
 	local filter = {}
-	if ... ~= nil then
-		for k, v in pairs({...}) do
-			filter[#filter + 1] = v
-		end
+	for i = 1, select("#", ...) do
+		local ent = select(i, ...)
+		if ent ~= nil then filter[#filter + 1] = ent end
 	end
 
 	return not util.TraceLine({start = posa, endpos = posb, mask = MASK_SHOT_OPAQUE, filter = filter}).Hit
@@ -234,7 +168,7 @@ end
 function util.IncreaseLetter(letter)
 	local alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-	local index = alphabet:find(letter)
+	local index = alphabet:find(letter, 1, true)
 	if index then
 		index = (index % #alphabet) + 1
 		return alphabet:sub(index, index)
@@ -259,35 +193,11 @@ function util.Blood(pos, amount, dir, force, noprediction)
 end
 
 -- I had to make this since the default function checks visibility vs. the entitiy's center and not the nearest position.
-function util.BlastDamageEx(inflictor, attacker, epicenter, radius, damage, damagetype)
-	local filter = inflictor
-	local entities = ents.FindInSphere(epicenter, radius)
-	-- Move attacker to the end to prevent teamkilling
-	for k, v in ipairs(entities) do
-		if v == attacker then
-			table.insert(entities, table.remove(entities, k))
-			break
-		end
-	end
-	
-	for _, ent in pairs(entities) do
-		if ent and ent:IsValid() then
-			local nearest = ent:NearestPoint(epicenter)
-			if TrueVisibleFilters(epicenter, nearest, inflictor, ent) then
-				ent:TakeSpecialDamage(((radius - nearest:Distance(epicenter)) / radius) * damage, damagetype, attacker, inflictor, nearest)
-			end
-		end
-	end
-end
-
-function util.BlastDamage2(inflictor, attacker, epicenter, radius, damage)
-	util.BlastDamageEx(inflictor, attacker, epicenter, radius, damage, DMG_BLAST)
-end
-
 function util.FindValidInSphere(pos, radius)
 	local ret = {}
 
-	for _, ent in pairs(util.FindInSphere(pos, radius)) do
+	local find = type(util.FindInSphere) == "function" and util.FindInSphere or ents.FindInSphere
+	for _, ent in pairs(find(pos, radius)) do
 		if ent and ent:IsValid() then
 			ret[#ret + 1] = ent
 		end
@@ -296,13 +206,20 @@ function util.FindValidInSphere(pos, radius)
 	return ret
 end
 
+local function FiniteBlastNumber(value)
+	return type(value) == "number" and value == value and value > -math.huge and value < math.huge
+end
+
 function util.PoisonBlastDamage(inflictor, attacker, epicenter, radius, damage, noreduce)
-	local filter = inflictor
+	if not isvector(epicenter) or not FiniteBlastNumber(epicenter.x) or not FiniteBlastNumber(epicenter.y)
+		or not FiniteBlastNumber(epicenter.z) or not FiniteBlastNumber(radius) or radius <= 0 or not FiniteBlastNumber(damage) then return end
 	for _, ent in pairs(ents.FindInSphere(epicenter, radius)) do
-		if ent and ent:IsValid() then
+		if IsValid(ent) and not ent:IsMarkedForDeletion() then
 			local nearest = ent:NearestPoint(epicenter)
-			if TrueVisibleFilters(epicenter, nearest, inflictor, ent) then
-				ent:PoisonDamage(((radius - nearest:Distance(epicenter)) / radius) * damage, attacker, inflictor, nil, noreduce)
+			local distance = nearest:Distance(epicenter)
+			if distance <= radius and TrueVisibleFilters(epicenter, nearest, inflictor, ent)
+				and IsValid(ent) and not ent:IsMarkedForDeletion() then
+				ent:PoisonDamage(((radius - distance) / radius) * damage, attacker, inflictor, nil, noreduce)
 			end
 		end
 	end
@@ -330,29 +247,23 @@ function util.RemoveAll(class)
 	end
 end
 
-local function TooNear(spawn, tab, dist)
-	local spawnpos = spawn:GetPos()
-	for _, ent in pairs(tab) do
-		if ent:GetPos():Distance(spawnpos) <= dist then
-			return true
-		end
-	end
-
-	return false
+local function SpawnPointLive(entity)
+	return IsValid(entity) and not entity:IsMarkedForDeletion()
 end
-function team.GetSpawnPointGrouped(teamid, dist)
-	dist = dist or 200
 
-	local tab = {}
-	local spawns = team.GetSpawnPoint(teamid)
-
-	for _, spawn in pairs(spawns) do
-		if not TooNear(spawn, tab, dist) then
-			table.insert(tab, spawn)
+function team.GetSpawnPointGrouped(teamid, distance)
+	distance = distance or 200
+	local grouped, positions = {}, {}
+	for _, spawn in pairs(team.GetSpawnPoint(teamid) or {}) do
+		if SpawnPointLive(spawn) then
+			local position, near = spawn:GetPos(), false
+			for _, other in ipairs(positions) do
+				if other:Distance(position) <= distance then near = true break end
+			end
+			if not near then grouped[#grouped + 1], positions[#positions + 1] = spawn, position end
 		end
 	end
-
-	return tab
+	return grouped
 end
 
 function AccessorFuncDT(tab, membername, type, id)
@@ -375,7 +286,7 @@ function team.GetValidSpawnPoint(teamid)
 	local spawns = team.GetSpawnPoint(teamid)
 	if spawns then
 		for _, ent in pairs(spawns) do
-			if ent:IsValid() then
+			if SpawnPointLive(ent) then
 				t[#t + 1] = ent
 			end
 		end
@@ -385,20 +296,22 @@ function team.GetValidSpawnPoint(teamid)
 end
 
 function timer.SimpleEx(delay, action, ...)
-	if ... == nil then
+	local count = select("#", ...)
+	if count == 0 then
 		timer.Simple(delay, action)
 	else
-		local a, b, c, d, e, f, g, h, i, j, k = ...
-		timer.Simple(delay, function() action(a, b, c, d, e, f, g, h, i, j, k) end)
+		local args = {...}
+		timer.Simple(delay, function() action(unpack(args, 1, count)) end)
 	end
 end
 
 function timer.CreateEx(timername, delay, repeats, action, ...)
-	if ... == nil then
+	local count = select("#", ...)
+	if count == 0 then
 		timer.Create(timername, delay, repeats, action)
 	else
-		local a, b, c, d, e, f, g, h, i, j, k = ...
-		timer.Create(timername, delay, repeats, function() action(a, b, c, d, e, f, g, h, i, j, k) end)
+		local args = {...}
+		timer.Create(timername, delay, repeats, function() action(unpack(args, 1, count)) end)
 	end
 end
 
@@ -423,37 +336,23 @@ function tonumbersafe(a)
 	return nil
 end
 
--- DEPRECATED behavior. CachedInvisibleEntities and filter tables is nonsense. Move to using functions.
-local TrueVisibleTrace = {mask = MASK_SHOT}
-function TrueVisible(posa, posb, filter)
-	local filt = ents.FindByClass("projectile_*")
-	filt = table.Add(filt, SERVER and GAMEMODE.CachedInvisibleEntities or player.GetAll())
-	if filter then
-		filt[#filt + 1] = filter
-	end
-
-	TrueVisibleTrace.start = posa
-	TrueVisibleTrace.endpos = posb
-	TrueVisibleTrace.filter = filt
-	TrueVisibleTrace.mask = MASK_SHOT
-
-	return not util.TraceLine(TrueVisibleTrace).Hit
+local function TraceVisible(posa, posb, excluded, count)
+	return not util.TraceLine({start = posa, endpos = posb, mask = MASK_SHOT, filter = function(ent)
+		if ent:IsPlayer() or string.sub(ent:GetClass(), 1, 11) == "projectile_"
+			or SERVER and (ent.IgnoreTraces or ent.NoBlockExplosions) then return false end
+		for i = 1, count do
+			if ent == excluded[i] then return false end
+		end
+		return true
+	end}).Hit
 end
 
--- DEPRECATED behavior. CachedInvisibleEntities and filter tables is nonsense. Move to using functions.
+function TrueVisible(posa, posb, filter)
+	return TraceVisible(posa, posb, {filter}, filter and 1 or 0)
+end
+
 function TrueVisibleFilters(posa, posb, ...)
-	local filt = ents.FindByClass("projectile_*")
-	filt = table.Add(filt, SERVER and GAMEMODE.CachedInvisibleEntities or player.GetAll())
-	if ... ~= nil then
-		filt = table.Add(filt, {...})
-	end
-
-	TrueVisibleTrace.start = posa
-	TrueVisibleTrace.endpos = posb
-	TrueVisibleTrace.filter = filt
-	TrueVisibleTrace.mask = MASK_SHOT
-
-	return not util.TraceLine(TrueVisibleTrace).Hit
+	return TraceVisible(posa, posb, {...}, select("#", ...))
 end
 
 -- Useful macros for the 3 file system
@@ -478,43 +377,4 @@ end
 
 -- Just in case you add this by mistake because it does nothing
 function INC_SHARED()
-end
-
-function util.BlastDamageExAlloc(inflictor, attacker, epicenter, radius, damage, damagetype)
-	local dmg
-	local t = {}
-
-	for _, ent in pairs(ents.FindInSphere(epicenter, radius)) do
-		if ent:IsValid() then
-			local nearest = ent:NearestPoint(epicenter)
-			if TrueVisibleFilters(epicenter, nearest, inflictor, attacker, ent)
-				or TrueVisibleFilters(epicenter, ent:EyePos(), inflictor, attacker, ent)
-				or TrueVisibleFilters(epicenter, ent:WorldSpaceCenter(), inflictor, attacker, ent) then
-
-				dmg = ((radius - nearest:Distance(epicenter)) / radius) * damage
-				ent:TakeSpecialDamage(dmg, damagetype, attacker, inflictor, nearest)
-
-				t[ent] = dmg
-			end
-		end
-	end
-
-	return t
-end
-
-function util.BlastAlloc(inflictor, attacker, epicenter, radius)
-	local t = {}
-
-	for _, ent in pairs(ents.FindInSphere(epicenter, radius)) do
-		if ent:IsValid() then
-			local nearest = ent:NearestPoint(epicenter)
-			if TrueVisibleFilters(epicenter, nearest, inflictor, attacker, ent)
-				or TrueVisibleFilters(epicenter, ent:EyePos(), inflictor, attacker, ent)
-				or TrueVisibleFilters(epicenter, ent:WorldSpaceCenter(), inflictor, attacker, ent) then
-				t[#t + 1] = ent
-			end
-		end
-	end
-
-	return t
 end

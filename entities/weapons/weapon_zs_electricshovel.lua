@@ -33,6 +33,7 @@ SWEP.WorldModel = "models/weapons/w_pistol.mdl"
 SWEP.UseHands = true
 SWEP.ShowWorldModel = false
 
+SWEP.ExplosionDamage = 40
 SWEP.MeleeDamage = 60
 SWEP.MeleeRange = 98
 SWEP.MeleeSize = 1.5
@@ -57,31 +58,14 @@ function SWEP:PlayHitFleshSound()
 	self:EmitSound("physics/body/body_medium_break"..math.random(2, 4)..".wav")
 end
 
-local function BlastDamage2NoSelf(inflictor, attacker, epicenter, radius, damage)
-    for _, ent in pairs(ents.FindInSphere(epicenter, radius)) do
-        if ent and ent:IsValid() and ent != attacker then
-            local nearest = ent:NearestPoint(epicenter)
-            if TrueVisibleFilters(epicenter, nearest, inflictor, ent) then
-                ent:TakeSpecialDamage(((radius - nearest:Distance(epicenter)) / radius) * damage, DMG_BLAST, attacker, inflictor, nearest)
-            end
-        end
-    end
-end
-
-
 function SWEP:OnMeleeHit(hitent, hitflesh, tr)
-    local effectdata = EffectData()
-        effectdata:SetOrigin(tr.HitPos)
-        effectdata:SetNormal(tr.HitNormal)
-    if IsFirstTimePredicted() then
-        util.Effect("cball_explode", effectdata) 
-    end
-
-    BlastDamage2NoSelf(self, self.Owner, tr.HitPos, 50, 40)
-	local ent = tr.Entity
-	if ent:IsValid() and ent:IsPlayer()  then
-		ent:AddLegDamage(30)
-		self.Owner:TakeSpecialDamage(0, DMG_GENERIC, owner, self)
-
-end
+	local effectdata = EffectData()
+	effectdata:SetOrigin(tr.HitPos)
+	effectdata:SetNormal(tr.HitNormal)
+	if IsFirstTimePredicted() then util.Effect("cball_explode", effectdata) end
+	local owner = self:GetOwner()
+	if not IsValid(owner) then return end
+	if not SERVER then return end
+	util.BlastDamageNoAttacker(self, owner, tr.HitPos, 50, self.ExplosionDamage)
+	if IsValid(hitent) and hitent:IsPlayer() and hitent:Alive() and gamemode.Call("PlayerShouldTakeDamage", hitent, owner) ~= false then hitent:AddLegDamage(30) end
 end

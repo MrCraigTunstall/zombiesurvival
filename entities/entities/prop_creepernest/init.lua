@@ -28,6 +28,7 @@ function ENT:Initialize()
 	self:SetNestHealth(self.MaxHealth)
 
 	self.LastBuild = CurTime()
+	GAMEMODE:RegisterZSClassEntity(self)
 end
 
 function ENT:BuildUp()
@@ -69,12 +70,12 @@ function ENT:OnTakeDamage(dmginfo)
 			return
 		end
 
-		if owner and owner:IsValid() and owner:Team() == TEAM_UNDEAD and owner ~= attacker and not attacker:IsAdmin() and owner:GetZombieClassTable().Name == "Flesh Creeper" and owner:Alive() and owner:GetPos():Distance(self:GetPos()) <= 768 then
+		if owner and owner:IsValid() and owner:Team() == TEAM_UNDEAD and owner ~= attacker and not attacker:IsAdmin() and owner:GetZombieClassTable().Name == "Flesh Creeper" and owner:Alive() and owner:GetPos():DistToSqr(self:GetPos()) <= 768 * 768 then
 			attacker:CenterNotify(COLOR_RED, translate.ClientFormat(attacker, "x_has_built_this_nest_and_is_still_around", owner))
 			return
 		end
 
-		if #ents.FindByClass(self:GetClass()) == 1 and not attacker:IsAdmin() and owner ~= attacker then
+		if GAMEMODE:GetZSClassCount(self:GetClass()) == 1 and not attacker:IsAdmin() and owner ~= attacker then
 			attacker:CenterNotify(COLOR_RED, translate.ClientGet(attacker, "no_other_nests"))
 			return
 		end

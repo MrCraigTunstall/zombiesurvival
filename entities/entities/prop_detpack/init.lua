@@ -4,7 +4,7 @@ AddCSLuaFile("shared.lua")
 include("shared.lua")
 
 local function RefreshDetpackOwners(pl)
-	for _, ent in pairs(ents.FindByClass("prop_detpack")) do
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_detpack")) do
 		if ent:IsValid() and ent:GetOwner() == pl then
 			ent:SetOwner(NULL)
 		end
@@ -61,6 +61,7 @@ end
 function ENT:Explode()
 	if self.Exploded then return end
 	self.Exploded = true
+	self:NextThink(CurTime())
 
 	local owner = self:GetOwner()
 	if owner:IsValid() and owner:IsPlayer() and owner:Team() == TEAM_HUMAN then
@@ -75,21 +76,15 @@ function ENT:Explode()
 end
 
 function ENT:Think()
-	if self.Exploded then
-		self:Remove()
-		return
+	if self.Exploded then self:Remove(); return end
+	local now, explodeTime = CurTime(), self:GetExplodeTime()
+	if explodeTime == 0 then self:NextThink(now + 1); return true end
+	if now >= explodeTime then self:Explode(); self:NextThink(now); return true end
+	if self.NextBlip <= now then
+		self.NextBlip = now + 0.4
+		self:EmitSound("weapons/c4/c4_beep1.wav")
 	end
-
-	if self:GetExplodeTime() ~= 0 then
-		if CurTime() >= self:GetExplodeTime() then
-			self:Explode()
-		elseif self.NextBlip <= CurTime() then
-			self.NextBlip = CurTime() + 0.4
-			self:EmitSound("weapons/c4/c4_beep1.wav")
-		end
-	end
-
-	self:NextThink(CurTime())
+	self:NextThink(math.min(explodeTime, self.NextBlip))
 	return true
 end
 

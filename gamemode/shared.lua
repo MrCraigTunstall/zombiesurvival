@@ -59,23 +59,54 @@ include("shared/sh_colors.lua")
 include("sh_serialization.lua")
 
 include("shared/sh_globals.lua")
+include("shared/sh_players.lua")
+include("shared/sh_entityregistry.lua")
+include("shared/sh_mapoverrides.lua")
+include("shared/sh_collisions.lua")
+include("shared/sh_notifications.lua")
+include("shared/sh_keybinds.lua")
+include("shared/sh_propcreator.lua")
+include("shared/sh_progression.lua")
 include("shared/sh_crafts.lua")
 include("shared/sh_util.lua")
 include("shared/sigilmaps.lua")
 include("shared/sh_options.lua")
+include("shared/sh_returns.lua")
+include("shared/sh_traits.lua")
+include("shared/sh_parkour.lua")
+include("shared/sh_useentity.lua")
+include("shared/sh_blastdamage.lua")
+include("shared/sh_arsenalshop.lua")
+include("shared/sh_worthshop.lua")
+include("shared/sh_trader.lua")
+include("shared/sh_quests.lua")
+include("shared/sh_guilds.lua")
+include("shared/sh_cosmetics.lua")
+include("shared/sh_lasthumanmusic.lua")
+include("shared/sh_mutationshop.lua")
+include("shared/sh_cataloguetranslations.lua")
+include("shared/sh_mutationcatalogue.lua")
+include("shared/sh_fastzombieanimations.lua")
 include("shared/sh_zombieclasses.lua")
+include("shared/sh_bosses.lua")
 include("shared/sh_animations.lua")
 include("shared/sh_sigils.lua")
 include("shared/sh_channel.lua")
 include("shared/sh_bullets.lua")
 include("shared/sh_scoreboardtags.lua")
 include("shared/sh_weaponquality.lua")
+include("shared/sh_weaponforge.lua")
 
 include("misc/noxapi/noxapi.lua")
 
 include("meta/obj_vector_extend.lua")
+include("shared/sh_barricadeghosting.lua")
 include("meta/obj_entity_extend.lua")
+include("shared/sh_luabullets.lua")
+include("shared/sh_ricochet.lua")
 include("meta/obj_player_extend.lua")
+include("shared/sh_playertraces.lua")
+include("shared/sh_playercamera.lua")
 include("meta/obj_weapon_extend.lua")
 
 include("misc/workshopfix.lua")
@@ -98,7 +129,6 @@ validmodels["tf02"] = nil
 
 vector_tiny = Vector(0.001, 0.001, 0.001)
 
--- ogg/mp3 still doesn't work with SoundDuration() function
 GM.SoundDuration = {
 	["zombiesurvival/music_win.ogg"] = 33.149,
 	["zombiesurvival/music_lose.ogg"] = 45.714,
@@ -134,8 +164,8 @@ function GM:AddCustomAmmo()
 	game.AddAmmoType({name = "manhack"})
 	game.AddAmmoType({name = "manhack_saw"})
 	game.AddAmmoType({name = "drone"})
+	game.AddAmmoType({name = "repairemitter"})
 
-	game.AddAmmoType({name = "dummy"})
 end
 
 function GM:RefreshMapIsObjective()
@@ -152,49 +182,23 @@ function GM:SetupDefaultClip(tab)
 	tab.DefaultClip = math.ceil(tab.ClipSize * self.SurvivalClips * (tab.ClipMultiplier or 1))
 end
 
--- Some weapons are derived from weapon_base and try to make use of .Owner
 function GM:FixWeaponBase()
-	local base = weapons.GetStored("weapon_base")
-
-	base.TranslateActivity = function(me, act)
-		if me.ActivityTranslate[act] ~= nil then
-			return me.ActivityTranslate[act]
-		end
-
-		return -1
-	end
-
-	base.TakePrimaryAmmo = function(me, num)
-		if me.Weapon:Clip1() <= 0 then
-			if me:Ammo1() <= 0 then return end
-
-			me:GetOwner():RemoveAmmo(num, me.Weapon:GetPrimaryAmmoType())
-
-			return
-		end
-
-		me.Weapon:SetClip1(me.Weapon:Clip1() - num)
-	end
-
-	base.Ammo1 = function(me)
-		return me:GetOwner():GetAmmoCount(me.Weapon:GetPrimaryAmmoType())
-	end
 end
 
 function GM:IsWeaponUnlocked(tab)
-	if self:GetWave() <= -1 or self:GetNumberOfWaves() <= -1 then return true end
-	return tab.Unlocked or self:GetWave() >= math.floor(tab.Wave * self:GetNumberOfWaves())
+	if type(tab) ~= "table" then return false end
+	if self.WeaponTiersEnabled and not self:WeaponTiersEnabled() then return true end
+	local wave = self:GetWave()
+	if wave <= -1 then return true end
+	local waves = self:GetNumberOfWaves()
+	if waves <= -1 then return true end
+	if type(tab) ~= "table" then return false end
+	if tab.Unlocked then return tab.Unlocked end
+	local required = tab.Wave
+	return type(required) == "number" and required == required and required > -math.huge and required < math.huge and wave >= math.floor(required * waves)
 end
 
-function GM:CanRemoveOthersNail(pl, nailowner, ent)
-	local plpoints = pl:Frags()
-	local ownerpoints = nailowner:Frags()
-	if plpoints >= 75 or ownerpoints < 75 then return true end
-
-	pl:PrintTranslatedMessage(HUD_PRINTCENTER, "cant_remove_nails_of_superior_player")
-
-	return false
-end
+include("shared/sh_barricades.lua")
 
 function GM:SetRedeemBrains(amount)
 	SetGlobalInt("redeembrains", amount)
@@ -213,7 +217,7 @@ function GM:GetFallDamage(pl, fallspeed)
 end
 
 function GM:ShouldRestartRound()
-	if self.TimeLimit == -1 or self.RoundLimit == -1 then return true end
+	if self.TimeLimit == 0 or self.RoundLimit == 0 then return false end
 
 	local roundlimit = self.RoundLimit
 	if self.ZombieEscape and roundlimit > 0 then
@@ -241,22 +245,29 @@ function GM:SortZombieSpawnDistances(allplayers)
 	if #zspawns == 0 then
 		zspawns = team.GetValidSpawnPoint(TEAM_UNDEAD)
 	end
+	local positions
 
 	for _, pl in pairs(allplayers) do
 		if pl:Team() == TEAM_UNDEAD or pl:GetInfo("zs_alwaysvolunteer") == "1" then
 			pl._ZombieSpawnDistance = -1
-		elseif CLIENT or pl.LastNotAFK and CurTime() <= pl.LastNotAFK + 60 then
+		elseif CLIENT or pl:IsBot() or pl.LastNotAFK and curtime <= pl.LastNotAFK + 60 then
 			local plpos = pl:GetPos()
-			local closest = 9999999
-			for _, ent in pairs(zspawns) do
-				local dist = ent:GetPos():Distance(plpos)
+			if not positions then
+				positions = {}
+				for _, ent in pairs(zspawns) do
+					if IsValid(ent) and not ent:IsMarkedForDeletion() then positions[#positions + 1] = ent:GetPos() end
+				end
+			end
+			local closest = math.huge
+			for _, position in ipairs(positions) do
+				local dist = position:DistToSqr(plpos)
 				if dist < closest then
 					closest = dist
 				end
 			end
 			pl._ZombieSpawnDistance = closest
 		else
-			pl._ZombieSpawnDistance = 9999999
+			pl._ZombieSpawnDistance = math.huge
 		end
 	end
 
@@ -264,10 +275,10 @@ function GM:SortZombieSpawnDistances(allplayers)
 end
 
 function GM:ValidMenuLockOnTarget(pl, ent)
-	if ent and ent:IsValid() and ent:IsPlayer() and ent:Team() ~= TEAM_UNDEAD and ent:Alive() then
+	if IsValid(pl) and IsValid(ent) and ent:IsPlayer() and ent:Team() ~= TEAM_UNDEAD and ent:Alive() then
 		local startpos = pl:EyePos()
 		local endpos = ent:NearestPoint(startpos)
-		if startpos:Distance(endpos) <= 48 and TrueVisible(startpos, endpos) then
+		if startpos:DistToSqr(endpos) <= 2304 and TrueVisible(startpos, endpos) then
 			return true
 		end
 	end
@@ -279,134 +290,11 @@ function GM:GetHandsModel(pl)
 	return player_manager.TranslatePlayerHands(pl:GetInfo("cl_playermodel"))
 end
 
-local playerheight = Vector(0, 0, 72)
-local playermins = Vector(-17, -17, 0)
-local playermaxs = Vector(17, 17, 4)
-local SkewedDistance = util.SkewedDistance
-
-GM.DynamicSpawnDistVisOld = 2048
-GM.DynamicSpawnDistOld = 640
-function GM:DynamicSpawnIsValidOld(zombie, humans, allplayers)
-	-- I didn't make this check where trigger_hurt entities are. Rather I made it check the time since the last time you were hit with a trigger_hurt.
-	-- I'm not sure if it's possible to check if a trigger_hurt is enabled or disabled through the Lua bindings.
-	if SERVER and zombie.LastHitWithTriggerHurt and CurTime() < zombie.LastHitWithTriggerHurt + 2 then
-		return false
-	end
-
-	-- Optional caching for these.
-	if not humans then humans = team.GetPlayers(TEAM_HUMAN) end
-	if not allplayers then allplayers = player.GetAll() end
-
-	local pos = zombie:GetPos() + Vector(0, 0, 1)
-	if zombie:Alive() and zombie:GetMoveType() == MOVETYPE_WALK and zombie:OnGround()
-	and not util.TraceHull({start = pos, endpos = pos + playerheight, mins = playermins, maxs = playermaxs, mask = MASK_SOLID, filter = allplayers}).Hit then
-		local vtr = util.TraceHull({start = pos, endpos = pos - playerheight, mins = playermins, maxs = playermaxs, mask = MASK_SOLID_BRUSHONLY})
-		if not vtr.HitSky and not vtr.HitNoDraw then
-			local valid = true
-
-			for _, human in pairs(humans) do
-				local hpos = human:GetPos()
-				local nearest = zombie:NearestPoint(hpos)
-				local dist = SkewedDistance(hpos, nearest, 2.75) -- We make it so that the Z distance between a human and a zombie is skewed if the zombie is below the human.
-				if dist <= self.DynamicSpawnDistOld or dist <= self.DynamicSpawnDistVisOld and WorldVisible(hpos, nearest) then -- Zombies can't be in radius of any humans. Zombies can't be clearly visible by any humans.
-					valid = false
-					break
-				end
-			end
-
-			return valid
-		end
-	end
-
-	return false
-end
-
-function GM:GetBestDynamicSpawnOld(pl, pos)
-	local spawns = self:GetDynamicSpawnsOld(pl)
-	if #spawns == 0 then return end
-
-	return self:GetClosestSpawnPoint(spawns, pos or self:GetTeamEpicentre(TEAM_HUMAN)) or table.Random(spawns)
-end
-
-function GM:GetDynamicSpawnsOld(pl)
-	local tab = {}
-
-	local allplayers = player.GetAll()
-	local humans = team.GetPlayers(TEAM_HUMAN)
-	for _, zombie in pairs(team.GetPlayers(TEAM_UNDEAD)) do
-		if zombie ~= pl and self:DynamicSpawnIsValidOld(zombie, humans, allplayers) then
-			table.insert(tab, zombie)
-		end
-	end
-
-	return tab
-end
-
-GM.DynamicSpawnDist = 400
-GM.DynamicSpawnDistBuild = 650
-function GM:DynamicSpawnIsValid(nest, humans, allplayers)
-	if self:ShouldUseAlternateDynamicSpawn() then
-		return self:DynamicSpawnIsValidOld(nest, humans, allplayers)
-	end
-
-	-- Optional caching for these.
-	if not humans then humans = team.GetPlayers(TEAM_HUMAN) end
-	--if not allplayers then allplayers = player.GetAll() end
-
-	local pos = nest:GetPos() + Vector(0, 0, 1)
-	if nest.GetNestBuilt and nest:GetNestBuilt() and not util.TraceHull({start = pos, endpos = pos + playerheight, mins = playermins, maxs = playermaxs, mask = MASK_SOLID_BRUSHONLY}).Hit then
-		local vtr = util.TraceHull({start = pos, endpos = pos - playerheight, mins = playermins, maxs = playermaxs, mask = MASK_SOLID_BRUSHONLY})
-		if not vtr.HitSky and not vtr.HitNoDraw then
-			local valid = true
-			local nearest = nest:GetPos()
-
-			for _, human in pairs(humans) do
-				local hpos = human:GetPos()
-				local dist = SkewedDistance(hpos, nearest, 2.75) -- We make it so that the Z distance between a human and a nest is skewed if the nest is below the human.
-				if dist <= self.DynamicSpawnDist then
-					valid = false
-					break
-				end
-			end
-
-			return valid
-		end
-	end
-
-	return false
-end
-
-function GM:GetBestDynamicSpawn(pl, pos)
-	if self:ShouldUseAlternateDynamicSpawn() then
-		return self:GetBestDynamicSpawnOld(pl, pos)
-	end
-
-	local spawns = self:GetDynamicSpawns(pl)
-	if #spawns == 0 then return end
-
-	return self:GetClosestSpawnPoint(spawns, pos or self:GetTeamEpicentre(TEAM_HUMAN)) or table.Random(spawns)
-end
-
-function GM:GetDynamicSpawns(pl)
-	if self:ShouldUseAlternateDynamicSpawn() then
-		return self:GetDynamicSpawnsOld(pl)
-	end
-
-	local tab = {}
-
-	--local allplayers = player.GetAll()
-	local humans = team.GetPlayers(TEAM_HUMAN)
-	for _, nest in pairs(ents.FindByClass("prop_creepernest")) do
-		if self:DynamicSpawnIsValid(nest, humans--[[, allplayers]]) then
-			table.insert(tab, nest)
-		end
-	end
-
-	return tab
-end
+include("shared/sh_dynamicspawns.lua")
 
 function GM:GetDesiredStartingZombies()
-	local numplayers = #player.GetAll()
+	local numplayers = player.GetCount()
+	if numplayers <= 1 then return 0 end
 	return math.min(math.max(1, math.ceil(numplayers * self.WaveOneZombies)), numplayers - 1)
 end
 
@@ -423,28 +311,24 @@ function GM:PrecacheResources()
 	end
 end
 
-function GM:ShouldCollide(enta, entb)
-	if enta.ShouldNotCollide and enta:ShouldNotCollide(entb) or entb.ShouldNotCollide and entb:ShouldNotCollide(enta) then
-		return false
-	end
-
-	return true
-end
 
 function GM:Move(pl, move)
-local M_Entity = FindMetaTable("Entity")
-local E_GetDTBool = M_Entity.GetDTBool
-	
+
 	if pl:Team() ~= TEAM_UNDEAD then
-		if pl:GetBarricadeGhosting() and pl.GhostCade and not E_GetDTBool(pl, 1) then
-			move:SetMaxSpeed(80)
-			move:SetMaxClientSpeed(80)
-		elseif move:GetForwardSpeed() < 0 then
-			move:SetMaxSpeed(move:GetMaxSpeed() * 0.5)
-			move:SetMaxClientSpeed(move:GetMaxClientSpeed() * 0.5)
-		elseif move:GetForwardSpeed() == 0 then
-			move:SetMaxSpeed(move:GetMaxSpeed() * 0.85)
-			move:SetMaxClientSpeed(move:GetMaxClientSpeed() * 0.85)
+		if self:MoveTraitParkour(pl, move) then return true end
+		local ghostspeed = self:GetBarricadeGhostSpeed(pl)
+		if ghostspeed then
+			move:SetMaxSpeed(ghostspeed)
+			move:SetMaxClientSpeed(ghostspeed)
+		else
+			local forward = move:GetForwardSpeed()
+			if forward < 0 then
+				move:SetMaxSpeed(move:GetMaxSpeed() * 0.5)
+				move:SetMaxClientSpeed(move:GetMaxClientSpeed() * 0.5)
+			elseif forward == 0 then
+				move:SetMaxSpeed(move:GetMaxSpeed() * 0.85)
+				move:SetMaxClientSpeed(move:GetMaxClientSpeed() * 0.85)
+			end
 		end
 	elseif pl:CallZombieFunction("Move", move) then
 		return
@@ -464,9 +348,11 @@ function GM:OnPlayerHitGround(pl, inwater, hitfloater, speed)
 	if inwater then return true end
 
 	local isundead = pl:Team() == TEAM_UNDEAD
+	local class
 
 	if isundead then
-		if pl:GetZombieClassTable().NoFallDamage then return true end
+		class = pl:GetZombieClassTable()
+		if class.NoFallDamage then return true end
 	elseif SERVER then
 		pl:PreventSkyCade()
 	end
@@ -474,12 +360,13 @@ function GM:OnPlayerHitGround(pl, inwater, hitfloater, speed)
 	if isundead then
 		speed = math.max(0, speed - 200)
 	end
+	if speed <= 525 then return true end
 
 	local damage = (0.1 * (speed - 525)) ^ 1.45
 	if hitfloater then damage = damage / 2 end
 
 	if math.floor(damage) > 0 then
-		if damage >= 5 and (not isundead or not pl:GetZombieClassTable().NoFallSlowdown) then
+		if damage >= 5 and (not isundead or not class.NoFallSlowdown) then
 			pl:RawCapLegDamage(CurTime() + math.min(2, damage * 0.038))
 		end
 
@@ -487,7 +374,8 @@ function GM:OnPlayerHitGround(pl, inwater, hitfloater, speed)
 			if damage >= 30 and damage < pl:Health() then
 				pl:KnockDown(damage * 0.05)
 			end
-			pl:TakeSpecialDamage(damage, DMG_FALL, game.GetWorld(), game.GetWorld(), pl:GetPos())
+			local world = game.GetWorld()
+			pl:TakeSpecialDamage(damage, DMG_FALL, world, world, pl:GetPos())
 			pl:EmitSound("player/pl_fallpain"..(math.random(2) == 1 and 3 or 1)..".wav")
 		end
 	end
@@ -501,17 +389,15 @@ function GM:PlayerCanBeHealed(pl)
 	return pl:Health() < maxhp or pl:GetPoisonDamage() > 0 or pl:GetBleedDamage() > 0
 end
 
-function GM:PlayerCanPurchase(pl)
-	return pl:Team() ~= TEAM_UNDEAD and self:GetWave() > 0 and pl:Alive() and pl:NearArsenalCrate()
-end
-
-function GM:ZombieCanPurchase(pl)
-	return pl:Team() == TEAM_UNDEAD and self:GetWave() > 0
+function GM:PlayerCanPurchase(pl, crate)
+	return pl:Team() == TEAM_HUMAN and self:GetWave() > 0 and pl:Alive() and (IsValid(crate) or pl:NearArsenalCrate())
 end
 
 local TEAM_SPECTATOR = TEAM_SPECTATOR
 function GM:PlayerCanHearPlayersVoice(listener, talker)
-	return listener:IsValid() and talker:IsValid() and listener:Team() == talker:Team() or listener:Team() == TEAM_SPECTATOR
+	if not IsValid(listener) or not IsValid(talker) then return false end
+	local team = listener:Team()
+	return team == TEAM_SPECTATOR or team == talker:Team()
 	--[[if self:GetEndRound() then return true, false end
 
 	if listener:Team() == talker:Team() then
@@ -525,6 +411,7 @@ function GM:PlayerTraceAttack(pl, dmginfo, dir, trace)
 end
 
 function GM:ScalePlayerDamage(pl, hitgroup, dmginfo)
+	if SERVER then self:ApplyTraitHeadshot(pl, hitgroup, dmginfo) end
 	if hitgroup == HITGROUP_HEAD and dmginfo:IsBulletDamage() then
 		pl.m_LastHeadShot = CurTime()
 	end
@@ -544,33 +431,11 @@ function GM:ScalePlayerDamage(pl, hitgroup, dmginfo)
 	end
 end
 
-function GM:CanDamageNail(ent, attacker, inflictor, damage, dmginfo)
-	return not attacker:IsPlayer() or attacker:Team() == TEAM_UNDEAD
-end
 
-function GM:CanPlaceNail(pl, tr)
-	return true
-end
 
-function GM:CanRemoveNail(pl, nail)
-	if nail.m_NailUnremovable then
-		return false
-	else
-		return true
-	end
-end
 
 function GM:GetDamageResistance(fearpower)
 	return fearpower * 0.35
-end
-
-function GM:FindUseEntity(pl, ent)
-	if not ent:IsValid() then
-		local e = pl:TraceLine(90, MASK_SOLID, pl:GetDynamicTraceFilter()).Entity
-		if e:IsValid() then return e end
-	end
-
-	return ent
 end
 
 function GM:ShouldUseAlternateDynamicSpawn()
@@ -583,111 +448,33 @@ function GM:GetZombieDamageScale(pos, ignore)
 	return self.ZombieDamageMultiplier * (1 - self:GetDamageResistance(self:GetFearMeterPower(pos, TEAM_UNDEAD, ignore)))
 end
 
-local temppos
-local function SortByDistance(a, b)
-	return a:GetPos():DistToSqr(temppos) < b:GetPos():DistToSqr(temppos)
-end
-
-local function GetSortedSpawnPoints(teamid, pos)
-	temppos = pos
-	local spawnpoints
-	if type(teamid) == "table" then
-		spawnpoints = teamid
-	else
-		spawnpoints = team.GetValidSpawnPoint(teamid)
+local function FindSpawnPoint(teamid, pos, furthest)
+	local spawnpoints = type(teamid) == "table" and teamid or team.GetValidSpawnPoint(teamid)
+	local selected, bestdistance
+	for _, spawn in ipairs(spawnpoints) do
+		if IsValid(spawn) and not spawn:IsMarkedForDeletion() then
+			local distance = spawn:GetPos():DistToSqr(pos)
+			if not bestdistance or (furthest and distance > bestdistance) or (not furthest and distance < bestdistance) then
+				selected, bestdistance = spawn, distance
+			end
+		end
 	end
-
-	table.sort(spawnpoints, SortByDistance)
-	return spawnpoints
+	return selected
 end
 
 function GM:GetClosestSpawnPoint(teamid, pos)
-	return GetSortedSpawnPoints(teamid, pos)[1]
+	return FindSpawnPoint(teamid, pos, false)
 end
 
 function GM:GetFurthestSpawnPoint(teamid, pos)
-	local spawnpoints = GetSortedSpawnPoints(teamid, pos)
-	return spawnpoints[#spawnpoints]
+	return FindSpawnPoint(teamid, pos, true)
 end
 
-local FEAR_RANGE = 768
-local FEAR_PERINSTANCE = 0.075
-local RALLYPOINT_THRESHOLD = 0.3
+include("shared/sh_fear.lua")
 
-local function GetEpicenter(tab)
-	local vec = Vector(0, 0, 0)
-	if #tab == 0 then return vec end
-
-	for k, v in pairs(tab) do
-		vec = vec + v:GetPos()
-	end
-
-	return vec / #tab
+local function CountEquipmentClass(gm, class)
+	return gm:GetZSClassCount(class)
 end
-
-function GM:GetTeamRallyGroups(teamid)
-	local groups = {}
-	local ingroup = {}
-
-	local plys = team.GetPlayers(teamid)
-
-	for _, pl in pairs(plys) do
-		if not ingroup[pl] and pl:Alive() then
-			local plpos = pl:GetPos()
-			local group = {pl}
-
-			for __, otherpl in pairs(plys) do
-				if otherpl ~= pl and not ingroup[otherpl] and otherpl:Alive() and otherpl:GetPos():Distance(plpos) <= FEAR_RANGE then
-					group[#group + 1] = otherpl
-				end
-			end
-
-			if #group * FEAR_PERINSTANCE >= RALLYPOINT_THRESHOLD then
-				for k, v in pairs(group) do
-					ingroup[v] = true
-				end
-				groups[#groups + 1] = group
-			end
-		end
-	end
-
-	return groups
-end
-
-function GM:GetTeamRallyPoints(teamid)
-	local points = {}
-
-	for _, group in pairs(self:GetTeamRallyGroups(teamid)) do
-		points[#points + 1] = {GetEpicenter(group), math.min(1, (#group * FEAR_PERINSTANCE - RALLYPOINT_THRESHOLD) / (1 - RALLYPOINT_THRESHOLD))}
-	end
-
-	return points
-end
-
-local CachedEpicentreTimes = {}
-local CachedEpicentres = {}
-function GM:GetTeamEpicentre(teamid, nocache)
-	if not nocache and CachedEpicentres[teamid] and CurTime() < CachedEpicentreTimes[teamid] then
-		return CachedEpicentres[teamid]
-	end
-
-	local plys = team.GetPlayers(teamid)
-	local vVec = Vector(0, 0, 0)
-	for _, pl in pairs(plys) do
-		if pl:Alive() then
-			vVec = vVec + pl:GetPos()
-		end
-	end
-
-	local epicentre = vVec / #plys
-	if not nocache then
-		CachedEpicentreTimes[teamid] = CurTime() + 0.5
-		CachedEpicentres[teamid] = epicentre
-	end
-
-	return epicentre
-end
-GM.GetTeamEpicenter = GM.GetTeamEpicentre
 
 function GM:GetCurrentEquipmentCount(id)
 	local count = 0
@@ -697,51 +484,32 @@ function GM:GetCurrentEquipmentCount(id)
 		if item.Countables then
 			if type(item.Countables) == "table" then
 				for k, v in pairs(item.Countables) do
-					count = count + #ents.FindByClass(v)
+					count = count + CountEquipmentClass(self, v)
 				end
 			else
-				count = count + #ents.FindByClass(item.Countables)
+				count = count + CountEquipmentClass(self, item.Countables)
 			end
 		end
 
 		if item.SWEP then
-			count = count + #ents.FindByClass(item.SWEP)
+			count = count + CountEquipmentClass(self, item.SWEP)
 		end
 	end
 
 	return count
 end
 
-function GM:GetFearMeterPower(pos, teamid, ignore)
-	if LASTHUMAN then return 1 end
-
-	local power = 0
-
-	for _, pl in pairs(player.GetAll()) do
-		if pl ~= ignore and pl:Team() == teamid and not pl:CallZombieFunction("DoesntGiveFear") and pl:Alive() then
-			local dist = pl:NearestPoint(pos):Distance(pos)
-			if dist <= FEAR_RANGE then
-				power = power + ((FEAR_RANGE - dist) / FEAR_RANGE) * (pl:GetZombieClassTable().FearPerInstance or FEAR_PERINSTANCE)
-			end
-		end
-	end
-
-	return math.min(1, power)
-end
-
 function GM:GetRagdollEyes(pl)
+	if not IsValid(pl) then return end
 	local Ragdoll = pl:GetRagdollEntity()
 	if not IsValid(Ragdoll) then return end
 
 	local attachmentnum = Ragdoll:LookupAttachment("eyes")
-	if attachmentnum == nil then return end
+	if not attachmentnum or attachmentnum <= 0 then return end
 	
 	local att = Ragdoll:GetAttachment(attachmentnum)
 	if att then
-		att.Pos = att.Pos + att.Ang:Forward() * -2
-		att.Ang = att.Ang
-
-		return att.Pos, att.Ang
+		return att.Pos + att.Ang:Forward() * -2, att.Ang
 	end
 end
 
@@ -800,24 +568,6 @@ function GM:SetWaveActive(active)
 			gamemode.Call("WaveStateChanged", active)
 		end
 	end
-end
-
-if not FixedSoundDuration then
-FixedSoundDuration = true
-local OldSoundDuration = SoundDuration
-function SoundDuration(snd)
-	if snd then
-		local ft = string.sub(snd, -4)
-		if ft == ".mp3" then
-			return OldSoundDuration(snd) * 2.25
-		end
-		if ft == ".ogg" then
-			return OldSoundDuration(snd) * 3
-		end
-	end
-
-	return OldSoundDuration(snd)
-end
 end
 
 function GM:VehicleMove()

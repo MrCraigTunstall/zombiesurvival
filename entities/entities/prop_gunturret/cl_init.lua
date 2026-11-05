@@ -28,6 +28,7 @@ function ENT:Think()
 end
 
 function ENT:OnRemove()
+	GAMEMODE:RemoveEquipmentSmokeEmitter(self)
 	self.ScanningSound:Stop()
 	self.ShootingSound:Stop()
 end
@@ -60,25 +61,22 @@ function ENT:Draw()
 		local pos = self:DefaultPos()
 		local sat = healthpercent * 360
 
-		local emitter = ParticleEmitter(pos)
-		emitter:SetNearClip(24, 32)
-
-		local particle = emitter:Add("particles/smokey", pos)
-		particle:SetStartAlpha(180)
-		particle:SetEndAlpha(0)
-		particle:SetStartSize(0)
-		particle:SetEndSize(math.Rand(8, 32))
-		particle:SetColor(sat, sat, sat)
-		particle:SetVelocity(VectorRand():GetNormalized() * math.Rand(8, 64))
-		particle:SetGravity(smokegravity)
-		particle:SetDieTime(math.Rand(0.8, 1.6))
-		particle:SetAirResistance(150)
-		particle:SetRoll(math.Rand(0, 360))
-		particle:SetRollDelta(math.Rand(-4, 4))
-		particle:SetCollide(true)
-		particle:SetBounce(0.2)
-
-		emitter:Finish()
+		local particle = GAMEMODE:GetEquipmentSmokeParticle(self, pos, 24, 32)
+		if particle then
+			particle:SetStartAlpha(180)
+			particle:SetEndAlpha(0)
+			particle:SetStartSize(0)
+			particle:SetEndSize(math.Rand(8, 32))
+			particle:SetColor(sat, sat, sat)
+			particle:SetVelocity(VectorRand():GetNormalized() * math.Rand(8, 64))
+			particle:SetGravity(smokegravity)
+			particle:SetDieTime(math.Rand(0.8, 1.6))
+			particle:SetAirResistance(150)
+			particle:SetRoll(math.Rand(0, 360))
+			particle:SetRollDelta(math.Rand(-4, 4))
+			particle:SetCollide(true)
+			particle:SetBounce(0.2)
+		end
 	end
 
 	local owner = self:GetObjectOwner()

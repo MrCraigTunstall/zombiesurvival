@@ -3,6 +3,8 @@ include("shared.lua")
 ENT.RenderGroup = RENDERGROUP_TRANSLUCENT
 
 function ENT:Think()
+	if self:IsDormant() then return end
+	GAMEMODE:UpdateDeploymentGhostInput(self)
 	self:RecalculateValidity()
 
 	self:NextThink(CurTime())

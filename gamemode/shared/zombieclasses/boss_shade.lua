@@ -44,7 +44,8 @@ function CLASS:PlayerStepSoundTime(pl, iType, bWalking)
 end
 
 function CLASS:CalcMainActivity(pl, velocity)
-	if pl.ShadeControl and pl.ShadeControl:IsValid() then
+	local weapon = pl:GetActiveWeapon()
+	if IsValid(weapon) and weapon:GetClass() == "weapon_zs_shade" and type(weapon.GetShadeControl) == "function" and IsValid(weapon:GetShadeControl()) then
 		if velocity:Length2D() <= 0.5 then
 			pl.CalcIdeal = ACT_HL2MP_IDLE_MAGIC
 		else
@@ -75,11 +76,18 @@ end
 
 function CLASS:ProcessDamage(pl, dmginfo)
 	local attacker = dmginfo:GetAttacker()
-	if not attacker:IsPlayer() and attacker:Team() == TEAM_HUMAN then
-		dmginfo:SetDamage(0.3)
-		dmginfo:ScaleDamage(0.3)
+	if not IsValid(attacker) or not attacker:IsPlayer() or attacker:Team() ~= TEAM_HUMAN then return end
+	local inflictor = dmginfo:GetInflictor()
+	if IsValid(inflictor) and inflictor:GetClass() == "status_shadeambience" and inflictor:GetOwner() == pl then return end
+	local status = pl.status_shadeambience
+	local exposure = IsValid(status) and math.Clamp(status:GetLastDamage() / 12, 0, 1) or 0
+	if exposure < 1 then
+		dmginfo:ScaleDamage(0.3 + exposure * 0.7)
 
-		if SERVER then
+		if SERVER and dmginfo:GetDamage() > 0 then
+			local now = CurTime()
+			if now < (pl.ZSShadeNextReflect or 0) then return end
+			pl.ZSShadeNextReflect = now + 0.1
 			local center = pl:LocalToWorld(pl:OBBCenter())
 			local hitpos = pl:NearestPoint(dmginfo:GetDamagePosition())
 			local effectdata = EffectData()
@@ -89,9 +97,8 @@ function CLASS:ProcessDamage(pl, dmginfo)
 				effectdata:SetEntity(pl)
 			util.Effect("shadedeflect", effectdata, true, true)
 
-			local status = pl.status_shadeambience
-			if status and status:IsValid() then
-				status:SetLastReflect(CurTime())
+			if IsValid(status) then
+				status:SetLastReflect(now)
 			end
 		end
 	end
@@ -103,11 +110,14 @@ end
 
 if SERVER then
 	function CLASS:OnSpawned(pl)
+		pl.ZSShadeNextReflect = nil
 		pl:CreateAmbience("shadeambience")
 		pl:SetRenderMode(RENDERMODE_TRANSALPHA)
 	end
 
 	function CLASS:SwitchedAway(pl)
+		pl.ZSShadeNextReflect = nil
+		GAMEMODE:ReleaseShadeControl(pl)
 		pl:SetRenderMode(RENDERMODE_NORMAL)
 	end
 end
@@ -116,8 +126,9 @@ if not CLIENT then return end
 
 local ToZero = {"ValveBiped.Bip01_L_Thigh", "ValveBiped.Bip01_R_Thigh", "ValveBiped.Bip01_L_Calf", "ValveBiped.Bip01_R_Calf", "ValveBiped.Bip01_L_Foot", "ValveBiped.Bip01_R_Foot"}
 function CLASS:BuildBonePositions(pl)
-	for _, bonename in pairs(ToZero) do
-		local boneid = pl:LookupBone(bonename)
+	local bones = ZSWeaponAnimation.LookupBoneSet(pl, ToZero)
+	for i = 1, #ToZero do
+		local boneid = bones[i]
 		if boneid and boneid > 0 then
 			pl:ManipulateBoneScale(boneid, vector_tiny)
 		end

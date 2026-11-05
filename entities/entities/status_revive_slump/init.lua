@@ -6,7 +6,7 @@ include("shared.lua")
 function ENT:PlayerSet(pPlayer, bExists)
 	self.HealCarryOver = self.HealCarryOver or 0
 
-	pPlayer.Revive = self
+	pPlayer:GetTable().Revive = self
 	pPlayer:Freeze(true)
 	if not bExists then
 		pPlayer:GodEnable()
@@ -45,8 +45,11 @@ end
 
 function ENT:OnRemove()
 	local parent = self:GetOwner()
-	if parent:IsValid() then
-		parent.Revive = nil
+	if IsValid(parent) then
+		local data = parent:GetTable()
+		if data[self:GetClass()] == self then data[self:GetClass()] = nil end
+		if data.Revive ~= self then return end
+		data.Revive = nil
 		parent:Freeze(false)
 		parent:GodDisable()
 	end

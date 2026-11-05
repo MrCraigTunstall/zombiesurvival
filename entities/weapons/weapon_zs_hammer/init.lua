@@ -1,61 +1,127 @@
 INC_SERVER()
 
-function SWEP:Reload()
-	if CurTime() < self:GetNextPrimaryFire() then return end
+local function PryLive(entity)
+	return IsValid(entity) and not entity:IsMarkedForDeletion()
+end
 
-	local owner = self:GetOwner()
-	if owner:GetBarricadeGhosting() then return end
+local function PryBound(action)
+	local weapon, owner = action.weapon, action.owner
+	return PryLive(weapon) and PryLive(owner) and owner:IsPlayer() and owner:Alive() and owner:Team() == TEAM_HUMAN
+		and not owner:GetBarricadeGhosting() and weapon:GetOwner() == owner and owner:GetActiveWeapon() == weapon
+		and weapon.ZSNailPryAction == action and owner.ZSNailPryAction == action
+end
 
-	local tr = owner:MeleeTrace(self.MeleeRange, self.MeleeSize, owner:GetMeleeFilter())
-	local trent = tr.Entity
-	if not trent:IsValid() or not trent:IsNailed() then return end
-
-	local ent
-	local dist
-
-	for _, e in pairs(ents.FindByClass("prop_nail")) do
-		if not e.m_PryingOut and e:GetParent() == trent then
-			local edist = e:GetActualPos():DistToSqr(tr.HitPos)
-			if not dist or edist < dist then
-				ent = e
-				dist = edist
-			end
+local function NearestPryNail(base, position, action)
+	local found, distance
+	for _, nail in pairs(base.Nails or {}) do
+		if PryLive(nail) and not nail.m_PryingOut and not nail.m_IsRemoving
+			and (not nail.ZSNailPryAction or nail.ZSNailPryAction == action)
+			and nail:GetParent() == base and nail:GetBaseEntity() == base then
+			local current = nail:GetActualPos():DistToSqr(position)
+			if not distance or current < distance then found, distance = nail, current end
 		end
 	end
+	return found
+end
 
-	if not ent or not gamemode.Call("CanRemoveNail", owner, ent) then return end
+local function PryReady(action)
+	return PryBound(action) and CurTime() >= action.weapon:GetNextPrimaryFire() and PryLive(action.base)
+		and action.base:IsNailed() and PryLive(action.nail) and action.nail.ZSNailPryAction == action
+		and action.nail:GetOwner() == action.nailowner and NearestPryNail(action.base, action.position, action) == action.nail
+end
 
-	local nailowner = ent:GetOwner()
-	if nailowner:IsValid() and nailowner:IsPlayer() and nailowner ~= owner and nailowner:Team() == TEAM_HUMAN and not gamemode.Call("PlayerIsAdmin", owner) and not gamemode.Call("CanRemoveOthersNail", owner, nailowner, ent) then return end
+local function OtherNailOwner(action)
+	local owner = action.nailowner
+	return IsValid(owner) and owner:IsPlayer() and owner ~= action.owner and owner:Team() == TEAM_HUMAN
+end
 
-	self:SetNextPrimaryFire(CurTime() + (#trent.Nails > 2 and 0.5 or 1))
+local function PryRefundRecipient(action)
+	local owner = action.nailowner
+	if OtherNailOwner(action) and owner:NearestPoint(action.position):DistToSqr(action.position) <= 589824
+		and (owner:HasWeapon("weapon_zs_hammer") or owner:HasWeapon("weapon_zs_electrohammer")) then return owner end
+	return action.owner
+end
 
-	ent.m_PryingOut = true -- Prevents infinite loops
+local function PryPenaltyDeath(action)
+	return PryLive(action.owner) and not action.owner:Alive() and action.owner.ZSNailPryAction == action
+		and (not IsValid(action.weapon) or action.weapon:GetOwner() == action.owner)
+end
 
-	self:SendWeaponAnim(self.Alternate and ACT_VM_HITCENTER or ACT_VM_MISSCENTER)
-	self.Alternate = not self.Alternate
-
+local function PerformNailPry(action)
+	local weapon, owner = action.weapon, action.owner
+	local tr = owner:MeleeTrace(weapon.MeleeRange, weapon.MeleeSize, owner:GetMeleeFilter())
+	if not PryBound(action) or not tr or not tr.HitPos or not PryLive(tr.Entity) or not tr.Entity:IsNailed() then return end
+	action.base = tr.Entity
+	action.position = Vector(tr.HitPos.x, tr.HitPos.y, tr.HitPos.z)
+	local nail = NearestPryNail(action.base, action.position, action)
+	if not nail then return end
+	action.nail, action.nailowner = nail, nail:GetOwner()
+	nail.ZSNailPryAction = action
+	if not gamemode.Call("CanRemoveNail", owner, nail) or not PryReady(action) then return end
+	if OtherNailOwner(action) then
+		local admin = gamemode.Call("PlayerIsAdmin", owner)
+		if not PryReady(action) then return end
+		if not admin then
+			local allowed = gamemode.Call("CanRemoveOthersNail", owner, action.nailowner, nail)
+			if not allowed or not PryReady(action) then return end
+		end
+	end
+	if not PryReady(action) then return end
+	local delay = #action.base.Nails > 2 and 0.5 or 1
+	action.previousPrying = nail.m_PryingOut
+	nail.m_PryingOut = true
+	action.prying = true
+	if action.base:RemoveNail(nail, nil, owner) ~= true then return end
+	action.committed = true
+	if not PryBound(action) then return end
+	weapon:SetNextPrimaryFire(math.max(weapon:GetNextPrimaryFire(), CurTime() + delay))
+	weapon:SendWeaponAnim(weapon.Alternate and ACT_VM_HITCENTER or ACT_VM_MISSCENTER)
+	if not PryBound(action) then return end
+	weapon.Alternate = not weapon.Alternate
 	owner:DoAnimationEvent(ACT_HL2MP_GESTURE_RANGE_ATTACK_MELEE)
-
+	if not PryBound(action) then return end
 	owner:EmitSound("weapons/melee/crowbar/crowbar_hit-"..math.random(4)..".ogg")
-
-	ent:GetParent():RemoveNail(ent, nil, self:GetOwner())
-	ent:GetParent():SetPhysicsAttacker(self:GetOwner())
-
-	if nailowner and nailowner:IsValid() and nailowner:IsPlayer() and nailowner ~= owner and nailowner:Team() == TEAM_HUMAN then
-		if gamemode.Call("PlayerShouldTakeNailRemovalPenalty", owner, ent, nailowner, trent) then
-			owner:GivePenalty(30)
-			owner:ReflectDamage(20)
-		end
-
-		if nailowner:NearestPoint(tr.HitPos):DistToSqr(tr.HitPos) <= 589824 and (nailowner:HasWeapon("weapon_zs_hammer") or nailowner:HasWeapon("weapon_zs_electrohammer")) then --768^2
-			nailowner:GiveAmmo(1, self.Primary.Ammo)
-		else
-			owner:GiveAmmo(1, self.Primary.Ammo)
-		end
-	else
-		owner:GiveAmmo(1, self.Primary.Ammo)
+	if not PryBound(action) then return end
+	owner:ClearNailRemovalWarning()
+	if not PryBound(action) then return end
+	if PryLive(action.base) then action.base:SetPhysicsAttacker(owner) end
+	if not PryBound(action) then return end
+	local penalty = false
+	if OtherNailOwner(action) and PryLive(action.base) and IsValid(nail) then
+		penalty = gamemode.Call("PlayerShouldTakeNailRemovalPenalty", owner, nail, action.nailowner, action.base)
+		if not PryBound(action) then return end
 	end
+	local recipient = PryRefundRecipient(action)
+	if not PryBound(action) then return end
+	if penalty then
+		owner:GivePenalty(30)
+		if not PryBound(action) then return end
+		owner:ReflectDamage(20)
+		if not PryBound(action) and not PryPenaltyDeath(action) then return end
+	end
+	if IsValid(recipient) and recipient:IsPlayer() and (recipient == owner or recipient:Team() == TEAM_HUMAN) then recipient:GiveAmmo(1, action.ammo) end
+end
+
+local function ReleaseNailPry(action)
+	local weapon, owner, nail = action.weapon, action.owner, action.nail
+	if IsValid(weapon) and weapon.ZSNailPryAction == action then weapon.ZSNailPryAction = nil end
+	if IsValid(owner) and owner.ZSNailPryAction == action then owner.ZSNailPryAction = nil end
+	if IsValid(nail) and nail.ZSNailPryAction == action then
+		nail.ZSNailPryAction = nil
+		if action.prying and not action.committed and nail.m_PryingOut == true then nail.m_PryingOut = action.previousPrying end
+	end
+end
+
+function SWEP:Reload()
+	if not PryLive(self) or CurTime() < self:GetNextPrimaryFire() or self.ZSNailPryAction or self.ZSNailPlaceAction then return end
+	local owner = self:GetOwner()
+	if not PryLive(owner) or not owner:IsPlayer() or not owner:Alive() or owner:Team() ~= TEAM_HUMAN
+		or owner:GetBarricadeGhosting() or owner:GetActiveWeapon() ~= self or owner.ZSNailPryAction or owner.ZSNailPlaceAction then return end
+	local action = {weapon = self, owner = owner, ammo = self.Primary.Ammo}
+	self.ZSNailPryAction, owner.ZSNailPryAction = action, action
+	local ok, failure = pcall(PerformNailPry, action)
+	ReleaseNailPry(action)
+	if not ok then error(failure, 0) end
 end
 
 function SWEP:OnMeleeHit(hitent, hitflesh, tr)
@@ -91,11 +157,7 @@ function SWEP:PrimaryAttack()
 	
 	local owner = self.Owner
 	
-	if owner.Carpenter then
-	self:SetNextPrimaryFire(CurTime() + self.Primary.Delay - 0.50)
-	else
-	self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
-	end
+	self:SetNextPrimaryFire(CurTime() + self.Primary.Delay * (owner.Carpenter and 0.5 or 1))
 
 	if self.SwingTime == 0 then
 		self:MeleeSwing()
@@ -105,130 +167,152 @@ function SWEP:PrimaryAttack()
 end
 
 
+local function PlacementNailCount(prop, ignored)
+ local count = 0
+ for _, nail in pairs(prop.Nails or {}) do
+  if nail ~= ignored and PryLive(nail) and not nail.m_IsRemoving
+   and (nail:GetBaseEntity() == prop or nail:GetAttachEntity() == prop) then count = count + 1 end
+ end
+ return count
+end
+
+local function PlacementPhysics(prop, bone, ignored, skipDamage)
+ if not PryLive(prop) or not util.IsValidPhysicsObject(prop, bone) or prop.NoNails or prop:IsProjectile()
+  or prop:GetMoveType() ~= MOVETYPE_VPHYSICS and not prop:GetNailFrozen()
+  or prop:GetMaxHealth() == 1 and prop:Health() == 0 and not prop.TotalHealth then return end
+ local physics = prop:GetPhysicsObjectNum(bone)
+ if not IsValid(physics) or not prop:IsNailed() and not physics:IsMoveable() then return end
+ local count = PlacementNailCount(prop, ignored)
+ if count >= 8 or count > 0 and prop:GetPropsInContraption() >= GAMEMODE.MaxPropsInBarricade then return end
+ if not skipDamage and prop:GetBarricadeHealth() <= 0 and prop:GetMaxBarricadeHealth() > 0 then return nil, "object_too_damaged_to_be_used" end
+ return physics
+end
+
+local function PlacementBound(action)
+ local weapon, owner = action.weapon, action.owner
+ return PryLive(weapon) and PryLive(owner) and owner:IsPlayer() and owner:Alive() and owner:Team() == TEAM_HUMAN
+  and not owner:GetBarricadeGhosting() and weapon:GetOwner() == owner and owner:GetActiveWeapon() == weapon
+  and weapon.ZSNailPlaceAction == action and owner.ZSNailPlaceAction == action
+  and weapon:GetPrimaryAmmoCount() > 0 and weapon:GetNextPrimaryFire() <= action.deadline
+end
+
+local function PlacementEndpointLive(entity, world)
+ if world then return entity == game.GetWorld() and not entity:IsMarkedForDeletion() end
+ return PryLive(entity)
+end
+
+local function PlacementReady(action)
+ action.denialReason = nil
+ if not PlacementBound(action) then return false end
+ local tr, position, front = action.trace, action.position, action.front
+ if tr.Entity ~= front or tr.PhysicsBone ~= action.frontBone or tr.Fraction ~= action.fraction or tr.MatType ~= action.material
+  or not tr.HitPos or tr.HitPos.x ~= position.x or tr.HitPos.y ~= position.y or tr.HitPos.z ~= position.z then return false end
+ local physics, reason = PlacementPhysics(front, action.frontBone, action.nail)
+ if physics ~= action.frontPhysics then action.denialReason = reason return false end
+ if front.PreHoldCollisionGroup and (front.PreHoldCollisionGroup == COLLISION_GROUP_DEBRIS
+  or front.PreHoldCollisionGroup == COLLISION_GROUP_DEBRIS_TRIGGER or front.PreHoldCollisionGroup == COLLISION_GROUP_INTERACTIVE_DEBRIS) then return false end
+ local count = 0
+ for _, nail in pairs(front.Nails or {}) do
+  if nail ~= action.nail and PryLive(nail) and not nail.m_IsRemoving then
+   if nail:GetDeployer() == action.owner then count = count + 1 if count >= GAMEMODE.MaxNails then return false end end
+   if nail:GetParent() == front and nail:GetActualPos():DistToSqr(position) <= 81 then return false end
+  end
+ end
+ if action.back then
+  if not PlacementEndpointLive(action.back, action.world) then return false end
+  if action.world then
+   if not action.back:IsWorld() or action.back.NoNails then return false end
+  else
+   physics, reason = PlacementPhysics(action.back, action.backBone, action.nail)
+   if not action.backPhysics or physics ~= action.backPhysics then action.denialReason = reason return false end
+  end
+ end
+ return true
+end
+
+local function PlacementDenied(action, reason)
+ local owner = action.owner
+ if PryLive(owner) and owner:IsPlayer() then owner:NotifyNailDenied(reason or action.denialReason or "nail_cannot_place") end
+end
+
+local function PlacementMaterial(action, material)
+ if material == MAT_GRATE or material == MAT_CLIP then PlacementDenied(action, "impossible")return false end
+ if material == MAT_GLASS then PlacementDenied(action, "trying_to_put_nails_in_glass")return false end
+ return true
+end
+
+local function PerformNailPlacement(action)
+ local weapon, owner = action.weapon, action.owner
+ if GAMEMODE:IsClassicMode() then return PlacementDenied(action, "cant_do_that_in_classic_mode") end
+ local tr = owner:TraceLine(64, MASK_SOLID, owner:GetMeleeFilter())
+ if not PlacementBound(action) or not tr or not tr.HitPos or tr.Fraction == 0 or not PryLive(tr.Entity) then return PlacementDenied(action) end
+ action.trace, action.front, action.frontBone = tr, tr.Entity, tr.PhysicsBone
+ action.position = Vector(tr.HitPos.x, tr.HitPos.y, tr.HitPos.z)
+ action.fraction, action.material = tr.Fraction, tr.MatType
+ action.frontPhysics = PlacementPhysics(action.front, action.frontBone, nil, true)
+ if not action.frontPhysics then return PlacementDenied(action) end
+ local allowed = gamemode.Call("CanPlaceNail", owner, tr)
+ if not allowed or not PlacementReady(action) then return PlacementDenied(action) end
+ if not PlacementMaterial(action, action.material) then return end
+ local rope = constraint.FindConstraint(action.front, "Rope")
+ if rope then
+  if IsValid(rope.Ent1) and rope.Ent1:GetClass() == "prop_drone" then return end
+  if IsValid(rope.Ent2) and rope.Ent2:GetClass() == "prop_drone" then return end
+ end
+ if not PlacementReady(action) then return PlacementDenied(action) end
+ local aim = owner:GetAimVector()
+ local backTrace = util.TraceLine({start = action.position, endpos = action.position + aim * 24,
+  filter = function(hit) return hit ~= action.front and not hit:IsPlayer() and not hit.IgnoreTraces and not hit.NoBlockExplosions and string.sub(hit:GetClass(), 1, 11) ~= "projectile_" end, mask = MASK_SOLID})
+ if not backTrace or backTrace.HitSky or not PlacementEndpointLive(backTrace.Entity, backTrace.HitWorld == true) then return PlacementDenied(action) end
+ action.back, action.backBone, action.world = backTrace.Entity, backTrace.PhysicsBone, backTrace.HitWorld == true
+ if not action.world then
+  action.backPhysics, action.denialReason = PlacementPhysics(action.back, action.backBone)
+  if not action.backPhysics then return PlacementDenied(action)end
+ end
+ if not PlacementReady(action) then return PlacementDenied(action) end
+ if not PlacementMaterial(action, backTrace.MatType) then return end
+ if GAMEMODE:EntityWouldBlockSpawn(action.back) or not PlacementReady(action) then return PlacementDenied(action) end
+ local nail = ents.Create("prop_nail")
+ action.nail = nail
+ if not PryLive(nail) or not PlacementReady(action) then return PlacementDenied(action) end
+ nail:SetActualOffset(action.position, action.front)
+ nail:SetPos(action.position - aim * 8)
+ nail:SetAngles(aim:Angle())
+ nail:Spawn()
+ if not PryLive(nail) or not PlacementReady(action) then return PlacementDenied(action) end
+ local weld = nail:AttachTo(action.front, action.back, action.frontBone, action.backBone)
+ if not IsValid(weld) or not PryLive(nail) or not PlacementBound(action) or not PryLive(action.front) or not PlacementEndpointLive(action.back, action.world)
+  or action.front:GetPhysicsObjectNum(action.frontBone) ~= action.frontPhysics
+  or not action.world and action.back:GetPhysicsObjectNum(action.backBone) ~= action.backPhysics then return PlacementDenied(action) end
+ nail:SetDeployer(owner)
+ if not PryLive(nail) or not PlacementBound(action) then return PlacementDenied(action) end
+ action.committed = true
+ weapon:SetNextPrimaryFire(math.max(weapon:GetNextPrimaryFire(), CurTime() + (owner.Carpenter and 0.5 or 1)))
+ weapon:TakePrimaryAmmo(1)
+ weapon:SendWeaponAnim(weapon.Alternate and ACT_VM_HITCENTER or ACT_VM_MISSCENTER)
+ weapon.Alternate = not weapon.Alternate
+ owner:DoAnimationEvent(ACT_HL2MP_GESTURE_RANGE_ATTACK_MELEE)
+ owner:ClearNailWarning()
+ gamemode.Call("OnNailCreated", action.front, action.back, nail)
+ if PryLive(nail) then nail:EmitSound(string.format("weapons/melee/crowbar/crowbar_hit-%d.ogg", math.random(4)))end
+end
+
+local function ReleaseNailPlacement(action)
+ if IsValid(action.weapon) and action.weapon.ZSNailPlaceAction == action then action.weapon.ZSNailPlaceAction = nil end
+ if IsValid(action.owner) and action.owner.ZSNailPlaceAction == action then action.owner.ZSNailPlaceAction = nil end
+ if not action.committed and PryLive(action.nail) then action.nail:Remove() end
+end
+
 function SWEP:SecondaryAttack()
-	if self:GetPrimaryAmmoCount() <= 0 or CurTime() < self:GetNextPrimaryFire() or self:GetOwner():GetBarricadeGhosting() then return end
-
-	local owner = self:GetOwner()
-
-	if GAMEMODE:IsClassicMode() then
-		owner:PrintTranslatedMessage(HUD_PRINTCENTER, "cant_do_that_in_classic_mode")
-		return
-	end
-
-	local tr = owner:TraceLine(64, MASK_SOLID, owner:GetMeleeFilter())
-	local trent = tr.Entity
-
-	if not trent:IsValid()
-	or not util.IsValidPhysicsObject(trent, tr.PhysicsBone)
-	or tr.Fraction == 0
-	or trent:GetMoveType() ~= MOVETYPE_VPHYSICS and not trent:GetNailFrozen()
-	or trent.NoNails
-	or trent:IsProjectile()
-	or trent:IsNailed() and (#trent.Nails >= 8 or trent:GetPropsInContraption() >= GAMEMODE.MaxPropsInBarricade)
-	or trent:GetMaxHealth() == 1 and trent:Health() == 0 and not trent.TotalHealth
-	or trent.PreHoldCollisionGroup and (trent.PreHoldCollisionGroup == COLLISION_GROUP_DEBRIS or trent.PreHoldCollisionGroup == COLLISION_GROUP_DEBRIS_TRIGGER or trent.PreHoldCollisionGroup == COLLISION_GROUP_INTERACTIVE_DEBRIS)
-	or not trent:IsNailed() and not trent:GetPhysicsObject():IsMoveable() then return end
-
-	if not gamemode.Call("CanPlaceNail", owner, tr) then return end
-
-	local count = 0
-	for _, nail in pairs(trent:GetNails()) do
-		if nail:GetDeployer() == owner then
-			count = count + 1
-			if count >= GAMEMODE.MaxNails then
-				return
-			end
-		end
-	end
-
-	if tr.MatType == MAT_GRATE or tr.MatType == MAT_CLIP then
-		owner:PrintTranslatedMessage(HUD_PRINTCENTER, "impossible")
-		return
-	end
-	if tr.MatType == MAT_GLASS then
-		owner:PrintTranslatedMessage(HUD_PRINTCENTER, "trying_to_put_nails_in_glass")
-		return
-	end
-
-	for _, nail in pairs(ents.FindByClass("prop_nail")) do
-		if nail:GetParent() == trent and nail:GetActualPos():DistToSqr(tr.HitPos) <= 81 then
-			owner:PrintTranslatedMessage(HUD_PRINTCENTER, "too_close_to_another_nail")
-			return
-		end
-	end
-
-	if trent:GetBarricadeHealth() <= 0 and trent:GetMaxBarricadeHealth() > 0 then
-		owner:PrintTranslatedMessage(HUD_PRINTCENTER, "object_too_damaged_to_be_used")
-		return
-	end
-
-	-- Specical case for nailing things a drone is towing
-	local ropeconstraint = constraint.FindConstraint(trent, "Rope")
-	if ropeconstraint then
-		if ropeconstraint.Ent1 and ropeconstraint.Ent1:IsValid() and ropeconstraint.Ent1:GetClass() == "prop_drone" then return end
-		if ropeconstraint.Ent2 and ropeconstraint.Ent2:IsValid() and ropeconstraint.Ent2:GetClass() == "prop_drone" then return end
-	end
-
-	local aimvec = owner:GetAimVector()
-	local trtwo = util.TraceLine({start = tr.HitPos, endpos = tr.HitPos + aimvec * 24, filter = table.Add({owner, trent}, GAMEMODE.CachedInvisibleEntities), mask = MASK_SOLID})
-
-	if trtwo.HitSky then return end
-
-	local ent = trtwo.Entity
-	if trtwo.HitWorld
-	or ent:IsValid() and util.IsValidPhysicsObject(ent, trtwo.PhysicsBone) and (ent:GetMoveType() == MOVETYPE_VPHYSICS or ent:GetNailFrozen()) and not ent.NoNails and not (not ent:IsNailed() and not ent:GetPhysicsObject():IsMoveable()) and not (ent:GetMaxHealth() == 1 and ent:Health() == 0 and not ent.TotalHealth) then
-		if trtwo.MatType == MAT_GRATE or trtwo.MatType == MAT_CLIP then
-			owner:PrintTranslatedMessage(HUD_PRINTCENTER, "impossible")
-			return
-		end
-		if trtwo.MatType == MAT_GLASS then
-			owner:PrintTranslatedMessage(HUD_PRINTCENTER, "trying_to_put_nails_in_glass")
-			return
-		end
-
-		if ent and ent:IsValid() and (ent:IsProjectile() or ent.NoNails or ent:IsNailed() and (#ent.Nails >= 8 or ent:GetPropsInContraption() >= GAMEMODE.MaxPropsInBarricade)) then return end
-
-		if ent:GetBarricadeHealth() <= 0 and ent:GetMaxBarricadeHealth() > 0 then
-			owner:PrintTranslatedMessage(HUD_PRINTCENTER, "object_too_damaged_to_be_used")
-			return
-		end
-
-		if GAMEMODE:EntityWouldBlockSpawn(ent) then return end
-
-		local cons = constraint.Weld(trent, ent, tr.PhysicsBone, trtwo.PhysicsBone, 0, true)
-		if cons ~= nil then
-			for _, oldcons in pairs(constraint.FindConstraints(trent, "Weld")) do
-				if oldcons.Ent1 == ent or oldcons.Ent2 == ent then
-					cons = oldcons.Constraint
-					break
-				end
-			end
-		end
-
-		if not cons then return end
-
-		self:SendWeaponAnim(self.Alternate and ACT_VM_HITCENTER or ACT_VM_MISSCENTER)
-		self.Alternate = not self.Alternate
-
-		owner:DoAnimationEvent(ACT_HL2MP_GESTURE_RANGE_ATTACK_MELEE)
-
-		self:SetNextPrimaryFire(CurTime() + 1)
-		self:TakePrimaryAmmo(1)
-
-		local nail = ents.Create("prop_nail")
-		if nail:IsValid() then
-			nail:SetActualOffset(tr.HitPos, trent)
-			nail:SetPos(tr.HitPos - aimvec * 8)
-			nail:SetAngles(aimvec:Angle())
-			nail:AttachTo(trent, ent, tr.PhysicsBone, trtwo.PhysicsBone)
-			nail:Spawn()
-			nail:SetDeployer(owner)
-
-			cons:DeleteOnRemove(nail)
-
-			gamemode.Call("OnNailCreated", trent, ent, nail)
-
-			nail:EmitSound(string.format("weapons/melee/crowbar/crowbar_hit-%d.ogg", math.random(4)))
-		end
-	end
+ if not PryLive(self) or self.ZSNailPlaceAction or self.ZSNailPryAction or CurTime() < self:GetNextPrimaryFire() then return end
+ local owner = self:GetOwner()
+ if not PryLive(owner) or not owner:IsPlayer() or not owner:Alive() or owner:Team() ~= TEAM_HUMAN or owner:GetBarricadeGhosting()
+  or owner:GetActiveWeapon() ~= self or owner.ZSNailPlaceAction or owner.ZSNailPryAction or self:GetPrimaryAmmoCount() <= 0 then return end
+ local action = {weapon = self, owner = owner, deadline = CurTime() + 0.25}
+ self.ZSNailPlaceAction, owner.ZSNailPlaceAction = action, action
+ self:SetNextPrimaryFire(action.deadline)
+ local ok, failure = pcall(PerformNailPlacement, action)
+ local cleaned, cleanupFailure = pcall(ReleaseNailPlacement, action)
+ if not ok then error(failure, 0)end
+ if not cleaned then error(cleanupFailure, 0)end
 end

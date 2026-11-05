@@ -38,32 +38,31 @@ function ENT:Think()
 		local pos = self:GetPos()
 		local sat = perc * 90
 
-		local emitter = ParticleEmitter(pos)
-		emitter:SetNearClip(16, 24)
-
-		local particle = emitter:Add("particles/smokey", pos)
-		particle:SetStartAlpha(180)
-		particle:SetEndAlpha(0)
-		particle:SetStartSize(0)
-		particle:SetEndSize(math.Rand(8, 20))
-		particle:SetVelocity(self:GetVelocity() * 0.7 + VectorRand():GetNormalized() * math.Rand(4, 24))
-		particle:SetGravity(smokegravity)
-		particle:SetDieTime(math.Rand(0.8, 1.6))
-		particle:SetAirResistance(150)
-		particle:SetRoll(math.Rand(0, 360))
-		particle:SetRollDelta(math.Rand(-2, 2))
-		particle:SetCollide(true)
-		particle:SetBounce(0.2)
-		particle:SetColor(sat, sat, sat)
-
-		emitter:Finish()
+		local particle = GAMEMODE:GetEquipmentSmokeParticle(self, pos, 16, 24)
+		if particle then
+			particle:SetStartAlpha(180)
+			particle:SetEndAlpha(0)
+			particle:SetStartSize(0)
+			particle:SetEndSize(math.Rand(8, 20))
+			particle:SetVelocity(self:GetVelocity() * 0.7 + VectorRand():GetNormalized() * math.Rand(4, 24))
+			particle:SetGravity(smokegravity)
+			particle:SetDieTime(math.Rand(0.8, 1.6))
+			particle:SetAirResistance(150)
+			particle:SetRoll(math.Rand(0, 360))
+			particle:SetRollDelta(math.Rand(-2, 2))
+			particle:SetCollide(true)
+			particle:SetBounce(0.2)
+			particle:SetColor(sat, sat, sat)
+		end
 	end
 end
 
 function ENT:OnRemove()
+	GAMEMODE:RemoveEquipmentSmokeEmitter(self)
 	self.AmbientSound:Stop()
 	self.AmbientSound2:Stop()
 	self:RemoveSubModel()
+	GAMEMODE:RemoveTraitDroneModel(self)
 end
 
 function ENT:RemoveSubModel()
@@ -84,6 +83,7 @@ function ENT:DrawTranslucent()
 	self:DrawModel()
 
 	self:DrawSubModel()
+	GAMEMODE:DrawTraitDroneModel(self)
 
 	local lp = LocalPlayer()
 	local owner = self:GetOwner()
@@ -182,9 +182,23 @@ function ENT:CalcView(pl, origin, angles, fov, znear, zfar)
 
 	if not self:BeingControlled() then return end
 
-	local filter = player.GetAll()
-	filter[#filter + 1] = self
-	local tr = util.TraceHull({start = self:GetPos(), endpos = self:GetPos() + angles:Forward() * -48, mask = MASK_SHOT, filter = filter, mins = ViewHullMins, maxs = ViewHullMaxs})
+	local _, players = player.Iterator()
+	local filter = self.ViewPlayerFilter
+	if self.ViewPlayerList ~= players or not filter then
+		filter = {}
+		for i = 1, #players do filter[i] = players[i] end
+		filter[#filter + 1] = self
+		self.ViewPlayerList, self.ViewPlayerFilter = players, filter
+	end
+	local trace = self.ViewTrace
+	if not trace then
+		trace = {mask = MASK_SHOT, mins = ViewHullMins, maxs = ViewHullMaxs, output = {}}
+		self.ViewTrace = trace
+	end
+	trace.start = self:GetPos()
+	trace.endpos = trace.start + angles:Forward() * -48
+	trace.filter = filter
+	local tr = util.TraceHull(trace)
 
 	return {origin = tr.HitPos + tr.HitNormal * 3}
 end

@@ -65,6 +65,7 @@ SWEP.TracerName = "tracer_gluon"
 SWEP.IsPulseWeapon = true
 SWEP.FireAnimSpeed = 0.24
 SWEP.FireSoundPitch = 125
+SWEP.WeaponForgeReload = "heat"
 SWEP.HeatBuildShort = 0.09
 SWEP.HeatBuildLong = 0.03
 SWEP.HeatVentShort = 0.16
@@ -87,16 +88,15 @@ end
 function SWEP:Deploy()
 	local owner = self:GetOwner()
 
-	if not self.PostOwner then
-		self.PostOwner = owner
-	end
+	self.PostOwner = owner
 
 	local timediff = owner.GluonInactiveTime and CurTime() - owner.GluonInactiveTime or 0
 	self:SetShortHeat(math.Clamp((owner.ShortGluonHeat or 0) - timediff * self.HeatDecayShort, 0, 1))
 	self:SetLongHeat(math.Clamp((owner.LongGluonHeat or 0) - timediff * self.HeatDecayLong, 0, 1))
 
-	if self:GetLongHeat() > 0.5 then
-		self:SetGunState(2)
+	local venting = self:GetLongHeat() > 0.5
+	self:SetGunState(venting and 2 or 0)
+	if venting then
 		self:EmitSound("npc/scanner/scanner_siren1.wav")
 	end
 
@@ -172,6 +172,8 @@ function SWEP:SecondaryAttack()
 end
 
 function SWEP:StopGluonSounds()
+	if self.ZSGluonSoundState == 0 then return end
+	self.ZSGluonSoundState = 0
 	self.FiringSound:Stop()
 	if CLIENT then self.VentingSound:Stop() end
 end
@@ -226,16 +228,18 @@ function SWEP:ManageHeat()
 		local frametime = FrameTime()
 
 		if self:GetGunState() == 1 then
+			if self.ZSGluonSoundState ~= 1 then self:StopGluonSounds(); self.ZSGluonSoundState = 1 end
 			self.FiringSound:PlayEx(1, self.FireSoundPitch + CurTime() % 1)
 			self:SetShortHeat(math.min(self:GetShortHeat() + frametime * self.HeatBuildShort, 1))
 			self:SetLongHeat(math.min(self:GetLongHeat() + frametime * self.HeatBuildLong, 1))
 		elseif self:GetGunState() == 2 then
-			self.FiringSound:Stop()
+			local reloadScale = GAMEMODE:GetTraitReloadScale(self)
+			if self.ZSGluonSoundState ~= 2 then self:StopGluonSounds(); self.ZSGluonSoundState = 2 end
 
 			if CLIENT then self.VentingSound:PlayEx(1, 55 + CurTime() % 1) end
 			
-			self:SetShortHeat(math.max(self:GetShortHeat() - frametime * self.HeatVentShort, 0))
-			self:SetLongHeat(math.max(self:GetLongHeat() - frametime * self.HeatVentLong, 0))
+			self:SetShortHeat(math.max(self:GetShortHeat() - frametime * self.HeatVentShort * reloadScale, 0))
+			self:SetLongHeat(math.max(self:GetLongHeat() - frametime * self.HeatVentLong * reloadScale, 0))
 			self:SetNextPrimaryFire(CurTime() + 0.25)
 
 			if self:GetLongHeat() == 0 and self:GetShortHeat() < self.HeatBuildShort then

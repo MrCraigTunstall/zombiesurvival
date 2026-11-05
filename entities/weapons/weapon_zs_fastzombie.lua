@@ -56,7 +56,7 @@ function SWEP:Think()
 					owner:EmitSound("player/footsteps/metalgrate"..math.random(4)..".wav")
 				end
 			end
-		else
+		elseif SERVER or not game.SinglePlayer() then
 			self:StopClimbing()
 		end
 	end

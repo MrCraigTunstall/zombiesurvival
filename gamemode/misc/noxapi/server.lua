@@ -76,7 +76,7 @@ function CACHE:BufferRequest()
 		steamids[#steamids + 1] = Buffer[1][1]
 		table.remove(Buffer, 1)
 	end
-	for _, pl in pairs(player.GetAll()) do
+	for _, pl in player.Iterator() do
 		steamid_to_player[pl:SteamID()] = pl
 	end
 

@@ -9,18 +9,27 @@ function ENT:PlayerSet(pPlayer, bExists)
 	end
 end
 
+local sigilOffset = Vector(0, 0, 64)
+
 function ENT:GetSigilAngle(aimSigil)
 	local owner = self:GetOwner()
-	if not IsValid(owner) then return end
-	return math.acos(owner:GetAimVector():Dot(((aimSigil:GetPos() + Vector(0,0,64)) - owner:EyePos()):GetNormalized()))
+	if not IsValid(owner) or not IsValid(aimSigil) then return end
+	return math.acos(math.Clamp(owner:GetAimVector():Dot((aimSigil:GetPos() + sigilOffset - owner:EyePos()):GetNormalized()), -1, 1))
 end
 
 function ENT:GetAimSigil()
-	local currentSigil = self:GetCurrentSigil()
-	local sigils = ents.FindByClass("prop_obj_sigil")
-	for k, v in ipairs(sigils) do if v == currentSigil then table.remove(sigils, k) end end
-	table.sort(sigils, function(a, b) return self:GetSigilAngle(a) < self:GetSigilAngle(b) end)
-	return sigils[1]
+	local owner = self:GetOwner()
+	if not IsValid(owner) then return end
+	local current = self:GetCurrentSigil()
+	local aim, eye = owner:GetAimVector(), owner:EyePos()
+	local best, bestdot
+	for _, sigil in ipairs(GAMEMODE:GetZSClassEntities("prop_obj_sigil")) do
+		if sigil ~= current and IsValid(sigil) and not sigil:GetSigilCorrupted() then
+			local dot = aim:Dot((sigil:GetPos() + sigilOffset - eye):GetNormalized())
+			if not bestdot or dot > bestdot then best, bestdot = sigil, dot end
+		end
+	end
+	return best
 end
 
 local function GhostProps(pl, newPos)
@@ -37,11 +46,15 @@ end
 -- Set pos in hook, to prevent the position from being overwritten by something else
 hook.Add("FinishMove", "SigilTeleporting", function(ply, mv)
 	if ply.TeleportTo then
-		ply:SetPos(ply.TeleportTo)
+		local position, sigil = ply.TeleportTo, ply.TeleportSigil
+		ply.TeleportTo, ply.TeleportSigil = nil, nil
+		if not ply:Alive() or ply:Team() ~= TEAM_SURVIVORS or (ply.ZSReturns and ply.ZSReturns.divinehatred) then return end
+		if sigil ~= nil and (not IsValid(sigil) or sigil:GetSigilCorrupted() or sigil:IsMarkedForDeletion()) then return end
+		ply:SetPos(position)
 		ply:SetBarricadeGhosting(true)
-		GhostProps(ply, ply.TeleportTo)
+		GhostProps(ply, position)
 		
-		ply.TeleportTo = nil
+		GAMEMODE:TraitSigilHeal(ply)
 		return true
 	end 
 end)
@@ -55,18 +68,20 @@ local function sigilTeleport(status, owner, currentSigil)
 	owner:EmitSound("ambient/machines/teleport1.wav")
 	
 	owner.TeleportTo = sigilPos
+	owner.TeleportSigil = sigil
 end
 
 function ENT:Think()
 	if self.Removing then return end
 	
 	local owner = self:GetOwner()
+	if IsValid(owner) and owner.ZSReturns and owner.ZSReturns.divinehatred then self:Remove(); return end
 	local sigil = self:GetCurrentSigil()
 	local aimSigil = self:GetAimSigil()
 	
 	if self:GetDestSigil() ~= aimSigil then self:SetDestSigil(aimSigil) end
 	
-	if IsValid(sigil) and IsValid(owner) and owner:Alive() and owner:GetPos():Distance(sigil:GetPos() + Vector(0,0,64)) < (sigil.MaxDistance or 100) and not owner:KeyDown(IN_SPEED) and owner:Team() == TEAM_SURVIVORS then
+	if IsValid(sigil) and IsValid(owner) and owner:Alive() and owner:GetPos():DistToSqr(sigil:GetPos() + sigilOffset) < (sigil.MaxDistance or 100) ^ 2 and not owner:KeyDown(IN_SPEED) and owner:Team() == TEAM_SURVIVORS then
 		if not owner.FastTeleport and not self.PlayedPreTelSound and CurTime() >= self:GetEndTime() - 2.0 then
 			self.PlayedPreTelSound = true
 			owner:EmitSound("ambient/levels/labs/teleport_preblast_suckin1.wav")
@@ -77,7 +92,7 @@ function ENT:Think()
 			self:Remove()
 		end
 	else
-		owner:EmitSound("items/medshotno1.wav")
+		if IsValid(owner) then owner:EmitSound("items/medshotno1.wav") end
 		self.Removing = true
 		self:Remove()
 	end

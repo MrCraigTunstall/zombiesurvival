@@ -4,7 +4,7 @@ AddCSLuaFile("shared.lua")
 include("shared.lua")
 
 local function RefreshCrateOwners(pl)
-	for _, ent in pairs(ents.FindByClass("prop_spotlamp")) do
+	for _, ent in ipairs(GAMEMODE:GetZSEquipmentEntities("prop_spotlamp", true)) do
 		if ent:IsValid() and ent:GetObjectOwner() == pl then
 			ent:SetObjectOwner(NULL)
 		end
@@ -82,7 +82,7 @@ function ENT:OnTakeDamage(dmginfo)
 
 	local attacker = dmginfo:GetAttacker()
 	if not (attacker:IsValid() and attacker:IsPlayer() and attacker:Team() == TEAM_HUMAN) then
-		self:SetObjectHealth(self:GetObjectHealth() - dmginfo:GetDamage())
+		GAMEMODE:DamageTraitObject(self, dmginfo)
 		self:ResetLastBarricadeAttacker(attacker, dmginfo)
 	end
 end

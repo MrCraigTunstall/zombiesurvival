@@ -9,9 +9,9 @@ SWEP.Primary.Ammo = "SniperRound"
 SWEP.Primary.Delay = 1
 SWEP.Primary.DefaultClip = 3
 
-SWEP.Secondary.ClipSize = 1
-SWEP.Secondary.DefaultClip = 1
-SWEP.Secondary.Ammo = "dummy"
+SWEP.Secondary.ClipSize = -1
+SWEP.Secondary.DefaultClip = 0
+SWEP.Secondary.Ammo = "none"
 SWEP.Secondary.Automatic = true
 SWEP.Secondary.Delay = 0.15
 

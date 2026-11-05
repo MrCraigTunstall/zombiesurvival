@@ -12,6 +12,7 @@ function ENT:AcceptInput(name, activator, caller, args)
 		self:FireOutput(name, activator, caller, args)
 		return true
 	elseif name == "win" then
+		if self.ZSEscapeWinSources and not (GAMEMODE.CanZombieEscapeMapWin and GAMEMODE:CanZombieEscapeMapWin(self, activator, caller)) then return true end
 		gamemode.Call("EndRound", TEAM_HUMAN)
 		return true
 	elseif name == "lose" then

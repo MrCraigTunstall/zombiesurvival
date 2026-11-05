@@ -5,7 +5,6 @@
 	"maps"				"^zs_|^zm_|^zh_|^zps_|^zr_|^ze_"
 	"category"			"pvp"
 	"menusystem"		"1"
-	"workshopid"		"1357369797"
 
 	"author_name"		"William 'JetBoom' Moodhe"
 	"author_email"		"williammoodhe@gmail.com"

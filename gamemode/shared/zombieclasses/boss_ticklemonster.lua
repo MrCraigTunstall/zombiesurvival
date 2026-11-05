@@ -116,11 +116,13 @@ end
 
 if not CLIENT then return end
 
+local armScales = setmetatable({}, {__mode = "k"})
 local vecSpineOffset = Vector(10, 0, 0)
-local SpineBones = {"ValveBiped.Bip01_Spine2", "ValveBiped.Bip01_Spine4", "ValveBiped.Bip01_Spine3"}
+local PoseBones = {"ValveBiped.Bip01_Spine2", "ValveBiped.Bip01_Spine4", "ValveBiped.Bip01_Spine3", "ValveBiped.Bip01_L_Forearm", "ValveBiped.Bip01_R_Forearm"}
 function CLASS:BuildBonePositions(pl)
-	for _, bone in pairs(SpineBones) do
-		local spineid = pl:LookupBone(bone)
+	local bones = ZSWeaponAnimation.LookupBoneSet(pl, PoseBones)
+	for i = 1, 3 do
+		local spineid = bones[i]
 		if spineid and spineid > 0 then
 			pl:ManipulateBonePosition(spineid, vecSpineOffset)
 		end
@@ -129,20 +131,27 @@ function CLASS:BuildBonePositions(pl)
 	local wep = pl:GetActiveWeapon()
 	if wep:IsValid() and wep.GetSwingEndTime then
 		local desiredscale
-		if wep:GetSwingEndTime() > 0 then
-			desiredscale = 2 + (1 - math.Clamp((wep:GetSwingEndTime() - CurTime()) / wep.MeleeDelay, 0, 1)) * 10
+		local swingEnd = wep:GetSwingEndTime()
+		if swingEnd > 0 then
+			desiredscale = 2 + (1 - math.Clamp((swingEnd - CurTime()) / wep.MeleeDelay, 0, 1)) * 10
 		else
 			desiredscale = 2
 		end
 		pl.m_TMArmLength = math.Approach(pl.m_TMArmLength or 2, desiredscale, FrameTime() * 10)
 
-		local larmid = pl:LookupBone("ValveBiped.Bip01_L_Forearm")
-		if larmid and larmid > 0 then
-			pl:ManipulateBoneScale(larmid, Vector(pl.m_TMArmLength, 2, 2))
+		local scale = armScales[pl]
+		if not scale then
+			scale = Vector(2, 2, 2)
+			armScales[pl] = scale
 		end
-		local rarmid = pl:LookupBone("ValveBiped.Bip01_R_Forearm")
+		scale.x = pl.m_TMArmLength
+		local larmid = bones[4]
+		if larmid and larmid > 0 then
+			pl:ManipulateBoneScale(larmid, scale)
+		end
+		local rarmid = bones[5]
 		if rarmid and rarmid > 0 then
-			pl:ManipulateBoneScale(rarmid, Vector(pl.m_TMArmLength, 2, 2))
+			pl:ManipulateBoneScale(rarmid, scale)
 		end
 	end
 end

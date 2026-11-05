@@ -1,5 +1,6 @@
 ENT.Type = "anim"
-ENT.Base = "status__base"
+ENT.Base = "status_ghost_base"
+ENT.GhostWeapon = "weapon_zs_barricadekit"
 
 ENT.Model = Model("models/props_debris/wood_board05a.mdl")
 
@@ -13,7 +14,7 @@ end
 
 function ENT:RecalculateValidity()
 	local owner = self:GetOwner()
-	if not owner:IsValid() then
+	if not IsValid(owner) or not owner:Alive() or owner:GetBarricadeGhosting() or owner:IsHolding() then
 		self:SetValidPlacement(false)
 		return
 	end
@@ -44,10 +45,8 @@ function ENT:RecalculateValidity()
 	eyeangles:RotateAroundAxis(eyeangles:Forward(), rotation)
 
 	local pos, ang = tr.HitPos + tr.HitNormal, eyeangles
-	if CLIENT then
-		self:SetPos(pos)
-		self:SetAngles(ang)
-	end
+	self:SetPos(pos)
+	self:SetAngles(ang)
 
 	if valid and SERVER and GAMEMODE:EntityWouldBlockSpawn(self) then
 		valid = false
@@ -63,7 +62,10 @@ function ENT:GetValidPlacement()
 end
 
 function ENT:SetValidPlacement(onoff)
-	self:SetDTBool(0, onoff)
+	onoff = not not onoff
+	if SERVER and self:GetDTBool(1) ~= onoff then self:SetDTBool(1, onoff) end
+	if CLIENT then onoff = onoff and self:GetDTBool(1) end
+	if self:GetDTBool(0) ~= onoff then self:SetDTBool(0, onoff) end
 end
 
 function ENT:GetRotation()

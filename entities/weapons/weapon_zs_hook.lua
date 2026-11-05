@@ -63,9 +63,10 @@ function SWEP:OnMeleeHit(hitent, hitflesh, tr)
 				ent:SetOwner(self.Owner)
 
 				local followed = false
-				if hitent:GetBoneCount() > 1 then
+				local bonecount = hitent:GetBoneCount()
+				if bonecount and bonecount > 0 then
 					local boneindex = hitent:NearestBone(tr.HitPos)
-					if boneindex and boneindex > 0 then
+					if boneindex and boneindex >= 0 then
 						ent:FollowBone(hitent, boneindex)
 						ent:SetPos((hitent:GetBonePositionMatrixed(boneindex) * 2 + tr.HitPos) / 3)
 						followed = true

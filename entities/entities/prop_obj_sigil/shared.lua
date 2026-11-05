@@ -28,7 +28,7 @@ end
 function ENT:SetSigilHealth(health)
 	self:SetSigilHealthBase(health)
 
-	self:SetSigilLastDamaged(math.max(self:GetSigilLastDamaged(), self:GetSigilHealthRegen() - self.RegenDelay))
+	self:SetSigilLastDamaged(math.max(self:GetSigilLastDamaged(), CurTime() - self.RegenDelay))
 end
 
 function ENT:GetSigilHealth()
@@ -40,4 +40,8 @@ end
 
 function ENT:GetSigilMaxHealth()
 	return self.MaxHealth
+end
+
+function ENT:GetSigilCorrupted()
+	return self:GetSigilHealthBase() <= 0
 end

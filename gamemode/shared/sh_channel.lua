@@ -7,7 +7,7 @@ function GM:GetFreeChannel(class)
 
 	local taken_channels = {}
 
-	for _, ent in pairs(ents.FindByClass(class)) do
+	for _, ent in ipairs(self:GetZSEquipmentEntities(class)) do
 		if ent:IsValid() and ent.GetChannel then
 			taken_channels[ent:GetChannel()] = true
 		end

@@ -50,6 +50,11 @@ function SWEP:SetupDataTables()
 	self:NetworkVar("Float", 1, "NextIdle")
 	self:NetworkVar("Float", 2, "NextIdleHoldType")
 	self:NetworkVar("Int", 2, "Combo")
+	self:NetworkVar("Float", 20, "ParkourBase")
+	self:NetworkVar("Float", 21, "ParkourUntil")
+	self:NetworkVar("Bool", 20, "ParkourActive")
+	self:NetworkVar("Entity", 0, "ParkourSurface")
+	self:NetworkVar("Bool", 21, "ParkourSpent")
 end
 
 function SWEP:UpdateNextIdle()
@@ -81,6 +86,8 @@ function SWEP:PrimaryAttack(right)
 	self:SetNextPrimaryFire( CurTime() + 0.4 )
 	self:SetNextSecondaryFire( CurTime() + 0.4 )
 end
+
+function SWEP:Reload() end
 
 function SWEP:SecondaryAttack()
 	self:PrimaryAttack( true )
@@ -177,6 +184,10 @@ end
 
 function SWEP:Holster(wep)
 	if CurTime() >= self:GetNextPrimaryFire() then
+		if self.GetParkourSpent then
+			if self:GetParkourActive() then self:SetParkourActive(false) end
+			if SERVER and IsValid(self:GetParkourSurface()) then self:SetParkourSurface(NULL) end
+		end
 		self:OnRemove()
 
 		return true

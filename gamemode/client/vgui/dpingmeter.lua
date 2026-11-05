@@ -40,14 +40,14 @@ function PANEL:Paint()
 		surface.DrawOutlinedRect(x, y, barwidth, barheight)
 	end
 
-	draw.SimpleText(ping, "DefaultFontSmall", 0, 0, colPing)
+	draw.SimpleText(ping, "ZSMenuScaledSmall", 0, 0, colPing)
 
 	return true
 end
 
 function PANEL:Refresh()
 	local pl = self:GetPlayer()
-	if pl:IsValid() then
+	if pl:IsValid() and not pl:IsBot() then
 		self:SetPing(pl:Ping())
 	else
 		self:SetPing(0)
@@ -55,6 +55,8 @@ function PANEL:Refresh()
 end
 
 function PANEL:Think()
+	if self.ManagedRefresh then return end
+	if self.ScoreBoard and (not IsValid(self.ScoreBoard) or not self.ScoreBoard:IsVisible()) then return end
 	if RealTime() >= self.NextRefresh then
 		self.NextRefresh = RealTime() + self.RefreshTime
 		self:Refresh()

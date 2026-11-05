@@ -3,16 +3,13 @@ include("shared.lua")
 ENT.RenderGroup = RENDERGROUP_TRANSLUCENT
 
 function ENT:OnInitialize()
-	hook.Add("Move", self, self.Move)
-	hook.Add("CreateMove", self, self.CreateMove)
-	hook.Add("ShouldDrawLocalPlayer", self, self.ShouldDrawLocalPlayer)
-
 	self:SetRenderBounds(Vector(-40, -40, -18), Vector(40, 40, 80))
 
 	local owner = self:GetOwner()
 	if owner:IsValid() then
 		owner.FeignDeath = self
 		owner.NoCollideAll = true
+		owner:CollisionRulesChanged()
 
 		self.CommandYaw = owner:GetAngles().yaw
 
@@ -39,11 +36,28 @@ function ENT:ShouldDrawLocalPlayer(pl)
 	return true
 end
 
+hook.Add("CreateMove", "ZSFeignDeathInput", function(cmd)
+	local pl = LocalPlayer()
+	if not pl:IsValid() then return end
+	local status = pl.FeignDeath
+	if status and status:IsValid() then
+		return status:CreateMove(cmd)
+	end
+end)
+
+hook.Add("ShouldDrawLocalPlayer", "ZSFeignDeathLocalPlayer", function(pl)
+	local status = pl and pl.FeignDeath
+	if status and status:IsValid() then
+		return status:ShouldDrawLocalPlayer(pl)
+	end
+end)
+
 function ENT:OnRemove()
 	local owner = self:GetOwner()
 	if owner:IsValid() then
 		owner.FeignDeath = nil
 		owner.NoCollideAll = owner:Team() == TEAM_UNDEAD and owner:GetZombieClassTable().NoCollideAll
+		owner:CollisionRulesChanged()
 	end
 end
 

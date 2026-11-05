@@ -25,25 +25,25 @@ function ENT:Initialize()
 	self:EmitSound("weapons/crossbow/bolt_fly4.wav")
 end
 
-function ENT:PhysicsCollide(data, phys)
+function ENT:FinishImpact(pos, normal, hitent)
+	if not self:IsValid() then return end
+	self:Fire("kill", "", 8)
+	local phys = self:GetPhysicsObject()
+	if phys:IsValid() then phys:EnableMotion(false) end
+	self:EmitSound("physics/metal/sawblade_stick" .. math.random(3) .. ".wav")
+	self:SetPos(pos)
+	self:SetAngles(normal:Angle())
+	if IsValid(hitent) then
+		local hitphys = hitent:GetPhysicsObject()
+		if hitphys:IsValid() and hitphys:IsMoveable() then self:SetParent(hitent) end
+	end
+end
+
+function ENT:PhysicsCollide(data, physobj)
 	if self.Done then return end
 	self.Done = true
-
-	self:Fire("kill", "", 8)
-
-	phys:EnableMotion(false)
-	self:EmitSound("physics/metal/sawblade_stick"..math.random(3)..".wav")
-
-	self:SetPos(data.HitPos)
-	self:SetAngles(data.HitNormal:Angle())
-
-	local hitent = data.HitEntity
-	if hitent and hitent:IsValid() then
-		local hitphys = hitent:GetPhysicsObject()
-		if hitphys:IsValid() and hitphys:IsMoveable() then
-			self:SetParent(hitent)
-		end
-	end
+	local pos, normal, hitent = Vector(data.HitPos), Vector(data.HitNormal), data.HitEntity
+	timer.Simple(0, function() if IsValid(self) then self:FinishImpact(pos, normal, hitent) end end)
 end
 
 function ENT:StartTouch(ent)
@@ -56,6 +56,6 @@ function ENT:StartTouch(ent)
 
 	self.Touched[ent] = true
 
-	ent:TakeDamage(100, owner, self)
+	ent:TakeDamage(self.ProjDamage or 100, owner, self)
 	ent:EmitSound("weapons/crossbow/hitbod"..math.random(2)..".wav")
 end

@@ -3,7 +3,7 @@ if CLIENT then return end
 local function DoCatBomb(pl)
 	BroadcastLua([[surface.PlaySound("vo/Citadel/gman_exit02.wav")]])
 
-	timer.Create("catbombmessage", 1, 5, function() for _, ply in pairs(player.GetAll()) do ply:PrintMessage(HUD_PRINTCENTER, "INCOMING CATBOMB!") end end)
+	timer.Create("catbombmessage", 1, 5, function() for _, ply in player.Iterator() do ply:PrintMessage(HUD_PRINTCENTER, "INCOMING CATBOMB!") end end)
 	
 	local tr = util.TraceLine({start=pl:GetShootPos(), endpos = pl:GetShootPos() + pl:GetAimVector() * 10000, ignore=pl})
 	tr = util.TraceLine({start=tr.HitPos, endpos=tr.HitPos + Vector(0,0,5000), ignore=pl})
@@ -28,7 +28,7 @@ local function DoCatBomb(pl)
 end
 
 local function KillEverything()
-	for _, pl in pairs(player.GetAll()) do
+	for _, pl in player.Iterator() do
 		if pl:Alive() then
 			pl:Kill()
 			if pl.Gib then pl:Gib() end
@@ -42,7 +42,7 @@ local function KillEverything()
 end
 
 function BroadcastLua(lua)
-	for _, pl in pairs(player.GetAll()) do
+	for _, pl in player.Iterator() do
 		pl:SendLua(lua)
 	end
 end

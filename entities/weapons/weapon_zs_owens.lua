@@ -14,6 +14,7 @@ if CLIENT then
 end
 
 SWEP.Base = "weapon_zs_base"
+SWEP.TraitCombine = true
 
 SWEP.HoldType = "pistol"
 

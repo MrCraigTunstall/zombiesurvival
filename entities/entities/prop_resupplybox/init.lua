@@ -4,7 +4,7 @@ AddCSLuaFile("shared.lua")
 include("shared.lua")
 
 local function RefreshCrateOwners(pl)
-	for _, ent in pairs(ents.FindByClass("prop_resupplybox")) do
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_resupplybox")) do
 		if ent:IsValid() and ent:GetObjectOwner() == pl then
 			ent:SetObjectOwner(NULL)
 		end
@@ -14,6 +14,7 @@ hook.Add("PlayerDisconnected", "ResupplyBox.PlayerDisconnected", RefreshCrateOwn
 hook.Add("OnPlayerChangedTeam", "ResupplyBox.OnPlayerChangedTeam", RefreshCrateOwners)
 
 function ENT:Initialize()
+	GAMEMODE:RegisterZSClassEntity(self)
 	self:SetModel("models/Items/ammocrate_ar2.mdl")
 	self:PhysicsInit(SOLID_VPHYSICS)
 	self:SetUseType(SIMPLE_USE)
@@ -26,6 +27,7 @@ function ENT:Initialize()
 
 	self:SetMaxObjectHealth(200)
 	self:SetObjectHealth(self:GetMaxObjectHealth())
+	self:NextThink(CurTime() + 1)
 end
 
 function ENT:KeyValue(key, value)
@@ -57,6 +59,7 @@ function ENT:SetObjectHealth(health)
 	self:SetDTFloat(0, health)
 	if health <= 0 and not self.Destroyed then
 		self.Destroyed = true
+		self:NextThink(CurTime())
 
 		local ent = ents.Create("prop_physics")
 		if ent:IsValid() then
@@ -78,7 +81,7 @@ function ENT:OnTakeDamage(dmginfo)
 
 	local attacker = dmginfo:GetAttacker()
 	if not (attacker:IsValid() and attacker:IsPlayer() and attacker:Team() == TEAM_HUMAN) then
-		self:SetObjectHealth(self:GetObjectHealth() - dmginfo:GetDamage())
+		GAMEMODE:DamageTraitObject(self, dmginfo)
 		self:ResetLastBarricadeAttacker(attacker, dmginfo)
 	end
 end
@@ -100,28 +103,32 @@ function ENT:OnPackedUp(pl)
 end
 
 function ENT:Think()
-	if self.Destroyed then
-		self:Remove()
-	elseif self.Close and CurTime() >= self.Close then
+	if self.Destroyed then self:Remove() return end
+	local now = CurTime()
+	if self.Close and now >= self.Close then
 		self.Close = nil
 		self:ResetSequence("open")
 		self:EmitSound("items/ammocrate_close.wav")
 	end
+	self:NextThink(self.Close and math.min(self.Close, now + 1) or now + 1)
+	return true
 end
 
 local NextUse = {}
 function ENT:Use(activator, caller)
-	if activator:Team() == TEAM_UNDEAD or not activator:Alive() or GAMEMODE:GetWave() <= 0 then return end
-
-	if not self:GetObjectOwner():IsValid() then
-		self:SetObjectOwner(activator)
-	end
+	if not IsValid(activator) or not activator:IsPlayer() then return end
+	local teamid = activator:Team()
+	if (teamid ~= TEAM_HUMAN and teamid ~= TEAM_REDEEMER) or not activator:Alive() or GAMEMODE:GetWave() <= 0 then return end
+	local now = CurTime()
 
 	local owner = self:GetObjectOwner()
-	local owneruid = owner:IsValid() and owner:UniqueID() or "nobody"
+	if not IsValid(owner) then
+		self:SetObjectOwner(activator)
+		owner = activator
+	end
 	local myuid = activator:UniqueID()
 
-	if CurTime() < (NextUse[myuid] or 0) then
+	if now < (NextUse[myuid] or 0) then
 		activator:CenterNotify(COLOR_RED, translate.ClientGet(activator, "no_ammo_here"))
 		return
 	end
@@ -139,11 +146,13 @@ function ENT:Use(activator, caller)
 		end
 	end
 
-	NextUse[myuid] = CurTime() + (activator.FastResupply and GAMEMODE.ResupplyTimeTrait or GAMEMODE.ResupplyTime)
+	NextUse[myuid] = now + GAMEMODE:GetTraitResupplyCooldown(owner)
 
-	net.Start("zs_nextresupplyuse")
-		net.WriteFloat(NextUse[myuid])
-	net.Send(activator)
+	if not activator:IsBot() then
+		net.Start("zs_nextresupplyuse")
+			net.WriteFloat(NextUse[myuid])
+		net.Send(activator)
+	end
 
 	activator:GiveAmmo(GAMEMODE.AmmoResupply[ammotype], ammotype)
 	if activator ~= owner and owner:IsValid() and owner:IsPlayer() and owner:Team() == TEAM_HUMAN then
@@ -153,16 +162,19 @@ function ENT:Use(activator, caller)
 			owner:AddPoints(1)
 		end
 
-		net.Start("zs_commission")
-			net.WriteEntity(self)
-			net.WriteEntity(activator)
-			net.WriteUInt(1, 16)
-		net.Send(owner)
+		if not owner:IsBot() then
+			net.Start("zs_commission")
+				net.WriteEntity(self)
+				net.WriteEntity(activator)
+				net.WriteUInt(1, 16)
+			net.Send(owner)
+		end
 	end
 
 	if not self.Close then
 		self:ResetSequence("close")
 		self:EmitSound("items/ammocrate_open.wav")
 	end
-	self.Close = CurTime() + 3
+	self.Close = now + 3
+	self:NextThink(math.min(self.Close, now + 1))
 end

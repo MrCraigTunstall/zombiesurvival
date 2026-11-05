@@ -54,7 +54,7 @@ function CLASS:CalcMainActivity(pl, velocity)
 	local feign = pl.FeignDeath
 	if feign and feign:IsValid() then
 		if feign:GetDirection() == DIR_BACK then
-			pl.CalcSeqOverride = pl:LookupSequence("zombie_slump_rise_02_fast")
+			pl.CalcSeqOverride = GAMEMODE:GetAnimationSequence(pl, "zombie_slump_rise_02_fast")
 		else
 			pl.CalcIdeal = ACT_HL2MP_ZOMBIE_SLUMP_RISE
 		end
@@ -78,17 +78,12 @@ end
 
 function CLASS:UpdateAnimation(pl, velocity, maxseqgroundspeed)
 	local wep = pl:GetActiveWeapon()
-	if not wep:IsValid() or not wep.GetSwinging then return end
-
-	if wep:GetSwinging() then
-		if not pl.PlayingFZSwing then
-			pl.PlayingFZSwing = true
-			pl:AnimRestartGesture(GESTURE_SLOT_ATTACK_AND_RELOAD, ACT_GMOD_GESTURE_RANGE_FRENZY)
-		end
-	elseif pl.PlayingFZSwing then
-		pl.PlayingFZSwing = false
-		pl:AnimResetGestureSlot(GESTURE_SLOT_ATTACK_AND_RELOAD)
+	if not wep:IsValid() or not wep.GetSwinging then
+		GAMEMODE:ResetZombieAnimation(pl)
+		return
 	end
+
+	GAMEMODE:UpdateZombieSwing(pl, wep)
 
 	local feign = pl.FeignDeath
 	if feign and feign:IsValid() then
@@ -102,15 +97,9 @@ function CLASS:UpdateAnimation(pl, velocity, maxseqgroundspeed)
 	end
 
 	local len2d = velocity:Length2D()
-	if len2d > 0.5 then
-		pl:SetPlaybackRate(math.min(len2d / maxseqgroundspeed, 3))
-	else
-		pl:SetPlaybackRate(1)
-	end
-
-	if velocity:Length2D() >= 16 then
-		pl:SetPlaybackRate(pl:GetPlaybackRate() * 1.5)
-	end
+	local rate = len2d > 0.5 and math.min(len2d / maxseqgroundspeed, 3) or 1
+	if len2d >= 16 then rate = rate * 1.5 end
+	pl:SetPlaybackRate(rate)
 
 	return true
 end

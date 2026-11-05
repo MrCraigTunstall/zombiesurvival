@@ -1,23 +1,28 @@
-local contentFolder, contentFolderLength
+local contentWorkshop = CreateConVar("zs_content_workshop", "", FCVAR_ARCHIVE, "Workshop ID of this server's Zombie Survival content pack.")
+local gamemodeWorkshop = CreateConVar("zs_gamemode_workshop", "", FCVAR_ARCHIVE, "Workshop ID of this server's Zombie Survival gamemode.")
 
 function GM:AddResources()
-	contentFolder = GAMEMODE.FolderName.. "/content/"
-	contentFolderLength = string.len(contentFolder) + 1
-
-	resource.AddWorkshop("1357352304")
-	AddContentFiles(contentFolder)
+	local content = string.Trim(contentWorkshop:GetString())
+	local gamemode = string.Trim(gamemodeWorkshop:GetString())
+	if #content <= 20 and string.match(content, "^[1-9]%d*$") then resource.AddWorkshop(content) end
+	if gamemode ~= content and #gamemode <= 20 and string.match(gamemode, "^[1-9]%d*$") then resource.AddWorkshop(gamemode) end
+	AddContentFiles(self.FolderName .. "/content/")
 end
 
-function AddContentFiles(name)
-	local files, dirs = file.Find(name .."*", "LUA")
-  for _, dir in pairs(dirs) do
-		local nextDir = name ..dir .."/"
-		if nextDir ~= "zombiesurvival/content/data/" then
-    	AddContentFiles(nextDir)
+function AddContentFiles(root)
+	local seen = {}
+	local function walk(path)
+		local files, dirs = file.Find(path .. "*", "LUA")
+		for _, filename in ipairs(files or {}) do
+			local relative = string.sub(path .. filename, #root + 1)
+			if not seen[relative] then
+				seen[relative] = true
+				resource.AddSingleFile(relative)
+			end
 		end
-  end
-	for _, filename in pairs(files)do
-		local fileDir = string.sub(name ..filename, contentFolderLength)
-		resource.AddFile(fileDir)
-  end
+		for _, dir in ipairs(dirs or {}) do
+			if dir ~= "data" and dir ~= "lua" then walk(path .. dir .. "/") end
+		end
+	end
+	walk(root)
 end

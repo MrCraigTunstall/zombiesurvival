@@ -1,7 +1,7 @@
 local Hints = {}
 
 function GM:DrawPointWorldHints()
-	for _, ent in pairs(ents.FindByClass("point_worldhint")) do ent:DrawHint() end
+	for _, ent in ipairs(self:GetZSClassEntities("point_worldhint")) do ent:DrawHint() end
 end
 
 function GM:WorldHint(hint, pos, ent, lifetime)
@@ -13,9 +13,13 @@ function GM:WorldHint(hint, pos, ent, lifetime)
 		else
 			pos = ent:OBBCenter()
 		end
+	else
+		ent = nil
+		pos = pos or vector_origin
 	end
 
-	local hint = {Hint = hint, Pos = pos, Entity = ent, StartTime = CurTime(), EndTime = CurTime() + lifetime}
+	local now = CurTime()
+	local hint = {Hint = hint, Pos = pos, Entity = ent, StartTime = now, EndTime = now + lifetime}
 	table.insert(Hints, hint)
 
 	return hint
@@ -46,10 +50,11 @@ function DrawWorldHint(hint, pos, delta, scale)
 	draw.SimpleText(hint, "ZS3D2DFont2Small", 0, 64, colFG, TEXT_ALIGN_CENTER)
 
 	surface.SetMaterial(matRing)
+	local pulsebase = math.max(0.25, math.abs(math.sin(RealTime() * 6)))
 	for i=1, 4 do
 		colFG.a = colFG.a * (1 / i)
 		surface.SetDrawColor(colFG)
-		local pulse = math.max(0.25, math.abs(math.sin(RealTime() * 6))) * 30 * i
+		local pulse = pulsebase * 30 * i
 		surface.DrawTexturedRectRotated(0, 0, 128 + pulse, 128 + pulse, 0)
 	end
 
@@ -57,7 +62,7 @@ function DrawWorldHint(hint, pos, delta, scale)
 	cam.IgnoreZ(false)
 end
 
-local matSigil = Material("zombiesurvival/sigil.png")
+local matSigil = Material("zombiesurvival/sigil/icon.png")
 function DrawSigilHint(hint, pos, delta, scale, color)
 	local eyepos = EyePos()
 
@@ -70,7 +75,7 @@ function DrawSigilHint(hint, pos, delta, scale, color)
 	cam.IgnoreZ(true)
 	cam.Start3D2D(pos, ang, (scale or 1) * math.max(250, eyepos:Distance(pos)) * delta * 0.0004)
 
-	draw.SimpleText(hint, "ZS3D2DFont", 0, 64, Vector(255, 255, 255, 255), TEXT_ALIGN_CENTER)
+	draw.SimpleText(hint, "ZS3D2DFont", 0, 64, color_white, TEXT_ALIGN_CENTER)
 
 	surface.SetMaterial(matSigil)
 	surface.SetDrawColor(color)
@@ -107,22 +112,25 @@ end
 local DrawWorldHint = DrawWorldHint
 
 function GM:DrawWorldHints()
-	if #Hints > 0 then
-		local curtime = CurTime()
-
-		local done = true
-
-		for _, hint in pairs(Hints) do
-			local ent = hint.Entity
-			if curtime < hint.EndTime and not (ent and not ent:IsValid()) then
-				done = false
-
-				DrawWorldHint(hint.Hint, ent and ent:LocalToWorld(hint.Pos) or hint.Pos, math.Clamp(hint.EndTime - curtime, 0, 1))
-			end
+	local count = #Hints
+	if count == 0 then return end
+	local curtime = CurTime()
+	local write = 1
+	for read = 1, count do
+		local hint = Hints[read]
+		local ent = hint.Entity
+		if curtime < hint.EndTime and not (ent and not ent:IsValid()) then
+			Hints[write] = hint
+			write = write + 1
+			DrawWorldHint(hint.Hint, ent and ent:LocalToWorld(hint.Pos) or hint.Pos, math.Clamp(hint.EndTime - curtime, 0, 1))
 		end
-
-		if done then
-			Hints = {}
-		end
+	end
+	local last = #Hints
+	for read = count + 1, last do
+		Hints[write] = Hints[read]
+		write = write + 1
+	end
+	for index = write, last do
+		Hints[index] = nil
 	end
 end

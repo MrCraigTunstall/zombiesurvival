@@ -95,7 +95,7 @@ GM.MaxNails = 4
 -- Cost multiplier for being near an arsenal crate.
 GM.ArsenalCrateMultiplier = 0.8
 GM.ArsenalCrateDiscount = 1 - GM.ArsenalCrateMultiplier
-GM.ArsenalCrateDiscountPercentage = GM.ArsenalCrateDiscount * 100
+GM.ArsenalCrateDiscountPercentage = math.floor(GM.ArsenalCrateDiscount * 100 + 0.5)
 
 SPEED_NORMAL = 225
 SPEED_SLOWEST = SPEED_NORMAL - 20
@@ -148,24 +148,29 @@ GM.CleanupFilter = {
 	"zs_hands"
 }
 
-GM.AmmoNames = {}
-GM.AmmoNames["ar2"] = "5.56"
-GM.AmmoNames["pistol"] = translate.Get("ammo_pistol")
-GM.AmmoNames["smg1"] = translate.Get("ammo_smg")
-GM.AmmoNames["357"] = translate.Get("ammo_rifle")
-GM.AmmoNames["xbowbolt"] = translate.Get("ammo_bolts")
-GM.AmmoNames["buckshot"] = translate.Get("ammo_buckshots")
-GM.AmmoNames["sniperround"] = translate.Get("ammo_boards")
-GM.AmmoNames["grenade"] = translate.Get("ammo_grenade")
-GM.AmmoNames["thumper"] = translate.Get("ammo_turrets")
-GM.AmmoNames["battery"] = translate.Get("ammo_meds")
-GM.AmmoNames["gaussenergy"] = translate.Get("ammo_nail")
-GM.AmmoNames["airboatgun"] = translate.Get("ammo_ars")
-GM.AmmoNames["striderminigun"] = translate.Get("ammo_beacons")
-GM.AmmoNames["slam"] = translate.Get("ammo_forcefilds")
-GM.AmmoNames["spotlamp"] = translate.Get("ammo_spotlamp")
-GM.AmmoNames["stone"] = translate.Get("ammo_stone")
-GM.AmmoNames["pulse"] = translate.Get("ammo_pulse")
+local ammoNameKeys = {
+	pistol = "ammo_pistol", smg1 = "ammo_smg", ["357"] = "ammo_rifle",
+	xbowbolt = "ammo_bolts", buckshot = "ammo_buckshots", sniperround = "ammo_boards",
+	grenade = "ammo_grenade", thumper = "ammo_turrets", battery = "ammo_meds",
+	gaussenergy = "ammo_nail", airboatgun = "ammo_ars", striderminigun = "ammo_beacons",
+	slam = "ammo_forcefilds", repairemitter = "ammo_repairemitter", spotlamp = "ammo_spotlamp",
+	stone = "ammo_stone", pulse = "ammo_pulse"
+}
+local ammoNameValues = {}
+local function RefreshAmmoNames(gm)
+	local names = gm.AmmoNames
+	for ammo, key in pairs(ammoNameKeys) do
+		local value = translate.Get(key)
+		if names[ammo] == nil or names[ammo] == ammoNameValues[ammo] then names[ammo] = value end
+		ammoNameValues[ammo] = value
+	end
+end
+GM.AmmoNames = {ar2 = "5.56"}
+RefreshAmmoNames(GM)
+hook.Add("ZSLanguageChanged", "ZSAmmoNames", function()
+	local gm = GAMEMODE
+	if gm and gm.AmmoNames then RefreshAmmoNames(gm) end
+end)
 
 GM.AmmoTranslations = {}
 GM.AmmoTranslations["weapon_physcannon"] = "pistol"
@@ -193,6 +198,7 @@ GM.AmmoModels["airboatgun"] = "models/Items/item_item_crate.mdl" -- Arsenal crat
 GM.AmmoModels["striderminigun"] = "models/props_combine/combine_mine01.mdl" -- Message beacons
 GM.AmmoModels["helicoptergun"] = "models/Items/ammocrate_ar2.mdl" -- Resupply boxes
 GM.AmmoModels["slam"] = "models/props_lab/lab_flourescentlight002b.mdl" -- Force Field Emitters
+GM.AmmoModels["repairemitter"] = "models/props_lab/reciever01b.mdl"
 GM.AmmoModels["spotlamp"] = "models/props_combine/combine_light001a.mdl"
 GM.AmmoModels["stone"] = "models/props_junk/rock001a.mdl"
 GM.AmmoModels["pulse"] = "models/Items/combine_rifle_ammo01.mdl"

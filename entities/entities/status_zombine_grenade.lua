@@ -16,31 +16,45 @@ end
 
 if SERVER then
 
+local effectCells, effectStart, effectUntil = {}, 0, 0
+local effectTrace = {mask = MASK_SOLID_BRUSHONLY}
+local function BlastEffect(pos)
+	local now = CurTime()
+	if now >= effectUntil or now < effectStart then effectCells, effectStart, effectUntil = {}, now, now + 0.05 end
+	local key = math.floor(pos.x / 128) .. ":" .. math.floor(pos.y / 128) .. ":" .. math.floor(pos.z / 128)
+	local previous = effectCells[key]
+	if previous then
+		effectTrace.start, effectTrace.endpos = previous, pos
+		if not util.TraceLine(effectTrace).Hit then return end
+	end
+	effectCells[key] = pos
+	local data = EffectData()
+	data:SetOrigin(pos)
+	util.Effect("zombineblast", data)
+end
+
+local function LiveUndead(owner)
+	return IsValid(owner) and not owner:IsMarkedForDeletion() and owner:IsPlayer() and owner:Alive() and owner:Team() == TEAM_UNDEAD
+end
+
 function ENT:Think()
-	if self.Exploded then
-		self:Remove()
-	elseif self.DieTime <= CurTime() then
+	if self.Exploded then self:Remove() return end
+	local owner = self:GetOwner()
+	if not LiveUndead(owner) then self:Remove() return end
+	if self.DieTime <= CurTime() then
 		self:Explode()
-		self.Owner:Kill()
-	elseif not self.Owner:Alive() or not self.Owner:IsValid() then 
-		self:Remove()
+		if IsValid(self) and not self:IsMarkedForDeletion() and self:GetOwner() == owner and LiveUndead(owner) then owner:Kill() end
 	end
 end
 
 function ENT:Explode()
-	if self.Exploded then return end
+	if self.Exploded or not IsValid(self) or self:IsMarkedForDeletion() then return end
 	self.Exploded = true
-
 	local owner = self:GetOwner()
-	if owner:IsValid() and owner:IsPlayer() and owner:Team() == TEAM_UNDEAD then
-		local pos = self:GetPos()
-
-		util.PoisonBlastDamage(self, owner, pos, self.GrenadeRadius, self.GrenadeDamage, true)
-		
-		local effectdata = EffectData()
-			effectdata:SetOrigin(pos)
-		util.Effect("Explosion", effectdata)
-	end
+	if not LiveUndead(owner) then return end
+	local pos = self:GetPos()
+	util.PoisonBlastDamage(self, owner, pos, self.GrenadeRadius, self.GrenadeDamage, true)
+	BlastEffect(pos)
 end
 
 end

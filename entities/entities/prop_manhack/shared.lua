@@ -1,4 +1,5 @@
 ENT.Type = "anim"
+ENT.TraitCombine = true
 ENT.RenderGroup = RENDERGROUP_TRANSLUCENT
 
 ENT.m_NoNailUnfreeze = true
@@ -45,7 +46,9 @@ function ENT:BeingControlled()
 	local owner = self:GetOwner()
 	if owner:IsValid() then
 		local wep = owner:GetActiveWeapon()
-		return wep:IsValid() and wep:GetClass() == self.ControllerClass and wep:GetDTBool(0)
+		if not wep:IsValid() or wep:GetClass() ~= self.ControllerClass or not wep:GetDTBool(0) then return false end
+		local selected = wep:GetDTEntity(0)
+		return not selected:IsValid() or selected == self
 	end
 
 	return false

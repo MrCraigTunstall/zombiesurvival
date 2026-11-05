@@ -123,8 +123,10 @@ local BonesToZero = {
 	"ValveBiped.Bip01_R_Finger32"
 }
 function CLASS:BuildBonePositions(pl)
-	for _, bone in pairs(BonesToZero) do
-		local boneid = pl:LookupBone(bone)
+	local bones = CLIENT and ZSWeaponAnimation.LookupBoneSet(pl, BonesToZero)
+	for i = 1, #BonesToZero do
+		local boneid
+		if bones then boneid = bones[i] else boneid = pl:LookupBone(BonesToZero[i]) end
 		if boneid and boneid > 0 then
 			pl:ManipulateBoneScale(boneid, vector_tiny)
 		end
@@ -132,6 +134,11 @@ function CLASS:BuildBonePositions(pl)
 end
 
 if not CLIENT then return end
+
+CLASS.ResetBoneBuildSource = CLASS.BuildBonePositions
+function CLASS:ResetAndBuildBonePositions(pl)
+	ZSWeaponAnimation.ResetWithBoneScales(pl, BonesToZero, vector_tiny)
+end
 
 local matSkin = Material("Models/Barnacle/barnacle_sheet")
 function CLASS:PrePlayerDraw(pl)

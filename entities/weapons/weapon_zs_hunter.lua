@@ -27,6 +27,7 @@ sound.Add(
 })
 
 SWEP.Base = "weapon_zs_base"
+SWEP.TraitSniper = true
 
 SWEP.HoldType = "ar2"
 

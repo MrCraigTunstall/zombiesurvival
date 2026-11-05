@@ -73,8 +73,9 @@ function CLASS:UpdateAnimation(pl, velocity, maxseqgroundspeed)
 	if not pl:OnGround() or pl:WaterLevel() >= 3 then
 		pl:SetPlaybackRate(1)
 
-		if pl:GetCycle() >= 1 then
-			pl:SetCycle(pl:GetCycle() - 1)
+		local cycle = pl:GetCycle()
+		if cycle >= 1 then
+			pl:SetCycle(cycle - 1)
 		end
 
 		return true

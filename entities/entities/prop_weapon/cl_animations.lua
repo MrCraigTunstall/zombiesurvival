@@ -38,8 +38,7 @@ function ENT:RenderModels()
 
 			model:SetAngles(ang)
 			//model:SetModelScale(v.size)
-			local matrix = Matrix()
-			matrix:Scale(v.size)
+			local matrix = ZSWeaponAnimation.ScaleMatrix(v)
 			model:EnableMatrix( "RenderMultiply", matrix )
 				
 			if (v.material == "") then
@@ -91,7 +90,7 @@ function ENT:RenderModels()
 	end
 
 function ENT:GetBoneOrientation( basetab, tab, bone_override )
-	local bone, pos, ang
+	local pos, ang
 	if (tab.rel and tab.rel != "") then
 			
 		local v = basetab[tab.rel]
@@ -111,15 +110,9 @@ function ENT:GetBoneOrientation( basetab, tab, bone_override )
 				
 	else
 		
-		bone = self:LookupBone(bone_override or tab.bone)
+		pos, ang = ZSWeaponAnimation.BoneTransform(self, bone_override or tab.bone)
 
-		if (!bone) then return end
-			
-		pos, ang = Vector(0,0,0), Angle(0,0,0)
-		local m = self:GetBoneMatrix(bone)
-		if (m) then
-			pos, ang = m:GetTranslation(), m:GetAngles()
-		end
+		if not pos then return end
 	end
 		
 	return pos, ang

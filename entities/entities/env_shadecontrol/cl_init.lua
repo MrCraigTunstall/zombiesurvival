@@ -7,16 +7,10 @@ function ENT:Initialize()
 	self.AmbientSound = CreateSound(self, "weapons/physcannon/superphys_hold_loop.wav")
 	self.AmbientSound:PlayEx(0.5, 60)
 
-	self:GetOwner().ShadeControl = self
 end
 
 function ENT:OnRemove()
-	self.AmbientSound:Stop()
-
-	local owner = self:GetOwner()
-	if owner.ShadeControl == self then
-		owner.ShadeControl = nil
-	end
+	if self.AmbientSound then self.AmbientSound:Stop() end
 end
 
 local matRefract = Material("models/spawn_effect")

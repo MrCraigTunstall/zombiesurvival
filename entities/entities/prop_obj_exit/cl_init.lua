@@ -2,6 +2,17 @@ include("shared.lua")
 
 ENT.RenderGroup = RENDERGROUP_TRANSLUCENT
 
+local modelFields = {"Door", "LeftBoard", "RightBoard", "TopBoard", "Rift"}
+
+function ENT:OnRemove()
+	hook.Remove("RenderScreenspaceEffects", self)
+	for _, field in ipairs(modelFields) do
+		local model = self[field]
+		self[field] = nil
+		if IsValid(model) then model:Remove() end
+	end
+end
+
 function ENT:Initialize()
 	self:SetRenderBounds(Vector(-128, -128, -128), Vector(128, 128, 200))
 

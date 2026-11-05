@@ -25,6 +25,8 @@ SWEP.UseHands = true
 
 SWEP.CSMuzzleFlashes = false
 
+SWEP.WeaponForgeReload = "crossbow"
+SWEP.Primary.Damage = 100
 SWEP.Primary.ClipSize = 1
 SWEP.Primary.Automatic = true
 SWEP.Primary.Ammo = "XBowBolt"
@@ -58,6 +60,7 @@ if SERVER then
 				ent:SetOwner(owner)
 				ent:SetPos(owner:GetShootPos())
 				ent:SetAngles(owner:GetAimVector():Angle())
+				ent.ProjDamage = self.Primary.Damage
 				ent.Team = owner:Team()
 				ent:Spawn()
 				local phys = ent:GetPhysicsObject()
@@ -70,6 +73,13 @@ if SERVER then
 	end
 
 	function SWEP:Reload()
+		if GAMEMODE:GetWeaponForgeLevel(self) > 0 or GAMEMODE:GetTraitReloadScale(self) ~= 1 then
+			if GAMEMODE:StartForgeReload(self) then
+				self:EmitSound("weapons/crossbow/bolt_load" .. math.random(2) .. ".wav", 50, 100)
+				self.Owner:RestartGesture(ACT_HL2MP_GESTURE_RELOAD_CROSSBOW)
+			end
+			return
+		end
 		if self:GetNextReload() <= CurTime() and self:Clip1() == 0 and 0 < self.Owner:GetAmmoCount("XBowBolt") then
 			self:EmitSound("weapons/crossbow/bolt_load"..math.random(2)..".wav", 50, 100)
 			self:EmitSound("weapons/crossbow/reload1.wav")
@@ -123,6 +133,13 @@ if CLIENT then
 	end
 
 	function SWEP:Reload()
+		if GAMEMODE:GetWeaponForgeLevel(self) > 0 or GAMEMODE:GetTraitReloadScale(self) ~= 1 then
+			if GAMEMODE:StartForgeReload(self) then
+				self:EmitSound("weapons/crossbow/bolt_load" .. math.random(2) .. ".wav", 50, 100)
+				self.Owner:RestartGesture(ACT_HL2MP_GESTURE_RELOAD_CROSSBOW)
+			end
+			return
+		end
 		if self:GetNextReload() <= CurTime() and self:Clip1() == 0 and 0 < self.Owner:GetAmmoCount("XBowBolt") then
 			surface.PlaySound("weapons/crossbow/bolt_load"..math.random(1,2)..".wav")
 			self:DefaultReload(ACT_VM_RELOAD)

@@ -42,9 +42,9 @@ SWEP.Primary.Ammo = "drone"
 SWEP.Primary.Delay = 1
 SWEP.Primary.DefaultClip = 1
 
-SWEP.Secondary.ClipSize = 1
-SWEP.Secondary.DefaultClip = 1
-SWEP.Secondary.Ammo = "dummy"
+SWEP.Secondary.ClipSize = -1
+SWEP.Secondary.DefaultClip = 0
+SWEP.Secondary.Ammo = "none"
 
 SWEP.WalkSpeed = SPEED_FAST
 
@@ -60,7 +60,7 @@ end
 function SWEP:CanPrimaryAttack()
 	if self.Owner:IsHolding() or self.Owner:GetBarricadeGhosting() then return false end
 
-	for _, ent in pairs(ents.FindByClass("prop_drone")) do
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_drone")) do
 		if ent:GetOwner() == self.Owner then return false end
 	end
 

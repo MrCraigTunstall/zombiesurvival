@@ -1,13 +1,33 @@
 include("shared.lua")
 
-hook.Add("HUDPaint", "HUDPaint_Drown", function()
-  local drown = LocalPlayer().status_drown
-  if drown and drown:IsValid() then
-    surface.SetDrawColor(0, 0, 0, 60)
-    surface.DrawRect(ScrW() * 0.4, ScrH() * 0.35, ScrW() * 0.2, 12)
-    surface.SetDrawColor(30, 30, 230, 180)
-    surface.DrawOutlinedRect(ScrW() * 0.4, ScrH() * 0.35, ScrW() * 0.2, 12)
-    surface.DrawRect(ScrW() * 0.4, ScrH() * 0.35, ScrW() * 0.2 * (1 - drown:GetDrown()), 12)
-    draw.SimpleTextBlurry(translate.Get("breath").." ", "ZSHUDFontSmall", ScrW() * 0.4, ScrH() * 0.35 + 6, COLOR_BLUE, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-  end
-end)
+function ENT:BindDrownOwner(owner)
+ local previous = self.DrownOwner
+ if IsValid(previous) and previous ~= owner then
+  local data = previous:GetTable()
+  if data.status_drown == self then data.status_drown = nil end
+ end
+ self.DrownOwner = IsValid(owner) and owner or nil
+ if self.DrownOwner then self.DrownOwner:GetTable().status_drown = self end
+end
+
+function ENT:Initialize()
+ self:DrawShadow(false)
+ self:SetRenderBounds(Vector(-40, -40, -18), Vector(40, 40, 80))
+ self:BindDrownOwner(self:GetOwner())
+end
+
+function ENT:Think()
+ local owner = self:GetOwner()
+ if owner ~= self.DrownOwner then self:BindDrownOwner(owner) end
+end
+
+function ENT:OnRemove()
+ local owner = self.DrownOwner or self:GetOwner()
+ self.DrownOwner = nil
+ if not IsValid(owner) then return end
+ local data = owner:GetTable()
+ if data.status_drown == self then data.status_drown = nil end
+end
+
+function ENT:Draw()
+end

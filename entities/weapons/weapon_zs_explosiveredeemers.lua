@@ -28,7 +28,8 @@ SWEP.WorldModel = "models/weapons/w_pist_elite.mdl"
 SWEP.UseHands = true
 
 SWEP.Primary.Sound = Sound("vehicles/v8/vehicle_impact_heavy"..math.random(4)..".wav", 80, math.Rand(5, 105))
-SWEP.Primary.Damage = 50
+SWEP.Primary.Damage = 50
+SWEP.ExplosionDamage = 70
 SWEP.Primary.NumShots = 1
 SWEP.Primary.Delay = 0.30
 SWEP.Secondary.Damage = 100
@@ -50,18 +51,14 @@ function SWEP:SendWeaponAnimation()
 	self:SendWeaponAnim(self:Clip1() % 2 == 0 and ACT_VM_PRIMARYATTACK or ACT_VM_SECONDARYATTACK)
 end
 
-function SWEP.BulletCallback(attacker, tr, dmginfo)
-	if not attacker:IsValid() or not attacker:IsPlayer() then return end
-
-	local e = EffectData()
-		e:SetOrigin(tr.HitPos)
-		e:SetNormal(tr.HitNormal)
-		e:SetRadius(50)
-		e:SetMagnitude(20)
-		e:SetScale(10)
-	util.Effect("HelicopterMegaBomb", e)
-
-	util.BlastDamage2(self, attacker, tr.HitPos, 200, 70)
-
-	GenericBulletCallback(attacker, tr, dmginfo)
-end
+function SWEP.BulletCallback(attacker, tr, dmginfo)
+	if not IsValid(attacker) or not attacker:IsPlayer() then return end
+	if IsFirstTimePredicted() then
+		local effect = EffectData()
+		effect:SetOrigin(tr.HitPos); effect:SetNormal(tr.HitNormal)
+		effect:SetRadius(50); effect:SetMagnitude(20); effect:SetScale(10)
+		util.Effect("HelicopterMegaBomb", effect)
+	end
+	util.BlastBulletDamage(dmginfo, attacker, tr.HitPos, 200, 70)
+	GenericBulletCallback(attacker, tr, dmginfo)
+end

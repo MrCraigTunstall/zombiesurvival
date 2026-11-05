@@ -66,18 +66,21 @@ function SWEP:Deploy()
 end
 
 function SWEP:SpawnTank()
-	local owner = self.Owner
-	if not owner:IsValid() then return end
-
-	for _, ent in pairs(ents.FindByClass("status_oxygentank")) do
-		if ent:GetOwner() == owner then return end
+	local owner = self:GetOwner()
+	if not IsValid(owner) or not owner:IsPlayer() or not owner:Alive() then return end
+	local cached = owner.ZSOxygenTank
+	if IsValid(cached) and cached:GetOwner() == owner and not (cached.IsMarkedForDeletion and cached:IsMarkedForDeletion()) then return cached end
+	owner.ZSOxygenTank = nil
+	for _, ent in ipairs(GAMEMODE:GetZSEquipmentEntities("status_oxygentank", true)) do
+		if IsValid(ent) and ent:GetOwner() == owner and not (ent.IsMarkedForDeletion and ent:IsMarkedForDeletion()) then owner.ZSOxygenTank = ent;return ent end
 	end
-
 	local ent = ents.Create("status_oxygentank")
-	if ent:IsValid() then
+	if IsValid(ent) then
 		ent:SetPos(owner:EyePos())
 		ent:SetParent(owner)
 		ent:SetOwner(owner)
+		owner.ZSOxygenTank = ent
 		ent:Spawn()
+		return ent
 	end
 end

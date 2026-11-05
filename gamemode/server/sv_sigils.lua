@@ -1,27 +1,38 @@
---TODO: Move this global variable to sv_sigilpropspawner!
---TODO: Also rename this variable to GM.SigilSpawnRandomProps!
-GM.SpawnSigilProps = true
-
 function GM:OnSigilDestroyed(ent, dmginfo)
 	local numsigils = self:NumSigils()
 	if numsigils > 0 then
-		for _, pl in pairs(player.GetAll()) do
-			pl:CenterNotify({killicon = "default"}, " ", COLOR_RED, translate.ClientGet(pl, "sigil_destroyed"), {killicon = "default"})
-			if numsigils == 1 then
-				pl:CenterNotify(COLOR_RED, translate.ClientGet(pl, pl:Team() == TEAM_HUMAN and "sigil_destroyed_only_one_remain_h" or "sigil_destroyed_only_one_remain_z"))
-			else
-				pl:EmitSound("zombiesurvival/sigilbreak.mp3", 100, 100)
-				pl:CenterNotify(COLOR_RED, translate.ClientFormat(pl, "sigil_destroyed_x_remain", numsigils))
+		for _, pl in player.Iterator() do
+			if not pl:IsBot() then
+				pl:CenterNotify({killicon = "default"}, " ", COLOR_RED, translate.ClientGet(pl, "sigil_destroyed"), {killicon = "default"})
+				if numsigils == 1 then
+					pl:CenterNotify(COLOR_RED, translate.ClientGet(pl, pl:Team() == TEAM_HUMAN and "sigil_destroyed_only_one_remain_h" or "sigil_destroyed_only_one_remain_z"))
+				else
+					local recipients = RecipientFilter()
+					recipients:AddPlayer(pl)
+					pl:EmitSound("zombiesurvival/sigilbreak.mp3", 100, 100, 1, CHAN_AUTO, 0, 1, recipients)
+					pl:CenterNotify(COLOR_RED, translate.ClientFormat(pl, "sigil_destroyed_x_remain", numsigils))
+				end
 			end
 		end
 	else
-		for _, pl in pairs(player.GetAll()) do
-			pl:CenterNotify({killicon = "default"}, " ", COLOR_RED, translate.ClientGet(pl, "last_sigil_destroyed_all_is_lost"), {killicon = "default"})
-			pl:CenterNotify(COLOR_RED, translate.ClientGet(pl, "last_sigil_destroyed_all_is_lost2"))
+		for _, pl in player.Iterator() do
+			if not pl:IsBot() then
+				pl:CenterNotify({killicon = "default"}, " ", COLOR_RED, translate.ClientGet(pl, "last_sigil_destroyed_all_is_lost"), {killicon = "default"})
+				pl:CenterNotify(COLOR_RED, translate.ClientGet(pl, "last_sigil_destroyed_all_is_lost2"))
+			end
 		end
 
 		self.LastHumanPosition = ent:LocalToWorld(ent:OBBCenter())
-		timer.Simple(4, function() gamemode.Call("EndRound", TEAM_UNDEAD) end)
+		local pending = self.ZSSigilLossPending
+		if not pending or pending.round ~= self.CurrentRound then
+			pending = {round = self.CurrentRound}
+			self.ZSSigilLossPending = pending
+			timer.Simple(4, function()
+				if self.ZSSigilLossPending ~= pending then return end
+				self.ZSSigilLossPending = nil
+				if GAMEMODE == self and self.CurrentRound == pending.round and not self.RoundEnded and self:NumSigils() == 0 then gamemode.Call("EndRound", TEAM_UNDEAD) end
+			end)
+		end
 	end
 end
 
@@ -31,6 +42,7 @@ local function SortDistFromLast(a, b)
 end
 function GM:CreateSigils()
 	if #self.ProfilerNodes < self.MaxSigils
+	or self.SelectedVariant and self.SelectedVariant ~= "sigil"
 	or self.ZombieEscape or self.ObjectiveMap
 	or self:IsClassicMode() or self.PantsMode or self:IsBabyMode() then
 		self:SetUseSigils(false)
@@ -49,23 +61,31 @@ function GM:CreateSigils()
 	end
 
 	local NextSigilLetter = "A"
+	local traceStart, traceEnd = Vector(), Vector()
+	local trace = {start = traceStart, endpos = traceEnd, mask = MASK_SOLID_BRUSHONLY, output = {}}
 
 	local spawns = team.GetSpawnPoint(TEAM_UNDEAD)
 	for i=1, self.MaxSigils do
 		local id
-		local sigs = ents.FindByClass("prop_obj_sigil")
+		local sigs = self:GetZSClassEntities("prop_obj_sigil")
+		local positions = {}
+		for _, spawn in pairs(spawns) do
+			if IsValid(spawn) and not spawn:IsMarkedForDeletion() then positions[#positions + 1] = spawn:GetPos() end
+		end
+		for _, sig in pairs(sigs) do
+			if IsValid(sig) and not sig:IsMarkedForDeletion() then positions[#positions + 1] = sig.NodePos or sig:GetPos() end
+		end
 
 		for _, n in pairs(nodes) do
 			n.d = 999999
 
-			for __, spawn in pairs(spawns) do
-				n.d = math.min(n.d, n.v:Distance(spawn:GetPos()))
-			end
-			for __, sig in pairs(sigs) do
-				n.d = math.min(n.d, n.v:Distance(sig.NodePos))
+			for _, position in ipairs(positions) do
+				n.d = math.min(n.d, n.v:Distance(position))
 			end
 
-			local tr = util.TraceLine({start = n.v + Vector(0, 0, 8), endpos = n.v + Vector(0, 0, 512), mask = MASK_SOLID_BRUSHONLY})
+			traceStart:Set(n.v); traceStart.z = traceStart.z + 8
+			traceEnd:Set(n.v); traceEnd.z = traceEnd.z + 512
+			local tr = util.TraceLine(trace)
 			n.d = n.d * (2 - tr.Fraction)
 		end
 
@@ -99,54 +119,17 @@ function GM:CreateSigils()
 		end
 	end
 
-	self:SetUseSigils(#ents.FindByClass("prop_obj_sigil") > 0)
-end
-
---TODO: Move this to sv_sigilpropspawner!
-function GM:SpawnRandomSigilProps(pos)
-	for i=1, 8 do
-		local range = 80
-
-		local randompos = {
-			Vector(range, 0, 0),
-			Vector(-range, 0, 0),
-			Vector(0, range, 0),
-			Vector(0, -range, 0)
-		}
-
-		local randommodel = GAMEMODE.RandomProps
-
-		pos = pos + randompos[math.random(#randompos)]
-
-		local prop = ents.Create("prop_physics")
-		prop:SetModel(randommodel[math.random(#randommodel)])
-
-		prop:IsInWorld()
-		prop:SetPos(pos)
-		prop:SetVelocity(Vector(0, 0, 0))
-		local iterationLimit = 100
-		while prop:IsInWorld() == false and iterationLimit > 0 do
-			iterationLimit = iterationLimit - 1
-			pos = pos + randompos[math.random(#randompos)]
-			prop:SetPos(pos)
-		end
-		if iterationLimit > 0 then
-			prop:Spawn()
-		else
-			prop:Remove()
-		end
-	end
+	self:SetUseSigils(#self:GetZSClassEntities("prop_obj_sigil") > 0)
 end
 
 function GM:SetUseSigils(use)
-	if self:GetUseSigils() ~= use then
-		self.UseSigils = use
-		SetGlobalBool("sigils", true)
-	end
+	use = tobool(use)
+	self.UseSigils = use
+	if GetGlobalBool("sigils", false) ~= use then SetGlobalBool("sigils", use) end
 end
 
 function GM:GetUseSigils(use)
-	return self.UseSigils
+	return GetGlobalBool("sigils", false)
 end
 
 concommand.Add("zs_sigilplacer", function(sender)

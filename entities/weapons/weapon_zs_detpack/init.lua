@@ -41,11 +41,8 @@ function SWEP:PrimaryAttack()
 
 	local status = owner.status_ghost_detpack
 	if not (status and status:IsValid()) then return end
-	status:RecalculateValidity()
-	if not status:GetValidPlacement() then return end
-
 	local pos, ang, entity = status:RecalculateValidity()
-	if not pos or not ang then return end
+	if not pos or not ang or not status:GetValidPlacement() then return end
 
 	self:SetNextPrimaryAttack(CurTime() + self.Primary.Delay)
 

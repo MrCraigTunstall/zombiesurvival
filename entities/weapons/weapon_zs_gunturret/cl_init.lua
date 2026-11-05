@@ -27,13 +27,9 @@ function SWEP:DrawWeaponSelection(x, y, w, h, alpha)
 	self:BaseDrawWeaponSelection(x, y, w, h, alpha)
 end
 
+SWEP.GhostRotationInput = true
+
 function SWEP:Think()
-	if self:GetOwner():KeyDown(IN_ATTACK2) then
-		self:RotateGhost(FrameTime() * 60)
-	end
-	if self:GetOwner():KeyDown(IN_RELOAD) then
-		self:RotateGhost(FrameTime() * -60)
-	end
 end
 
 local nextclick = 0

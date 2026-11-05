@@ -14,21 +14,29 @@ function ENT:AcceptInput(name, activator, caller, args)
 		self:FireOutput(name, activator, caller, args)
 	elseif name == "lockclass" then
 		local classname = string.lower(args)
-		for k, v in ipairs(GAMEMODE.ZombieClasses) do
-			if classname == "all" or string.lower(v.Name) == classname then
-				v.Locked = true
-				v.Unlocked = false
-
+		local locked
+		for classid, classtab in ipairs(GAMEMODE.ZombieClasses) do
+			if classname == "all" or string.lower(classtab.Name) == classname then
+				classtab.Locked = true
+				classtab.Unlocked = false
 				if classname ~= "all" then
-					for _, pl in pairs(player.GetAll()) do
-						if pl:GetZombieClass() == k then
-							for classid, classtab in ipairs(GAMEMODE.ZombieClasses) do
-								if GAMEMODE:IsClassUnlocked(k) and not classtab.Hidden then
-									pl.DeathClass = classid
-									break
-								end
-							end
-						end
+					locked = locked or {}
+					locked[classid] = true
+				end
+			end
+		end
+		if locked then
+			local replacement
+			for classid, classtab in ipairs(GAMEMODE.ZombieClasses) do
+				if not classtab.Hidden and GAMEMODE:IsClassUnlocked(classid) then
+					replacement = classid
+					break
+				end
+			end
+			if replacement then
+				for _, pl in player.Iterator() do
+					if pl:Team() == TEAM_UNDEAD and locked[pl:GetZombieClass()] then
+						pl.DeathClass = replacement
 					end
 				end
 			end

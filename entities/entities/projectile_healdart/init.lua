@@ -55,9 +55,9 @@ function ENT:Hit(vHitPos, vHitNormal, eHitEntity, vOldVelocity)
 
 		local followed = false
 		local bonecount = eHitEntity:GetBoneCount()
-		if bonecount and bonecount > 1 then
+		if bonecount and bonecount > 0 then
 			local boneindex = eHitEntity:NearestBone(vHitPos)
-			if boneindex and boneindex > 0 then
+			if boneindex and boneindex >= 0 then
 				self:FollowBone(eHitEntity, boneindex)
 				self:SetPos((eHitEntity:GetBonePositionMatrixed(boneindex) * 2 + vHitPos) / 3)
 				followed = true

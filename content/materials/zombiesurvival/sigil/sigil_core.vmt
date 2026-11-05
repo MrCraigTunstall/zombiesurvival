@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+ "$basetexture" "zombiesurvival/sigil/white"
+ "$model" "1"
+ "$additive" "1"
+}

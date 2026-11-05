@@ -53,7 +53,9 @@ function ENT:OnTakeDamage(dmginfo)
 				attacker:AddLifeBarricadeDamage(dmginfo:GetDamage())
 			end
 
-			self.m_Health = self.m_Health - dmginfo:GetDamage()
+			local damage = dmginfo:GetDamage()
+			if self.m_Health > 0 and damage >= self.m_Health and damage < math.huge then GAMEMODE:TriggerTraitExplosiveTouch(self, attacker) end
+			self.m_Health = self.m_Health - damage
 			if self.m_Health <= 0 then
 				self.Destroyed = true
 				local effectdata = EffectData()

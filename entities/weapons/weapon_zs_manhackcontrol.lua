@@ -30,7 +30,7 @@ SWEP.Secondary.Heal = 10
 
 SWEP.Secondary.ClipSize = -1
 SWEP.Secondary.DefaultClip = -1
-SWEP.Secondary.Automatic = false
+SWEP.Secondary.Automatic = true
 SWEP.Secondary.Ammo = "none"
 
 SWEP.WalkSpeed = SPEED_FAST
@@ -52,14 +52,14 @@ function SWEP:Think()
 		self:SendWeaponAnim(ACT_VM_IDLE)
 	end
 
-	if SERVER then
-		for _, ent in pairs(ents.FindByClass(self.EntityClass)) do
-			if ent:GetOwner() == self.Owner then
-				return
-			end
+	if SERVER and CurTime() >= (self.NextOwnedCheck or 0) then
+		self.NextOwnedCheck = CurTime() + 0.1
+		local owner = self:GetOwner()
+		if not IsValid(owner) then return end
+		for _, ent in ipairs(GAMEMODE:GetZSClassEntities(self.EntityClass)) do
+			if IsValid(ent) and not ent:IsMarkedForDeletion() and ent:GetOwner() == owner then return end
 		end
-
-		self.Owner:StripWeapon(self:GetClass())
+		owner:StripWeapon(self:GetClass())
 	end
 end
 
@@ -74,11 +74,12 @@ function SWEP:PrimaryAttack()
 end
 
 function SWEP:SecondaryAttack()
+	local owner = self:GetOwner()
+	if not IsValid(owner) or not GAMEMODE:HasPlayerTrait(owner, "dronepilot") then return end
+	self:SetNextSecondaryFire(CurTime() + 0.2)
+	if SERVER then GAMEMODE:FireTraitDrone(owner, self) end
 end
 
-function SWEP:Reload()
-	return false
-end
 	
 function SWEP:Deploy()
 	gamemode.Call("WeaponDeployed", self.Owner, self)
@@ -95,9 +96,17 @@ function SWEP:Holster()
 end
 
 function SWEP:Reload()
+	if SERVER then GAMEMODE:UpgradeTraitDrone(self:GetOwner(), self) end
+	return false
 end
 
 if not CLIENT then return end
+
+function SWEP:DrawHUD()
+	if GAMEMODE:DrawTraitDroneHUD(self:GetOwner(), self) and GetConVar("crosshair"):GetInt() == 1 and self.DrawCrosshairDot then
+		self:DrawCrosshairDot()
+	end
+end
 
 function SWEP:DrawWeaponSelection(...)
 	return self:BaseDrawWeaponSelection(...)

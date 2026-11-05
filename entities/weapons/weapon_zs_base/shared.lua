@@ -16,10 +16,10 @@ SWEP.Primary.Automatic = false
 SWEP.Primary.Ammo = "pistol"
 SWEP.RequiredClip = 1
 
-SWEP.Secondary.ClipSize = 1
-SWEP.Secondary.DefaultClip = 1
+SWEP.Secondary.ClipSize = -1
+SWEP.Secondary.DefaultClip = 0
 SWEP.Secondary.Automatic = false
-SWEP.Secondary.Ammo = "dummy"
+SWEP.Secondary.Ammo = "none"
 
 SWEP.WalkSpeed = SPEED_NORMAL
 
@@ -59,7 +59,8 @@ function SWEP:Initialize()
 end
 
 function SWEP:GetCone()
-	if not self.Owner:OnGround() or self.ConeMax == self.ConeMin then return self.ConeMax end
+	local scale = GAMEMODE:GetReturnAimScale(self.Owner) * GAMEMODE:GetTraitAimScale(self.Owner)
+	if not self.Owner:OnGround() or self.ConeMax == self.ConeMin then return self.ConeMax * scale end
 
 	local basecone = self.ConeMin
 	local conedelta = self.ConeMax - basecone
@@ -68,7 +69,7 @@ function SWEP:GetCone()
 	if not self.Owner:Crouching() then multiplier = multiplier + 0.25 end
 	if not self:GetIronsights() then multiplier = multiplier + 0.25 end
 
-	return basecone + conedelta * multiplier ^ self.ConeRamp
+	return (basecone + conedelta * multiplier ^ self.ConeRamp) * scale
 end
 
 function SWEP:PrimaryAttack()
@@ -193,6 +194,7 @@ function SWEP:Deploy()
 end
 
 function SWEP:Holster()
+	GAMEMODE:CancelForgeReload(self)
 	if self:ValidPrimaryAmmo() then
 		self.PreHolsterClip1 = self:Clip1()
 	end
@@ -212,6 +214,10 @@ function SWEP:TakeAmmo()
 end
 
 function SWEP:Reload()
+	if GAMEMODE:GetWeaponForgeLevel(self) > 0 or GAMEMODE:GetTraitReloadScale(self) ~= 1 then
+		if self:GetIronsights() then self:SetIronsights(false) end
+		GAMEMODE:StartForgeReload(self); return
+	end
 	if self.Owner:IsHolding() then return end
 
 	if self:GetIronsights() then

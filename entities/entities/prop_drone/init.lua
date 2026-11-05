@@ -6,6 +6,7 @@ include("shared.lua")
 ENT.NextWaterDamage = 0
 
 function ENT:Initialize()
+	GAMEMODE:RegisterZSClassEntity(self)
 	self:SetModel("models/combine_scanner.mdl")
 	self:SetUseType(SIMPLE_USE)
 
@@ -68,7 +69,7 @@ function ENT:OnTakeDamage(dmginfo)
 	if not (attacker:IsValid() and attacker:IsPlayer() and attacker:Team() == TEAM_HUMAN) then
 		self:TakePhysicsDamage(dmginfo)
 
-		self:SetObjectHealth(self:GetObjectHealth() - dmginfo:GetDamage())
+		GAMEMODE:DamageTraitObject(self, dmginfo)
 
 		--self:EmitSound("npc/scanner/scanner_pain"..math.random(2)..".wav", 0.65, math.Rand(120, 130))
 		self:EmitSound("npc/manhack/gib.wav")
@@ -108,60 +109,67 @@ function ENT:PhysicsSimulate(phys, frametime)
 	local owner = self:GetOwner()
 	if not owner:IsValid() then return SIM_NOTHING end
 
+	local motion = self.ZSMotionBuffers
+	if not motion then
+		motion = {move = Vector(), acceleration = Vector(), hover = Vector(), offset = Vector(), endpoint = Vector(), angular = Vector(), trace = {mask = MASK_HOVER, filter = self, output = {}}}
+		self.ZSMotionBuffers = motion
+	end
 	local vel = phys:GetVelocity()
-	local movedir = Vector()
+	local movedir = motion.move
+	movedir.x, movedir.y, movedir.z = 0, 0, 0
 	local eyeangles = owner:SyncAngles()
-	local aimangles = owner:EyeAngles()
 
 	if self:BeingControlled() then
-		if owner:KeyDown(IN_FORWARD) then
-			movedir = movedir + aimangles:Forward()
-		end
-		if owner:KeyDown(IN_BACK) then
-			movedir = movedir - aimangles:Forward()
-		end
-		if owner:KeyDown(IN_MOVERIGHT) then
-			movedir = movedir + aimangles:Right()
-		end
-		if owner:KeyDown(IN_MOVELEFT) then
-			movedir = movedir - aimangles:Right()
-		end
-		if owner:KeyDown(IN_BULLRUSH) then
-			movedir = movedir + Vector(0, 0, 0.5)
-		end
-		if owner:KeyDown(IN_GRENADE1) then
-			movedir = movedir - Vector(0, 0, 0.5)
-		end
+		local aimangles = owner:EyeAngles()
+		if owner:KeyDown(IN_FORWARD) then movedir:Add(aimangles:Forward()) end
+		if owner:KeyDown(IN_BACK) then movedir:Sub(aimangles:Forward()) end
+		if owner:KeyDown(IN_MOVERIGHT) then movedir:Add(aimangles:Right()) end
+		if owner:KeyDown(IN_MOVELEFT) then movedir:Sub(aimangles:Right()) end
+		if owner:KeyDown(IN_BULLRUSH) then movedir.z = movedir.z + 0.5 end
+		if owner:KeyDown(IN_GRENADE1) then movedir.z = movedir.z - 0.5 end
 	end
 
-	if movedir == vector_origin then
-		vel = vel * (1 - frametime * self.IdleDrag)
-	else
+	local moving = movedir ~= vector_origin
+	if moving then
 		movedir:Normalize()
-
-		vel = vel + frametime * self.Acceleration * math.Clamp((self:GetObjectHealth() / self:GetMaxObjectHealth() + 1) / 2, 0.5, 1) * movedir
+		local acceleration = motion.acceleration
+		acceleration:Set(movedir)
+		acceleration:Mul(frametime * self.Acceleration * math.Clamp((self:GetObjectHealth() / self:GetMaxObjectHealth() + 1) / 2, 0.5, 1))
+		vel:Add(acceleration)
+	else
+		vel:Mul(1 - frametime * self.IdleDrag)
 	end
 
-	if vel:Length() > self.MaxSpeed then
+	local speed = vel:Length()
+	if speed > self.MaxSpeed then
 		vel:Normalize()
-		vel = vel * self.MaxSpeed
+		vel:Mul(self.MaxSpeed)
+		speed = vel:Length()
 	end
 
-	if movedir == vector_origin and vel:Length() <= self.HoverSpeed then
-		local trace = {mask = MASK_HOVER, filter = self}
+	if not moving and speed <= self.HoverSpeed then
+		local trace = motion.trace
 		trace.start = self:GetPos()
-		trace.endpos = trace.start + Vector(0, 0, self.HoverHeight * -2)
+		motion.offset.z = self.HoverHeight * -2
+		motion.endpoint:Set(trace.start)
+		motion.endpoint:Add(motion.offset)
+		trace.endpos = motion.endpoint
 		local tr = util.TraceLine(trace)
-
-		local hoverdir = (trace.start - tr.HitPos):GetNormalized()
+		local hover = motion.hover
+		hover:Set(trace.start)
+		hover:Sub(tr.HitPos)
+		hover:Normalize()
 		local hoverfrac = (0.5 - tr.Fraction) * 2
-		vel = vel + frametime * hoverfrac * self.HoverForce * hoverdir
+		hover:Mul(frametime * hoverfrac * self.HoverForce)
+		vel:Add(hover)
 	end
 
 	phys:EnableGravity(false)
 	phys:SetAngleDragCoefficient(20000)
 	phys:SetVelocityInstantaneous(vel)
-	phys:AddAngleVelocity(Vector(0, 0, math.Clamp(math.AngleDifference(eyeangles.yaw, phys:GetAngles().yaw), -32, 32) * frametime * 3))
+	local angular = motion.angular
+	angular.x, angular.y, angular.z = 0, 0, math.Clamp(math.AngleDifference(eyeangles.yaw, phys:GetAngles().yaw), -32, 32) * frametime * 3
+	phys:AddAngleVelocity(angular)
 
 	return SIM_NOTHING
 end

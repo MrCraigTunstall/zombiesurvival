@@ -18,6 +18,7 @@ function SWEP:ShootBullets(damage, numshots, cone)
 		pos.z = pos.z - (damage and 16 or 0)
 		ent:SetPos(pos)
 		ent:SetOwner(owner)
+		ent.ZSCrafter = self.ZSCrafter
 		ent:Spawn()
 
 		ent.GrenadeDamage = self.GrenadeDamage

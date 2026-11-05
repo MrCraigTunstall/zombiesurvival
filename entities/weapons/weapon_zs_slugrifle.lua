@@ -28,6 +28,7 @@ if CLIENT then
 end
 
 SWEP.Base = "weapon_zs_base"
+SWEP.TraitSniper = true
 
 SWEP.HoldType = "ar2"
 
@@ -40,6 +41,7 @@ SWEP.Primary.Damage = 135
 SWEP.Primary.NumShots = 1
 SWEP.Primary.Delay = 1.5
 SWEP.ReloadDelay = SWEP.Primary.Delay
+SWEP.WeaponForgeReload = "timed"
 
 SWEP.Primary.ClipSize = 2
 SWEP.Primary.Automatic = false
@@ -97,6 +99,7 @@ end
 
 SWEP.NextReload = 0
 function SWEP:Reload()
+	if self.ReloadSpeed ~= 1 or GAMEMODE:GetTraitReloadScale(self) ~= 1 then GAMEMODE:StartForgeReload(self, self.ReloadDelay); return end
 	if CurTime() < self.NextReload then return end
 
 	self.NextReload = CurTime() + self.ReloadDelay

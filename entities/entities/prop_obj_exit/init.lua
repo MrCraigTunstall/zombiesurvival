@@ -23,27 +23,22 @@ function ENT:Initialize()
 
 	--self:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
 
-	local ent = ents.Create("point_worldhint")
-	if ent:IsValid() then
+	self.ExitHints = {}
+	local function hint(teamid, text)
+		local ent = ents.Create("point_worldhint")
+		if not IsValid(ent) then return end
 		ent:SetPos(self:LocalToWorld(Vector(-24, 0, 2)))
 		ent:SetParent(self)
 		ent:Spawn()
-		ent:SetViewable(TEAM_HUMAN)
+		ent:SetViewable(teamid)
 		ent:SetRange(0)
 		ent:SetTranslated(true)
-		ent:SetHint("prop_obj_exit_h")
+		ent:SetHint(text)
+		self.ExitHints[#self.ExitHints + 1] = ent
 	end
-
-	ent = ents.Create("point_worldhint")
-	if ent:IsValid() then
-		ent:SetPos(self:LocalToWorld(Vector(-24, 0, 2)))
-		ent:SetParent(self)
-		ent:Spawn()
-		ent:SetViewable(TEAM_UNDEAD)
-		ent:SetRange(0)
-		ent:SetTranslated(true)
-		ent:SetHint("prop_obj_exit_z")
-	end
+	hint(TEAM_HUMAN, "prop_obj_exit_h")
+	hint(TEAM_REDEEMER, "prop_obj_exit_h")
+	hint(TEAM_UNDEAD, "prop_obj_exit_z")
 
 	--[[ent = ents.Create("env_projectedtexture")
 	if ent:IsValid() then
@@ -62,14 +57,20 @@ function ENT:Initialize()
 	end]]
 end
 
+local function CanEscape(pl)
+	if not pl:IsPlayer() or not pl:Alive() then return false end
+	local teamid = pl:Team()
+	return teamid == TEAM_HUMAN or teamid == TEAM_REDEEMER
+end
+
 function ENT:Use(activator)
-	if activator:IsPlayer() and activator:Alive() and activator:Team() == TEAM_HUMAN and self:GetOpenStartTime() == 0 and self:GetRise() == 1 then
+	if CanEscape(activator) and self:GetOpenStartTime() == 0 and self:GetRise() == 1 then
 		self:SetOpenStartTime(CurTime())
 	end
 end
 
 function ENT:Touch(ent)
-	if ent:IsPlayer() and ent:Team() == TEAM_HUMAN and ent:Alive() and ent:GetObserverMode() == OBS_MODE_NONE and self:IsOpened() then
+	if CanEscape(ent) and ent:GetObserverMode() == OBS_MODE_NONE and self:IsOpened() then
 		local pos = ent:EyePos()
 
 		ent:Spectate(OBS_MODE_ROAMING)
@@ -85,4 +86,10 @@ end
 
 function ENT:UpdateTransmitState()
 	return TRANSMIT_ALWAYS
+end
+function ENT:OnRemove()
+	for _, hint in ipairs(self.ExitHints or {}) do
+		if IsValid(hint) then hint:Remove() end
+	end
+	self.ExitHints = nil
 end

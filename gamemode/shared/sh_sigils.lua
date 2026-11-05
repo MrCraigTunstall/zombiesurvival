@@ -6,8 +6,8 @@ ESCAPESTAGE_DEATH = 3
 function GM:GetSigils()
 	local sigils = {}
 
-	for _, ent in pairs(ents.FindByClass("prop_obj_sigil")) do
-		if ent:IsValid() and ent.GetSigilHealthBase and ent:GetSigilHealthBase() ~= 0 then
+	for _, ent in ipairs(self:GetZSClassEntities("prop_obj_sigil")) do
+		if ent:IsValid() and ent.GetSigilHealthBase and ent:GetSigilHealthBase() > 0 then
 			sigils[#sigils + 1] = ent
 		end
 	end
@@ -16,7 +16,11 @@ function GM:GetSigils()
 end
 
 function GM:NumSigils()
-	return #self:GetSigils()
+	local count = 0
+	for _, ent in ipairs(self:GetZSClassEntities("prop_obj_sigil")) do
+		if IsValid(ent) and ent.GetSigilHealthBase and ent:GetSigilHealthBase() > 0 then count = count + 1 end
+	end
+	return count
 end
 
 function GM:GetUseSigils(use)
@@ -37,9 +41,5 @@ function GM:GetEscapeStage()
 end
 
 function GM:SigilsSpawned()
-    if #ents.FindByClass( "prop_obj_sigil" ) >= 1 then
-        return true
-    end
-
-    return false
+	return #self:GetZSClassEntities("prop_obj_sigil") > 0
 end

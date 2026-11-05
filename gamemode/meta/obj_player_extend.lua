@@ -18,9 +18,6 @@ local TEAM_SPECTATOR = TEAM_SPECTATOR
 local TEAM_HUMAN = TEAM_HUMAN
 local IN_ZOOM = IN_ZOOM
 local MASK_SOLID = MASK_SOLID
-local MASK_SOLID_BRUSHONLY = MASK_SOLID_BRUSHONLY
-local util_TraceLine = util.TraceLine
-local util_TraceHull = util.TraceHull
 
 local getmetatable = getmetatable
 
@@ -67,32 +64,8 @@ function meta:IsSpectator()
 end
 
 function meta:GetBossZombieIndex()
-	local bossclasses = {}
-	for _, classtable in pairs(GAMEMODE.ZombieClasses) do
-		if classtable.Boss then
-			table.insert(bossclasses, classtable.Index)
-		end
-	end
-
-	if #bossclasses == 0 then return -1 end
-
-	local desired = self:GetInfo("zs_bossclass") or ""
-	if GAMEMODE:IsBabyMode() then
-		desired = "Giga Gore Child"
-	elseif desired == "[RANDOM]" or desired == "" then
-		desired = "Nightmare"
-	end
-
-	local bossindex
-	for _, classindex in pairs(bossclasses) do
-		local classtable = GAMEMODE.ZombieClasses[classindex]
-		if string.lower(classtable.Name) == string.lower(desired) then
-			bossindex = classindex
-			break
-		end
-	end
-
-	return bossindex or bossclasses[math.random(#bossclasses)]
+	if SERVER then return GAMEMODE:GetBossClassForPlayer(self) end
+	return GAMEMODE:GetPreferredBossClass(self)
 end
 
 function meta:GetAuraRange()
@@ -146,34 +119,20 @@ function meta:MeleeViewPunch(damage)
 end
 
 function meta:NearArsenalCrate()
-	local pos = self:EyePos()
-
-	for _, ent in pairs(ents.FindByClass("prop_arsenalcrate")) do
-		local nearest = ent:NearestPoint(pos)
-		if pos:Distance(nearest) <= 80 and (WorldVisible(pos, nearest) or self:TraceLine(80).Entity == ent) then
-			return true
-		end
-	end
-	
-	for _, ent in pairs(ents.FindByClass("status_arsenalcrate")) do
-		local nearest = ent:NearestPoint(pos)
-		if ent:GetOwner() ~= self and pos:Distance(nearest) <= 80 and (WorldVisible(pos, nearest) or self:TraceLine(80).Entity == ent) then
-			return true
-		end
-	end
-
-	return false
+	if GAMEMODE:IsTraderOnlyRound() then return GAMEMODE:GetNearbyTrader(self) ~= nil end
+	return GAMEMODE:HasNearbyArsenalCrate(self)
 end
 meta.IsNearArsenalCrate = meta.NearArsenalCrate
 
 function meta:NearestArsenalCrateOwnedByOther()
 	local pos = self:EyePos()
-
-	for _, ent in pairs(ents.FindByClass("prop_arsenalcrate")) do
-		local nearest = ent:NearestPoint(pos)
-		local owner = ent:GetObjectOwner()
-		if owner ~= self and owner:IsValid() and owner:IsPlayer() and owner:Team() == TEAM_HUMAN and pos:Distance(nearest) <= 80 and (WorldVisible(pos, nearest) or self:TraceLine(80).Entity == ent) then
-			return ent
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_arsenalcrate")) do
+		if IsValid(ent) then
+			local owner = ent:GetObjectOwner()
+			if owner ~= self and IsValid(owner) and owner:IsPlayer() and owner:Team() == TEAM_HUMAN then
+				local nearest = ent:NearestPoint(pos)
+				if pos:DistToSqr(nearest) <= 80 * 80 and (WorldVisible(pos, nearest) or self:TraceLine(80).Entity == ent) then return ent end
+			end
 		end
 	end
 end
@@ -181,9 +140,9 @@ end
 function meta:NearSigil()
 	local pos = self:EyePos()
 
-	for _, ent in pairs(ents.FindByClass("prop_obj_sigil")) do
+	for _, ent in ipairs(GAMEMODE:GetZSClassEntities("prop_obj_sigil")) do
 		local nearest = ent:NearestPoint(pos)
-		if pos:Distance(nearest) <= 90 and (WorldVisible(pos, nearest) or self:TraceLine(90).Entity == ent) then
+		if pos:DistToSqr(nearest) <= 90 * 90 and (WorldVisible(pos, nearest) or self:TraceLine(90).Entity == ent) then
 			return true
 		end
 	end
@@ -211,14 +170,23 @@ function meta:SetTokens(pts)
 end	
 
 function meta:GetTokens()
-	return self:GetNWInt('btokens', pts)
+	return self:GetNWInt('btokens', 0)
+end
+
+local function SendPlayerCondition(pl, hemophilia, value, nosend, field)
+	if not SERVER or nosend or pl:IsBot() then return end
+	local state = value == nil and 0 or value and 2 or 1
+	if pl[field] == state then return end
+	net.Start("zs_playercondition")
+	net.WriteBool(hemophilia)
+	net.WriteUInt(state, 2)
+	net.Send(pl)
+	pl[field] = state
 end
 
 function meta:SetPalsy(onoff, nosend)
 	self.m_Palsy = onoff
-	if SERVER and not nosend then
-		self:SendLua("LocalPlayer():SetPalsy("..tostring(onoff)..")")
-	end
+	SendPlayerCondition(self, false, onoff, nosend, "ZSPalsySent")
 end
 
 function meta:GetPalsy()
@@ -227,9 +195,7 @@ end
 
 function meta:SetHemophilia(onoff, nosend)
 	self.m_Hemophilia = onoff
-	if SERVER and not nosend then
-		self:SendLua("LocalPlayer():SetHemophilia("..tostring(onoff)..")")
-	end
+	SendPlayerCondition(self, true, onoff, nosend, "ZSHemophiliaSent")
 end
 
 function meta:GetHemophilia()
@@ -274,8 +240,12 @@ function meta:WouldDieFrom(damage, hitpos)
 	return self:Health() <= damage * GAMEMODE:GetZombieDamageScale(hitpos, self)
 end
 
+local BLEED_DAMAGE_TYPES = bit.bor(DMG_SLASH, DMG_CLUB, DMG_BULLET, DMG_BUCKSHOT, DMG_CRUSH)
+
 function meta:ProcessDamage(dmginfo)
+	if SERVER and self.ZSReturns then GAMEMODE:ApplyReturnDamage(self, dmginfo) end
 	local attacker, inflictor = dmginfo:GetAttacker(), dmginfo:GetInflictor()
+	if SERVER and (self.ZSTraits or IsValid(attacker) and attacker.ZSTraits) and GAMEMODE:ApplyTraitDamage(self, dmginfo) then return true end
 
 	if self.DamageVulnerability then
 		dmginfo:SetDamage(dmginfo:GetDamage() * self.DamageVulnerability)
@@ -294,25 +264,21 @@ function meta:ProcessDamage(dmginfo)
 		if damage >= 40 or scale > 1 then
 			local dolegdamage = true
 			if inflictor.SlowDownImmunityTime then
-				if CurTime() < (self.SlowDownImmunityTime or 0) then
+				local curtime = CurTime()
+				if curtime < (self.SlowDownImmunityTime or 0) then
 					dolegdamage = false
 				else
-					self.SlowDownImmunityTime = CurTime() + inflictor.SlowDownImmunityTime
+					self.SlowDownImmunityTime = curtime + inflictor.SlowDownImmunityTime
 				end
 			end
 			if dolegdamage then
-				self:RawCapLegDamage(self:GetLegDamage() + CurTime() + damage * 0.04 * (inflictor.SlowDownScale or 1))
+				self:RawCapLegDamage(self:GetLegDamage() + CurTime() + damage * 0.04 * scale)
 			end
 		end
 
 		if self:GetHemophilia() and damage >= 5 then
 			local dmgtype = dmginfo:GetDamageType()
-			if dmgtype == 0
-				or bit.band(dmgtype, DMG_SLASH) ~= 0
-				or bit.band(dmgtype, DMG_CLUB) ~= 0
-				or bit.band(dmgtype, DMG_BULLET) ~= 0
-				or bit.band(dmgtype, DMG_BUCKSHOT) ~= 0
-				or bit.band(dmgtype, DMG_CRUSH) ~= 0 then
+			if dmgtype == 0 or bit.band(dmgtype, BLEED_DAMAGE_TYPES) ~= 0 then
 				local bleed = self:GiveStatus("bleed")
 				if bleed and bleed:IsValid() then
 					bleed:AddDamage(damage * 0.2)
@@ -326,7 +292,7 @@ function meta:ProcessDamage(dmginfo)
 end
 
 function meta:KnockDown(time)
-	if self:Team() == TEAM_HUMAN then
+	if self:Team() == TEAM_HUMAN and not GAMEMODE:HasPlayerTrait(self, "strongfeet") then
 		self:GiveStatus("knockdown", time or 3)
 	end
 end
@@ -335,17 +301,16 @@ function meta:GetZombieClass()
 	return self.Class or GAMEMODE.DefaultZombieClass
 end
 
-local ZombieClasses = GM.ZombieClasses
 function meta:GetZombieClassTable()
-	return ZombieClasses[self:GetZombieClass()]
+	local classes = GAMEMODE.ZombieClasses
+	return classes[self:GetZombieClass()] or classes[GAMEMODE.DefaultZombieClass]
 end
 
-local zctab
-local zcfunc
 function meta:CallZombieFunction0(funcname)
 	if P_Team(self) == TEAM_UNDEAD then
-		zctab = ZombieClasses[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass]
-		zcfunc = zctab[funcname]
+		local classes = GAMEMODE.ZombieClasses
+		local zctab = classes[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass] or classes[GAMEMODE.DefaultZombieClass]
+		local zcfunc = zctab and zctab[funcname]
 		if zcfunc then
 			return zcfunc(zctab, self)
 		end
@@ -354,8 +319,9 @@ end
 
 function meta:CallZombieFunction1(funcname, a1)
 	if P_Team(self) == TEAM_UNDEAD then
-		zctab = ZombieClasses[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass]
-		zcfunc = zctab[funcname]
+		local classes = GAMEMODE.ZombieClasses
+		local zctab = classes[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass] or classes[GAMEMODE.DefaultZombieClass]
+		local zcfunc = zctab and zctab[funcname]
 		if zcfunc then
 			return zcfunc(zctab, self, a1)
 		end
@@ -364,8 +330,9 @@ end
 
 function meta:CallZombieFunction2(funcname, a1, a2)
 	if P_Team(self) == TEAM_UNDEAD then
-		zctab = ZombieClasses[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass]
-		zcfunc = zctab[funcname]
+		local classes = GAMEMODE.ZombieClasses
+		local zctab = classes[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass] or classes[GAMEMODE.DefaultZombieClass]
+		local zcfunc = zctab and zctab[funcname]
 		if zcfunc then
 			return zcfunc(zctab, self, a1, a2)
 		end
@@ -374,8 +341,9 @@ end
 
 function meta:CallZombieFunction3(funcname, a1, a2, a3)
 	if P_Team(self) == TEAM_UNDEAD then
-		zctab = ZombieClasses[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass]
-		zcfunc = zctab[funcname]
+		local classes = GAMEMODE.ZombieClasses
+		local zctab = classes[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass] or classes[GAMEMODE.DefaultZombieClass]
+		local zcfunc = zctab and zctab[funcname]
 		if zcfunc then
 			return zcfunc(zctab, self, a1, a2, a3)
 		end
@@ -384,8 +352,9 @@ end
 
 function meta:CallZombieFunction4(funcname, a1, a2, a3, a4)
 	if P_Team(self) == TEAM_UNDEAD then
-		zctab = ZombieClasses[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass]
-		zcfunc = zctab[funcname]
+		local classes = GAMEMODE.ZombieClasses
+		local zctab = classes[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass] or classes[GAMEMODE.DefaultZombieClass]
+		local zcfunc = zctab and zctab[funcname]
 		if zcfunc then
 			return zcfunc(zctab, self, a1, a2, a3, a4)
 		end
@@ -395,40 +364,13 @@ meta.CallZombieFunction = meta.CallZombieFunction4 -- 4 should be enough for leg
 
 function meta:CallZombieFunction5(funcname, a1, a2, a3, a4, a5)
 	if P_Team(self) == TEAM_UNDEAD then
-		zctab = ZombieClasses[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass]
-		zcfunc = zctab[funcname]
+		local classes = GAMEMODE.ZombieClasses
+		local zctab = classes[E_GetTable(self).Class or GAMEMODE.DefaultZombieClass] or classes[GAMEMODE.DefaultZombieClass]
+		local zcfunc = zctab and zctab[funcname]
 		if zcfunc then
 			return zcfunc(zctab, self, a1, a2, a3, a4, a5)
 		end
 	end
-end
-
-function meta:TraceLine(distance, mask, filter, start)
-	start = start or self:GetShootPos()
-	return util.TraceLine({start = start, endpos = start + self:GetAimVector() * distance, filter = filter or self, mask = mask})
-end
-
-function meta:TraceHull(distance, mask, size, filter, start)
-	start = start or self:GetShootPos()
-	return util.TraceHull({start = start, endpos = start + self:GetAimVector() * distance, filter = filter or self, mask = mask, mins = Vector(-size, -size, -size), maxs = Vector(size, size, size)})
-end
-
-function meta:DoubleTrace(distance, mask, size, mask2, filter)
-	local tr1 = self:TraceLine(distance, mask, filter)
-	if tr1.Hit then return tr1 end
-	if mask2 then
-		local tr2 = self:TraceLine(distance, mask2, filter)
-		if tr2.Hit then return tr2 end
-	end
-
-	local tr3 = self:TraceHull(distance, mask, size, filter)
-	if tr3.Hit then return tr3 end
-	if mask2 then
-		local tr4 = self:TraceHull(distance, mask2, size, filter)
-		if tr4.Hit then return tr4 end
-	end
-
-	return tr1
 end
 
 function meta:SetSpeed(speed)
@@ -440,14 +382,14 @@ function meta:SetSpeed(speed)
 end
 
 function meta:SetHumanSpeed(speed)
-	if self:Team() ~= TEAM_UNDEAD then self:SetSpeed(speed) end
+	if self:Team() ~= TEAM_UNDEAD then self:SetSpeed(speed or self:ResetSpeed(true)) end
 end
 
 function meta:ResetSpeed(noset, health)
 	if not self:IsValid() then return end
 
 	if self:Team() == TEAM_UNDEAD then
-		local speed = self:GetZombieClassTable().Speed * GAMEMODE.ZombieSpeedMultiplier
+		local speed = self:GetZombieClassTable().Speed * GAMEMODE.ZombieSpeedMultiplier * self:GetNW2Float("zs_zombie_variant_speed", 1) * GAMEMODE:GetTraitSpeedScale(self)
 		self:SetSpeed(speed)
 		return speed
 	end
@@ -481,6 +423,7 @@ function meta:ResetSpeed(noset, health)
 		end
 	end
 
+	speed = speed * GAMEMODE:GetReturnSpeedScale(self) * GAMEMODE:GetTraitSpeedScale(self)
 	if not noset then
 		self:SetSpeed(speed)
 	end
@@ -489,7 +432,7 @@ function meta:ResetSpeed(noset, health)
 end
 
 function meta:ResetJumpPower(noset)
-	local power = DEFAULT_JUMP_POWER
+	local power = DEFAULT_JUMP_POWER * GAMEMODE:GetTraitJumpScale(self)
 
 	if self:Team() == TEAM_UNDEAD then
 		power = self:CallZombieFunction("GetJumpPower") or power
@@ -522,48 +465,22 @@ function meta:ResetJumpPower(noset)
 end
 
 function meta:SetBarricadeGhosting(b, fullspeed)
-	if self == NULL then return end --???
-
-	if b and self.NoGhosting then return end
-
-	if fullspeed == nil then fullspeed = false end
-
-	self:SetDTBool(0, b)
-	self:SetDTBool(1, b and fullspeed)
-	--self:SetCustomCollisionCheck(b)
-	self:CollisionRulesChanged()
-
-	self:ResetJumpPower()
+ return GAMEMODE:SetPlayerBarricadeGhosting(self, b, fullspeed)
 end
 
 function meta:GetBarricadeGhosting()
-	return E_GetDTBool(self, 0)
+ return GAMEMODE:GetBarricadeGhostMode(self) ~= 0
 end
 meta.IsBarricadeGhosting = meta.GetBarricadeGhosting
 
 function meta:ShouldBarricadeGhostWith(ent)
-	return ent:IsBarricadeProp()
+ return ent:IsBarricadeProp()
 end
 
 function meta:BarricadeGhostingThink()
-	if E_GetDTBool(self, 1) then
-		if not self:ActiveBarricadeGhosting() then
-			self:SetBarricadeGhosting(false)
-		end
-	else
-		if self:KeyDown(IN_ZOOM) or self:ActiveBarricadeGhosting() then
-			if self.FirstGhostThink then
-				self:SetLocalVelocity(vector_origin)
-				self.FirstGhostThink = false
-			end
-
-			return
-		end
-
-		self.FirstGhostThink = true
-		self:SetBarricadeGhosting(false)
-	end
+ if GAMEMODE:UpdatePlayerBarricadeGhosting(self, self:KeyDown(IN_ZOOM)) then self:SetLocalVelocity(vector_origin) end
 end
+GM.ZSBarricadeGhostThink = meta.BarricadeGhostingThink
 
 function meta:ShouldNotCollide(ent)
 	if E_IsValid(ent) then
@@ -575,41 +492,25 @@ function meta:ShouldNotCollide(ent)
 			return false
 		end
 
-		return E_GetDTBool(self, 0) and ent:IsBarricadeProp()
+		return GAMEMODE:GetBarricadeGhostCollisionFlag(self, 0) and ent:IsBarricadeProp()
 	end
 
 	return false
 end
 
-local function nocollidetimer(self, timername)
-	if self:IsValid() then
-		for _, e in pairs(ents.FindInBox(self:WorldSpaceAABB())) do
-			if e and e:IsValid() and e:IsPlayer() and e ~= self and GAMEMODE:ShouldCollide(self, e) then
-				return
-			end
-		end
-
-		self:SetCollisionGroup(COLLISION_GROUP_PLAYER)
-	end
-
-	timer.Destroy(timername)
+if GM.BindPlayerCollisionRule then
+	GM:BindPlayerCollisionRule(meta.ShouldNotCollide, meta, P_Team, E_IsValid, E_GetTable, function(pl, slot) return GAMEMODE:GetBarricadeGhostCollisionFlag(pl, slot) end)
 end
 
 function meta:TemporaryNoCollide(force)
 	if self:GetCollisionGroup() ~= COLLISION_GROUP_PLAYER and not force then return end
-
-	for _, e in pairs(ents.FindInBox(self:WorldSpaceAABB())) do
-		if e and e:IsValid() and e:IsPlayer() and e ~= self and GAMEMODE:ShouldCollide(self, e) then
-			self:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
-
-			local timername = "TemporaryNoCollide"..self:UniqueID()
-			timer.CreateEx(timername, 0, 0, nocollidetimer, self, timername)
-
-			return
-		end
+	if GAMEMODE:HasTemporaryCollisionOverlap(self, false) then
+		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
+		GAMEMODE:TrackTemporaryCollision(self, false)
+	else
+		GAMEMODE:StopTemporaryCollision(self, false)
+		if self:GetCollisionGroup() ~= COLLISION_GROUP_PLAYER then self:SetCollisionGroup(COLLISION_GROUP_PLAYER) end
 	end
-
-	self:SetCollisionGroup(COLLISION_GROUP_PLAYER)
 end
 
 meta.OldSetHealth = FindMetaTable("Entity").SetHealth
@@ -621,7 +522,9 @@ function meta:SetHealth(health)
 end
 
 function meta:IsHeadcrab()
-	return self:Team() == TEAM_UNDEAD and GAMEMODE.ZombieClasses[self:GetZombieClass()].IsHeadcrab
+	if self:Team() ~= TEAM_UNDEAD then return false end
+	local class = self:GetZombieClassTable()
+	return class and class.IsHeadcrab
 end
 
 function meta:AirBrake()
@@ -636,107 +539,8 @@ function meta:AirBrake()
 	self:SetLocalVelocity(vel)
 end
 
-function meta:GetMeleeFilter()
-	return GAMEMODE.RoundEnded and {self} or team.GetPlayers(self:Team())
-end
-meta.GetTraceFilter = meta.GetMeleeFilter
-
-function meta:MeleeTrace(distance, size, filter, start)
-	return self:TraceHull(distance, MASK_SOLID, size, filter, start)
-end
-
-local temp_attacker = NULL
-local temp_attacker_team = -1
-local temp_pen_ents = {}
-local temp_override_team
-
-local function MeleeTraceFilter(ent)
-	if ent == temp_attacker
-	or E_GetTable(ent).IgnoreMelee
-	or getmetatable(ent) == meta and P_Team(ent) == temp_attacker_team
-	or not temp_override_team and ent.IgnoreMeleeTeam and ent.IgnoreMeleeTeam == temp_attacker_team
-	or temp_pen_ents[ent] then
-		return false
-	end
-
-	return true
-end
-
-local function DynamicTraceFilter(ent)
-	if ent.IgnoreTraces or ent:IsPlayer() then
-		return false
-	end
-
-	return true
-end
-
-local function MeleeTraceFilterFFA(ent)
-	if temp_pen_ents[ent] then
-		return false
-	end
-
-	return ent ~= temp_attacker
-end
-
-local melee_trace = {filter = MeleeTraceFilter, mask = MASK_SOLID, mins = Vector(), maxs = Vector()}
-
-function meta:GetDynamicTraceFilter()
-	return DynamicTraceFilter
-end
-
-function meta:PenetratingMeleeTrace(distance, size, prehit, start, dir)
-	start = start or self:GetShootPos()
-	dir = dir or self:GetAimVector()
-
-	local t = {}
-	local trace = {start = start, endpos = start + dir * distance, filter = self:GetMeleeFilter(), mask = MASK_SOLID, mins = Vector(-size, -size, -size), maxs = Vector(size, size, size)}
-	local onlyhitworld
-	for i=1, 50 do
-		local tr = util.TraceHull(trace)
-
-		if not tr.Hit then break end
-
-		if tr.HitWorld then
-			table.insert(t, tr)
-			break
-		end
-
-		if onlyhitworld then break end
-
-		local ent = tr.Entity
-		if ent and ent:IsValid() then
-			if not ent:IsPlayer() then
-				trace.mask = MASK_SOLID_BRUSHONLY
-				onlyhitworld = true
-			end
-
-			table.insert(t, tr)
-			table.insert(trace.filter, ent)
-		end
-	end
-
-	if prehit and (#t == 1 and not t[1].HitNonWorld and prehit.HitNonWorld or #t == 0 and prehit.HitNonWorld) then
-		t[1] = prehit
-	end
-
-	return t
-end
-
 function meta:ActiveBarricadeGhosting(override)
-	if P_Team(self) ~= TEAM_HUMAN and not override or not self:GetBarricadeGhosting() then return false end
-
-	local min, max = self:WorldSpaceAABB()
-	min.x = min.x + 1
-	min.y = min.y + 1
-
-	max.x = max.x - 1
-	max.y = max.y - 1
-
-	for _, ent in pairs(ents.FindInBox(min, max)) do
-		if ent and ent:IsValid() and self:ShouldBarricadeGhostWith(ent) then return true end
-	end
-
-	return false
+ return GAMEMODE:IsPlayerInsideBarricade(self, override)
 end
 
 function meta:IsHolding()
@@ -746,15 +550,20 @@ meta.IsCarrying = meta.IsHolding
 
 function meta:GetHolding()
 	local status = self.status_human_holding
-	if status and status:IsValid() then
+	if status and IsValid(status) and not status.Removing and not status:IsMarkedForDeletion()
+		and status:GetOwner() == self and (not status.HeldOwner or status.HeldOwner == self) then
 		local obj = status:GetObject()
-		if obj:IsValid() then return obj end
+		if IsValid(obj) and not obj:IsMarkedForDeletion() and (not status.HeldObject or status.HeldObject == obj) then return obj end
 	end
 
 	return NULL
 end
 
 function meta:GetMaxZombieHealth()
+	local health = self:GetNW2Int("zs_zombie_variant_health", 0)
+	if health > 0 then return health end
+	health = self:GetDTInt(0)
+	if health > 1 then return health end
 	return self:GetZombieClassTable().Health
 end
 
@@ -971,137 +780,15 @@ VoiceSets[VOICESET_MONK] = {
 }
 
 function meta:GetVoiceLines(line_type)
-	return VoiceSets[self:GetDTInt(DT_PLAYER_INT_VOICESET)][line_type]
+	local voices = VoiceSets[self:GetDTInt(DT_PLAYER_INT_VOICESET)]
+	return voices and voices[line_type]
 end
 
-function meta:PlayEyePainSound()
-	local snds = self:GetVoiceLines(VOICELINE_EYEPAIN)
-	if snds then
-		self:EmitSound(snds[math.random(1, #snds)])
-	end
+if SERVER and net.Receivers then
+	for _, name in ipairs({"voice_eyepain", "voice_giveammo", "voice_death", "voice_zombiedeath", "voice_pain", "voice_zombiepain"}) do net.Receivers[name] = nil end
 end
-
-function meta:PlayGiveAmmoSound()
-	local snds = self:GetVoiceLines(VOICELINE_GIVEAMMO)
-	if snds then
-		self:EmitSound(snds[math.random(1, #snds)])
-	end
-end
-
-function meta:PlayDeathSound()
-	local snds = self:GetVoiceLines(VOICELINE_DEATH)
-	if snds then
-		self:EmitSound(snds[math.random(1, #snds)])
-	end
-end
-
-function meta:PlayZombieDeathSound()
-	if not self:CallZombieFunction0("PlayDeathSound") then
-		local snds = self:GetZombieClassTable().DeathSounds
-		if snds then
-			self:EmitSound(snds[math.random(#snds)])
-		end
-	end
-end
-
-function meta:PlayPainSound(health)
-	local snds
-
-	if health >= 70 then
-		snds = self:GetVoiceLines(VOICELINE_PAIN_LIGHT)
-	elseif health >= 35 then
-		snds = self:GetVoiceLines(VOICELINE_PAIN_MED)
-	else
-		snds = self:GetVoiceLines(VOICELINE_PAIN_HEAVY)
-	end
-
-	if snds then
-		local snd = snds[math.random(#snds)]
-		if snd then
-			self:EmitSound(snd)
-		end
-	end
-end
-
-function meta:PlayZombiePainSound()
-	if self:CallZombieFunction0("PlayPainSound") then return end
-
-	local snds = self:GetZombieClassTable().PainSounds
-	if snds then
-		local snd = snds[math.random(#snds)]
-		if snd then
-			self:EmitSound(snd)
-		end
-	end
-end
-
-net.Receive("voice_eyepain", function(len)
-	local ent = net.ReadEntity()
-	if ent:IsValid() then
-		ent:PlayEyePainSound()
-	end
-end)
-net.Receive("voice_giveammo", function(len)
-	local ent = net.ReadEntity()
-	if ent:IsValid() then
-		ent:PlayGiveAmmoSound()
-	end
-end)
-net.Receive("voice_death", function(len)
-	local ent = net.ReadEntity()
-	if ent:IsValid() then
-		ent:PlayDeathSound()
-	end
-end)
-net.Receive("voice_zombiedeath", function(len)
-	local ent = net.ReadEntity()
-	if ent:IsValid() then
-		ent:PlayZombieDeathSound()
-	end
-end)
-net.Receive("voice_pain", function(len)
-	local ent = net.ReadEntity()
-	local health = net.ReadUInt(4) * 25
-	if ent:IsValid() then
-		ent:PlayPainSound(health)
-	end
-end)
-net.Receive("voice_zombiepain", function(len)
-	local ent = net.ReadEntity()
-	if ent:IsValid() then
-		ent:PlayZombiePainSound()
-	end
-end)
 
 -- updated by mka0207
-local ViewHullMins = Vector(-8, -8, -8)
-local ViewHullMaxs = Vector(8, 8, 8)
-function meta:GetThirdPersonCameraPos(origin, angles)
-	local allplayers = player.GetAll()
-	local tr = tr or util.TraceHull({start = origin, endpos = origin + (angles:Up()*5) + (angles:Right()*30) + angles:Forward() * -math.max(90, self:Team() == TEAM_UNDEAD and self:GetZombieClassTable().CameraDistance or self:BoundingRadius()), mask = MASK_SOLID_BRUSHONLY, filter = allplayers, mins = ViewHullMins, maxs = ViewHullMaxs})
-	
-	local x1 = 30
-	local y1 = 90
-	local z1 = 5
-
-	local x2 = 2
-	local y2 = y1
-	local z2 = 20
-
-	local x3 = -30
-	local y3 = y1
-	local z3 = z1
-	
-	if GAMEMODE.ThirdPersoned == 1 then
-		tr = util.TraceHull({start = origin, endpos = origin + (angles:Up()*z1) + (angles:Right()*x1) + angles:Forward() * -math.max(y1, self:Team() == TEAM_UNDEAD and self:GetZombieClassTable().CameraDistance or self:BoundingRadius()), mask = MASK_SOLID_BRUSHONLY, filter = allplayers, mins = ViewHullMins, maxs = ViewHullMaxs})
-	elseif GAMEMODE.ThirdPersoned == 2 then
-		tr = util.TraceHull({start = origin, endpos = origin + (angles:Up()*z2) + (angles:Right()*x2) + angles:Forward() * -math.max(y2, self:Team() == TEAM_UNDEAD and self:GetZombieClassTable().CameraDistance or self:BoundingRadius()), mask = MASK_SOLID_BRUSHONLY, filter = allplayers, mins = ViewHullMins, maxs = ViewHullMaxs})
-	elseif GAMEMODE.ThirdPersoned == 3 then
-		tr = util.TraceHull({start = origin, endpos = origin + (angles:Up()*z3) + (angles:Right()*x3) + angles:Forward() * -math.max(y3, self:Team() == TEAM_UNDEAD and self:GetZombieClassTable().CameraDistance or self:BoundingRadius()), mask = MASK_SOLID_BRUSHONLY, filter = allplayers, mins = ViewHullMins, maxs = ViewHullMaxs})
-	end
-	
-	return tr.HitPos + tr.HitNormal * 3
-end
 -- Override these because they're different in 1st person and on the server.
 function meta:SyncAngles()
 	local ang = self:EyeAngles()
@@ -1121,32 +808,6 @@ end
 
 function meta:GetRight()
 	return self:SyncAngles():Right()
-end
-
-meta.OldFireBullets = FindMetaTable("Entity").FireBullets
-function meta:FireBullets(bulletInfo, suppressHostEvents)
-	if not GAMEMODE.ZombieEscape then
-		self:OldFireBullets(bulletInfo, suppressHostEvents)
-		return
-	end
-
-	if not IsFirstTimePredicted() then return end
-
-	local lagCompensation = SERVER and not self:IsListenServerHost()
-
-	math.randomseed( CurTime() )
-
-	if lagCompensation then
-		self:LagCompensation(true)
-	end
-
-	for i = 1, bulletInfo.Num or 1 do
-		self:FireCSSBullet(bulletInfo, suppressHostEvents)
-	end
-
-	if lagCompensation then
-		self:LagCompensation(false)
-	end
 end
 
 function meta:GetPhantomHealth()

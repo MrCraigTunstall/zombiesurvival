@@ -1,0 +1,41 @@
+{
+  "projectAuthored": true,
+  "externalAssetCopies": false,
+  "triangles": {
+    "frame": 56,
+    "crystal": 24,
+    "core": 8
+  },
+  "totalTriangles": 88,
+  "collisionBounds": [
+    [
+      -8.25,
+      -8.25,
+      -0.8937
+    ],
+    [
+      8.25,
+      8.25,
+      104.5
+    ]
+  ],
+  "visualBounds": [
+    [
+      -16.5,
+      -16.5,
+      -0.8937
+    ],
+    [
+      16.5,
+      16.5,
+      104.5
+    ]
+  ],
+  "sizeMultiplier": 2,
+  "bodygroups": [
+    "frame",
+    "crystal",
+    "core"
+  ],
+  "source": "Blender mesh exported as SMD by build_sigil.py"
+}

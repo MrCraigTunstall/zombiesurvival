@@ -69,7 +69,7 @@ function CLASS:CalcMainActivity(pl, velocity)
 	local feign = pl.FeignDeath
 	if feign and feign:IsValid() then
 		if feign:GetDirection() == DIR_BACK then
-			pl.CalcSeqOverride = pl:LookupSequence("zombie_slump_rise_02_fast")
+			pl.CalcSeqOverride = GAMEMODE:GetAnimationSequence(pl, "zombie_slump_rise_02_fast")
 		else
 			pl.CalcIdeal = ACT_HL2MP_ZOMBIE_SLUMP_RISE
 		end

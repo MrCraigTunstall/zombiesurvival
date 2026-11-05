@@ -1,5 +1,15 @@
 GM.RevertableZombieClasses = {}
 
+local function CopyZombieClasses(source, copies)
+	if type(source) ~= "table" then return source end
+	copies = copies or {}
+	if copies[source] then return copies[source] end
+	local result = setmetatable({}, debug.getmetatable(source))
+	copies[source] = result
+	for key, value in pairs(source) do result[key] = CopyZombieClasses(value, copies) end
+	return result
+end
+
 function GM:IsClassUnlocked(classname)
 	local classtab = self.ZombieClasses[classname]
 	if not classtab then return false end
@@ -9,7 +19,12 @@ function GM:IsClassUnlocked(classname)
 		if ret ~= nil then return ret end
 	end
 
-	return not classtab.Locked and (classtab.Unlocked or classtab.Wave and self:GetWave() >= classtab.Wave or not self:GetWaveActive() and self:GetWave() + 1 >= classtab.Wave)
+	if classtab.Locked then return false end
+	if classtab.Unlocked then return classtab.Unlocked end
+	local requiredWave = classtab.Wave
+	if type(requiredWave) ~= "number" then return false end
+	local wave = self:GetWave()
+	return wave >= requiredWave or not self:GetWaveActive() and wave + 1 >= requiredWave
 end
 
 local function ReorderZombieClassesSort(a, b)
@@ -25,20 +40,19 @@ local function ReorderZombieClassesSort(a, b)
 end
 function GM:ReorderZombieClasses()
 	table.sort(self.ZombieClasses, ReorderZombieClassesSort)
-	for k, v in pairs(self.ZombieClasses) do
-		if type(k) == "number" then
-			self.ZombieClasses[v.Name] = v
-			v.Index = k
+	for index, class in ipairs(self.ZombieClasses) do
+		self.ZombieClasses[class.Name] = class
+		class.Index = index
 
-			if v.IsDefault then
-				self.DefaultZombieClass = k
-			end
+		if class.IsDefault then
+			self.DefaultZombieClass = index
 		end
 	end
+	if self.SelectZombieEscapeDefaultClass then self:SelectZombieEscapeDefaultClass() end
 end
 
 function GM:RegisterZombieClass(name, tab)
-	local gm = GAMEMODE or GM
+	local gm = self
 
 	if tab.Wave then tab.Wave = math.floor(tab.Wave * self:GetNumberOfWaves()) end
 	table.insert(gm.ZombieClasses, tab)
@@ -57,7 +71,9 @@ function GM:RegisterZombieClass(name, tab)
 end
 
 function GM:RevertZombieClasses()
-	self.ZombieClasses = table.Copy(self.RevertableZombieClasses)
+	self.ZombieClasses = CopyZombieClasses(self.RevertableZombieClasses)
+	self.DefaultZombieClass = self.RevertableDefaultZombieClass or self.DefaultZombieClass
+	if self.SelectZombieEscapeDefaultClass then self:SelectZombieEscapeDefaultClass() end
 end
 
 function GM:RegisterZombieClasses()
@@ -81,25 +97,43 @@ function GM:RegisterZombieClasses()
 		CLASS = nil
 	end
 
-	for k, v in pairs(self.ZombieClasses) do
-		local base = v.Base
-		if base then
-			base = base..".lua"
-			if included[base] then
-				table.Inherit(v, included[base])
-			else
-				ErrorNoHalt("CLASS "..tostring(v.Name).." uses base class "..base.." but it doesn't exist!")
+	local resolved = {}
+	for _, class in ipairs(self.ZombieClasses) do
+		if not resolved[class] then
+			local path, visiting, cursor = {}, {}, class
+			while cursor and not resolved[cursor] do
+				if visiting[cursor] then
+					ErrorNoHalt("CLASS "..tostring(cursor.Name).." has cyclic inheritance!\n")
+					for _, entry in ipairs(path) do resolved[entry] = true end
+					path = {}
+					break
+				end
+				path[#path + 1], visiting[cursor] = cursor, true
+				local base = cursor.Base
+				if not base then break end
+				local parent = (type(base) == "string" or type(base) == "number") and included[base..".lua"]
+				if not parent then
+					ErrorNoHalt("CLASS "..tostring(cursor.Name).." uses missing base class "..tostring(base).."!\n")
+					break
+				end
+				cursor = parent
+			end
+			for index = #path, 1, -1 do
+				local entry = path[index]
+				local parent = (type(entry.Base) == "string" or type(entry.Base) == "number") and included[entry.Base..".lua"]
+				if parent then table.Inherit(entry, parent) end
+				resolved[entry] = true
 			end
 		end
-
-		if v.Unlocked or v.Wave == 0 then
-			v.UnlockedNotify = true
-		end
+	end
+	for _, class in ipairs(self.ZombieClasses) do
+		if class.Unlocked or class.Wave == 0 then class.UnlockedNotify = true end
 	end
 
 	self:ReorderZombieClasses()
 
-	self.RevertableZombieClasses = table.Copy(self.ZombieClasses)
+	self.RevertableZombieClasses = CopyZombieClasses(self.ZombieClasses)
+	self.RevertableDefaultZombieClass = self.DefaultZombieClass
 end
 
 GM:RegisterZombieClasses()

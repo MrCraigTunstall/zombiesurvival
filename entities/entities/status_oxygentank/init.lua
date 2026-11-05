@@ -14,5 +14,10 @@ end
 
 function ENT:Think()
 	local owner = self:GetOwner()
-	if not (owner:IsValid() and owner:Alive() and owner:HasWeapon("weapon_zs_oxygentank")) then self:Remove() end
+	if not (IsValid(owner) and owner:IsPlayer() and owner:Alive() and owner:HasWeapon("weapon_zs_oxygentank")) then self:Remove() end
+end
+
+function ENT:OnRemove()
+	local owner = self:GetOwner()
+	if IsValid(owner) and owner.ZSOxygenTank == self then owner.ZSOxygenTank = nil end
 end

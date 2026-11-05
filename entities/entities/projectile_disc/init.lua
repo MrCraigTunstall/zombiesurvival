@@ -36,23 +36,36 @@ function ENT:OnRemove()
 	util.Effect("explosion_fusordisc", effectdata)
 
 	local owner = self.PostOwner
-	if not owner:IsValidLivingHuman() then owner = self end
+	local source = self.ProjSource
+	local crafter, position = self.ZSCrafter, self:GetPos()
+	local proxy
 
 	local oldvel = self.PhysicsData and self.PhysicsData.OurOldVelocity or self:GetVelocity()
 
 	local backvel = oldvel:GetNormalized()
 	local pos = self:GetPos() - backvel * 10
-	local dmg = self.ProjDamage
-	local me = self:ProjectileDamageSource()
-
-	for i = 1, 8 do
-		timer.Simple(i * 0.05, function()
-			backvel.z = backvel.z + 0.001 * i
-			backvel = backvel:GetNormalized()
-
-			self:FireBulletsLua(pos, -backvel, 1, 1, dmg/2, owner, 0.01, "tracer_fusor", BulletCallback, nil, nil, nil, nil, me)
-		end)
-	end
+	local dmg = self.ProjDamage or 0
+	ZSDiscBurstSerial = (ZSDiscBurstSerial or 0) + 1
+	local name, shot = "ZSDiscBurst" .. ZSDiscBurstSerial, 0
+	timer.Create(name, 0.05, 8, function()
+		if proxy and not IsValid(proxy) then timer.Remove(name); return end
+		shot = shot + 1
+		backvel.z = backvel.z + 0.001 * shot
+		backvel = backvel:GetNormalized()
+		local attacker = IsValid(owner) and owner:IsValidLivingHuman() and owner or game.GetWorld()
+		local shooter = IsValid(source) and source:GetOwner() == attacker and source or nil
+		if not shooter then
+			if not proxy then
+				proxy = ents.Create("info_target")
+				if not IsValid(proxy) then timer.Remove(name); return end
+				proxy:SetPos(position); proxy:Spawn(); proxy.ZSCrafter = crafter
+				if IsValid(owner) then proxy:SetOwner(owner) end
+			end
+			shooter = proxy
+		end
+		shooter:FireBulletsLua(pos, -backvel, 1, 1, dmg / 2, attacker, 0.01, "tracer_fusor", BulletCallback, nil, nil, nil, nil, shooter)
+		if shot == 8 and IsValid(proxy) then proxy:Remove() end
+	end)
 end
 
 function ENT:Explode(hitpos, normal, hitent)

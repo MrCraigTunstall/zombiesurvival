@@ -25,6 +25,7 @@ SWEP.WElements = {
 
 SWEP.HoldType = "melee"
 
+SWEP.ExplosionDamage = 30
 SWEP.MeleeDamage = 35
 SWEP.MeleeRange = 90
 SWEP.MeleeSize = 1.5
@@ -48,31 +49,15 @@ function SWEP:PlayHitFleshSound()
 	self:EmitSound("Weapon_Crowbar.Melee_Hit")
 end
 
-local function BlastDamage2NoSelf(inflictor, attacker, epicenter, radius, damage)
-    for _, ent in pairs(ents.FindInSphere(epicenter, radius)) do
-        if ent and ent:IsValid() and ent != attacker then
-            local nearest = ent:NearestPoint(epicenter)
-            if TrueVisibleFilters(epicenter, nearest, inflictor, ent) then
-                ent:TakeSpecialDamage(((radius - nearest:Distance(epicenter)) / radius) * damage, DMG_BLAST, attacker, inflictor, nearest)
-            end
-        end
-    end
-end
-
-
 function SWEP:OnMeleeHit(hitent, hitflesh, tr)
-    local effectdata = EffectData()
-        effectdata:SetOrigin(tr.HitPos)
-        effectdata:SetNormal(tr.HitNormal)
-    if IsFirstTimePredicted() then
-        util.Effect("explosion", effectdata) 
-    end
-	self.Owner:TakeSpecialDamage(1, DMG_GENERIC, owner, self)
-
-    BlastDamage2NoSelf(self, self.Owner, tr.HitPos, 70, 30)
-	local ent = tr.Entity
-	if ent:IsValid() and ent:IsPlayer()  then
-		ent:GiveStatus("healdartboost")
-
-end
+	local effectdata = EffectData()
+	effectdata:SetOrigin(tr.HitPos)
+	effectdata:SetNormal(tr.HitNormal)
+	if IsFirstTimePredicted() then util.Effect("explosion", effectdata) end
+	local owner = self:GetOwner()
+	if not IsValid(owner) then return end
+	if not SERVER then return end
+	util.BlastDamageNoAttacker(self, owner, tr.HitPos, 70, self.ExplosionDamage)
+	owner:TakeSpecialDamage(1, DMG_GENERIC, owner, self)
+	if IsValid(hitent) and hitent:IsPlayer() and hitent:Alive() then hitent:GiveStatus("healdartboost") end
 end

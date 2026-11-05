@@ -5,10 +5,6 @@ include("shared.lua")
 
 ENT.NextHeal = 0
 
-function ENT:OnInitialize()
-	hook.Add("Move", self, self.Move)
-end
-
 function ENT:PlayerSet(pPlayer, bExists)
 	pPlayer.FeignDeath = self
 	pPlayer:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)

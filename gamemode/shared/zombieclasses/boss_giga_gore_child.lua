@@ -96,7 +96,7 @@ function CLASS:CalcMainActivity(pl, velocity)
 	local feign = pl.FeignDeath
 	if feign and feign:IsValid() then
 		if feign:GetDirection() == DIR_BACK then
-			pl.CalcSeqOverride = pl:LookupSequence("zombie_slump_rise_02_fast")
+			pl.CalcSeqOverride = GAMEMODE:GetAnimationSequence(pl, "zombie_slump_rise_02_fast")
 		else
 			pl.CalcIdeal = ACT_HL2MP_ZOMBIE_SLUMP_RISE
 		end
@@ -145,13 +145,8 @@ function CLASS:UpdateAnimation(pl, velocity, maxseqgroundspeed)
 	end
 
 	local len2d = velocity:Length2D()
-	if len2d > 0.5 then
-		pl:SetPlaybackRate(math.min(len2d / maxseqgroundspeed, 3))
-	else
-		pl:SetPlaybackRate(1)
-	end
-
-	pl:SetPlaybackRate(pl:GetPlaybackRate() * 0.5)
+	local rate = len2d > 0.5 and math.min(len2d / maxseqgroundspeed, 3) or 1
+	pl:SetPlaybackRate(rate * 0.5)
 
 	return true
 end

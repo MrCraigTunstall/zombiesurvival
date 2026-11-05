@@ -21,6 +21,7 @@ SWEP.ViewModel = "models/weapons/cstrike/c_shot_m3super90.mdl"
 SWEP.WorldModel = "models/weapons/w_shot_m3super90.mdl"
 SWEP.UseHands = true
 
+SWEP.WeaponForgeReload = "shell"
 SWEP.ReloadDelay = 0.4
 
 SWEP.Primary.Sound = Sound("Weapon_M3.Single")
@@ -45,9 +46,9 @@ function SWEP:Reload()
 	if self.reloading then return end
 
 	if self:Clip1() < self.Primary.ClipSize and 0 < self.Owner:GetAmmoCount(self.Primary.Ammo) then
-		self:SetNextPrimaryFire(CurTime() + self.ReloadDelay)
+		self:SetNextPrimaryFire(CurTime() + GAMEMODE:GetTraitReloadDelay(self))
 		self.reloading = true
-		self.reloadtimer = CurTime() + self.ReloadDelay
+		self.reloadtimer = CurTime() + GAMEMODE:GetTraitReloadDelay(self)
 		self:SendWeaponAnim(ACT_SHOTGUN_RELOAD_START)
 		self.Owner:RestartGesture(ACT_HL2MP_GESTURE_RELOAD_SHOTGUN)
 	end
@@ -57,14 +58,14 @@ end
 
 function SWEP:Think()
 	if self.reloading and self.reloadtimer < CurTime() then
-		self.reloadtimer = CurTime() + self.ReloadDelay
+		self.reloadtimer = CurTime() + GAMEMODE:GetTraitReloadDelay(self)
 		self:SendWeaponAnim(ACT_VM_RELOAD)
 
 		self.Owner:RemoveAmmo(1, self.Primary.Ammo, false)
 		self:SetClip1(self:Clip1() + 1)
 
 		if self.Primary.ClipSize <= self:Clip1() or self.Owner:GetAmmoCount(self.Primary.Ammo) <= 0 then
-			self.nextreloadfinish = CurTime() + self.ReloadDelay
+			self.nextreloadfinish = CurTime() + GAMEMODE:GetTraitReloadDelay(self)
 			self.reloading = false
 			self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
 		end

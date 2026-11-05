@@ -19,6 +19,9 @@ end
 
 function ENT:OnRemove()
 	self.AmbientSound:Stop()
+	local emitter = self.CloudEmitter
+	self.CloudEmitter = nil
+	if emitter and emitter:IsValid() then emitter:Finish() end
 end
 
 function ENT:Draw()
@@ -45,38 +48,48 @@ function ENT:Draw()
 	local offset, particle
 	local axis = AngleRand()
 
-	local emitter = ParticleEmitter(pos)
-	emitter:SetNearClip(12, 16)
+	local emitter = self.CloudEmitter
+	if not emitter or not emitter:IsValid() then
+		emitter = ParticleEmitter(pos)
+		if not emitter then return end
+		self.CloudEmitter = emitter
+		emitter:SetNearClip(12, 16)
+	else
+		emitter:SetPos(pos)
+	end
 
 	for i=1, 180 do
 		axis.roll = axis.roll + 2
 		offset = axis:Up()
 
 		particle = emitter:Add("sprites/glow04_noz", pos + offset)
-		particle:SetVelocity(offset * math.Rand(500, 600))
-		particle:SetColor(30, 225, 30)
-		particle:SetAirResistance(300)
-		particle:SetDieTime(math.Rand(1.25, 2.5))
-		particle:SetStartAlpha(245)
-		particle:SetEndAlpha(0)
-		particle:SetStartSize(1)
-		particle:SetEndSize(math.Rand(12, 15))
-		particle:SetRoll(math.Rand(0, 360))
-		particle:SetRollDelta(math.Rand(-10, 10))
+		if particle then
+			particle:SetVelocity(offset * math.Rand(500, 600))
+			particle:SetColor(30, 225, 30)
+			particle:SetAirResistance(300)
+			particle:SetDieTime(math.Rand(1.25, 2.5))
+			particle:SetStartAlpha(245)
+			particle:SetEndAlpha(0)
+			particle:SetStartSize(1)
+			particle:SetEndSize(math.Rand(12, 15))
+			particle:SetRoll(math.Rand(0, 360))
+			particle:SetRollDelta(math.Rand(-10, 10))
+		end
 		--particle:SetCollide(true)
 	end
 
 	for i=1, 20 do
 		particle = emitter:Add("sprites/glow04_noz", pos)
-		particle:SetVelocity(VectorRand() * 8)
-		particle:SetColor(60, 255, 60)
-		particle:SetDieTime(2)
-		particle:SetStartAlpha(0)
-		particle:SetEndAlpha(255)
-		particle:SetStartSize(24)
-		particle:SetEndSize(0)
-		particle:SetRoll(math.Rand(0, 360))
+		if particle then
+			particle:SetVelocity(VectorRand() * 8)
+			particle:SetColor(60, 255, 60)
+			particle:SetDieTime(2)
+			particle:SetStartAlpha(0)
+			particle:SetEndAlpha(255)
+			particle:SetStartSize(24)
+			particle:SetEndSize(0)
+			particle:SetRoll(math.Rand(0, 360))
+		end
 	end
 
-	emitter:Finish() emitter = nil collectgarbage("step", 64)
 end

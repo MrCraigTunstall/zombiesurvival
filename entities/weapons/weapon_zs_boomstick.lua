@@ -44,6 +44,8 @@ SWEP.WalkSpeed = SPEED_SLOWER
 function SWEP:SetIronsights()
 end
 
+SWEP.WeaponForgeReload = "shell"
+
 SWEP.reloadtimer = 0
 SWEP.nextreloadfinish = 0
 
@@ -53,7 +55,7 @@ function SWEP:Reload()
 	if self:GetNextReload() <= CurTime() and self:Clip1() < self.Primary.ClipSize and 0 < self.Owner:GetAmmoCount(self.Primary.Ammo) then
 		self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
 		self.reloading = true
-		self.reloadtimer = CurTime() + self.ReloadDelay
+		self.reloadtimer = CurTime() + GAMEMODE:GetTraitReloadDelay(self)
 		self:SendWeaponAnim(ACT_SHOTGUN_RELOAD_START)
 		self.Owner:DoReloadEvent()
 		self:SetNextReload(CurTime() + self:SequenceDuration())
@@ -81,7 +83,7 @@ end
 
 function SWEP:Think()
 	if self.reloading and self.reloadtimer < CurTime() then
-		self.reloadtimer = CurTime() + self.ReloadDelay
+		self.reloadtimer = CurTime() + GAMEMODE:GetTraitReloadDelay(self)
 		self:SendWeaponAnim(ACT_VM_RELOAD)
 
 		self.Owner:RemoveAmmo(1, self.Primary.Ammo, false)
@@ -89,7 +91,7 @@ function SWEP:Think()
 		self:EmitSound("Weapon_Shotgun.Reload")
 
 		if self.Primary.ClipSize <= self:Clip1() or self.Owner:GetAmmoCount(self.Primary.Ammo) <= 0 or not self.Owner:KeyDown(IN_RELOAD) then
-			self.nextreloadfinish = CurTime() + self.ReloadDelay
+			self.nextreloadfinish = CurTime() + GAMEMODE:GetTraitReloadDelay(self)
 			self.reloading = false
 			self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
 		end

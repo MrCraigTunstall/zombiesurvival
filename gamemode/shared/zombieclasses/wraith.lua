@@ -6,7 +6,7 @@ CLASS.Help = "controls_wraith"
 CLASS.Wave = 1 / 3
 CLASS.Health = 100
 CLASS.SWEP = "weapon_zs_wraith"
-CLASS.Model = Model("models/wraith_zsv1.mdl")
+CLASS.Model = Model("models/wraith_zsv2.mdl")
 CLASS.Speed = 190
 
 CLASS.Points = 4

@@ -2,8 +2,8 @@ local meta = FindMetaTable("Player")
 if not meta then return end
 
 function meta:FakeDeath(sequenceid, modelscale, length)
-	for _, ent in pairs(ents.FindByClass("fakedeath")) do
-		if ent:GetOwner() == self then
+	for _, ent in ipairs(GAMEMODE:GetZSEquipmentEntities("fakedeath")) do
+		if IsValid(ent) and not ent:IsMarkedForDeletion() and ent:GetOwner() == self then
 			ent:Remove()
 		end
 	end
@@ -91,8 +91,8 @@ function meta:ChangeTeam(teamid)
 end
 
 function meta:TrySpawnAsGoreChild()
-	for _, ent in pairs(ents.FindByClass("prop_thrownbaby")) do
-		if not ent.SpawnedOn then
+	for _, ent in ipairs(GAMEMODE:GetZSEquipmentEntities("prop_thrownbaby")) do
+		if IsValid(ent) and not ent:IsMarkedForDeletion() and not ent.SpawnedOn then
 			ent.SpawnedOn = true
 
 			local ang = self:EyeAngles()
@@ -124,7 +124,7 @@ function meta:AddLifeBarricadeDamage(amount)
 	self.LifeBarricadeDamage = self.LifeBarricadeDamage + amount
 	self.WaveBarricadeDamage = self.WaveBarricadeDamage + amount
 
-	if not self:Alive() and not self:GetZombieClassTable().NeverAlive then
+	if not self:IsBot() and not self:Alive() and not self:GetZombieClassTable().NeverAlive then
 		net.Start("zs_lifestatsbd")
 			net.WriteUInt(self.LifeBarricadeDamage, 24)
 		net.Send(self)
@@ -134,7 +134,7 @@ end
 function meta:AddLifeHumanDamage(amount)
 	self.LifeHumanDamage = self.LifeHumanDamage + amount
 
-	if not self:Alive() then
+	if not self:IsBot() and not self:Alive() then
 		net.Start("zs_lifestatshd")
 			net.WriteUInt(math.ceil(self.LifeHumanDamage), 24)
 		net.Send(self)
@@ -144,7 +144,7 @@ end
 function meta:AddLifeBrainsEaten(amount)
 	self.LifeBrainsEaten = self.LifeBrainsEaten + amount
 
-	if not self:Alive() then
+	if not self:IsBot() and not self:Alive() then
 		net.Start("zs_lifestatsbe")
 			net.WriteUInt(self.LifeBrainsEaten, 16)
 		net.Send(self)
@@ -152,6 +152,7 @@ function meta:AddLifeBrainsEaten(amount)
 end
 
 function meta:FloatingScore(victimorpos, effectname, frags, flags)
+	if self:IsBot() then return end
 	if type(victimorpos) == "Vector" then
 		net.Start("zs_floatscore_vec")
 			net.WriteVector(victimorpos)
@@ -174,23 +175,23 @@ function meta:MarkAsBadProfile()
 end
 
 function meta:CenterNotify(...)
-	net.Start("zs_centernotify")
-		net.WriteTable({...})
-	net.Send(self)
+	if not IsValid(self) or self:IsBot() then return end
+	GAMEMODE:SendNotification(self, "zs_centernotify", {...})
 end
 
 function meta:TopNotify(...)
-	net.Start("zs_topnotify")
-		net.WriteTable({...})
-	net.Send(self)
+	if not IsValid(self) or self:IsBot() then return end
+	GAMEMODE:SendNotification(self, "zs_topnotify", {...})
 end
 
 function meta:RefreshDynamicSpawnPoint()
+	local gm = GAMEMODE
 	local target = self:GetObserverTarget()
-	if (GAMEMODE:GetDynamicSpawning() and self:GetObserverMode() == OBS_MODE_CHASE and target and target:IsValid()) and
-			(self.ZombieEscape and target:IsPlayer() and target:Team() == TEAM_UNDEAD
-			or not self.ZombieEscape and target:GetClass() == "prop_creepernest" and target:GetNestBuilt()
-			or string.sub(target:GetClass(), 1, 12) == "info_player_") then
+	local class = IsValid(target) and not target:IsMarkedForDeletion() and target:GetClass()
+	if gm:GetDynamicSpawning() and self:GetObserverMode() == OBS_MODE_CHASE and class and
+			(gm.ZombieEscape and target:IsPlayer() and target:Team() == TEAM_UNDEAD
+			or not gm.ZombieEscape and class == "prop_creepernest" and target:GetNestBuilt()
+			or string.sub(class, 1, 12) == "info_player_") then
 		self.ForceDynamicSpawn = target
 		self.ForceSpawnAngles = self:EyeAngles()
 	else
@@ -250,16 +251,17 @@ function meta:GiveEmptyWeapon(weptype)
 	end
 end
 
-local OldGive = meta.Give
-function meta:Give(weptype)
+meta.ZSOriginalGive = meta.ZSOriginalGive or meta.Give
+local OldGive = meta.ZSOriginalGive
+function meta:Give(weptype, noammo)
 	if self:Team() ~= TEAM_HUMAN then
-		return OldGive(self, weptype)
+		return OldGive(self, weptype, noammo)
 	end
 
 	local weps = self:GetWeapons()
 	local autoswitch = #weps == 1 and weps[1]:IsValid() and weps[1].AutoSwitchFrom
 
-	local ret = OldGive(self, weptype)
+	local ret = OldGive(self, weptype, noammo)
 
 	if autoswitch then
 		self:SelectWeapon(weptype)
@@ -291,6 +293,7 @@ function meta:StartFeignDeath(force)
 end
 
 function meta:UpdateLegDamage()
+	if self:IsBot() then return end
 	net.Start("zs_legdamage")
 		net.WriteFloat(self.LegDamage)
 	net.Send(self)
@@ -305,7 +308,7 @@ local function RemoveSkyCade(groundent, timername)
 		return
 	end
 
-	for _, pl in pairs(player.GetAll()) do
+	for _, pl in player.Iterator() do
 		if pl:Alive() and pl:GetGroundEntity() == groundent then
 		if groundent:GetBarricadeRepairs() ~= 0 then
 			groundent:SetBarricadeRepairs(math.max(groundent:GetBarricadeRepairs() - 10, 0))
@@ -366,50 +369,36 @@ end
 function meta:FixModelAngles(velocity)
 	local eye = self:EyeAngles()
 	self:SetLocalAngles(eye)
-	self:SetPoseParameter("move_yaw", math.NormalizeAngle(velocity:Angle().yaw - eye.y))
+	self:SetPoseParameter("move_yaw", GAMEMODE:GetAnimationMoveYaw(velocity, eye.y))
 end
 
 function meta:RemoveAllStatus(bSilent, bInstant)
-	if bInstant then
-		for _, ent in pairs(ents.FindByClass("status_*")) do
-			if not ent.NoRemoveOnDeath and ent:GetOwner() == self then
-				ent:Remove()
-			end
-		end
-	else
-		for _, ent in pairs(ents.FindByClass("status_*")) do
-			if not ent.NoRemoveOnDeath and ent:GetOwner() == self then
-				ent.SilentRemove = bSilent
-				ent:SetDie()
-			end
+	for _, ent in ipairs(GAMEMODE:GetZSEquipmentEntities("status_*", true)) do
+		if IsValid(ent) and not ent.NoRemoveOnDeath and ent:GetOwner() == self then
+			if bInstant then ent:Remove() else ent.SilentRemove = bSilent; ent:SetDie() end
 		end
 	end
 end
 
 function meta:RemoveStatus(sType, bSilent, bInstant, sExclude)
 	local removed
-
-	for _, ent in pairs(ents.FindByClass("status_"..sType)) do
-		if ent:GetOwner() == self and not (sExclude and ent:GetClass() == "status_"..sExclude) then
-			if bInstant then
-				ent:Remove()
-			else
-				ent.SilentRemove = bSilent
-				ent:SetDie()
-			end
+	local excluded = sExclude and "status_" .. sExclude
+	for _, ent in ipairs(GAMEMODE:GetZSEquipmentEntities("status_" .. sType, true)) do
+		if IsValid(ent) and ent:GetOwner() == self and not (excluded and ent:GetClass() == excluded) then
+			if bInstant then ent:Remove() else ent.SilentRemove = bSilent; ent:SetDie() end
 			removed = true
 		end
 	end
-
 	return removed
 end
 
 function meta:GetStatus(sType)
 	local ent = self["status_"..sType]
-	if ent and ent:IsValid() and ent.Owner == self then return ent end
+	if IsValid(ent) and not ent:IsMarkedForDeletion() and ent.Owner == self and ent:GetOwner() == self then return ent end
 end
 
 function meta:GiveStatus(sType, fDie)
+	if sType == "knockdown" and GAMEMODE:HasPlayerTrait(self, "strongfeet") then return end
 	local cur = self:GetStatus(sType)
 	if cur then
 		if fDie then
@@ -470,7 +459,7 @@ local function SetModel(pl, mdl)
 	end
 end
 
-meta.OldCreateRagdoll = meta.CreateRagdoll
+meta.OldCreateRagdoll = meta.OldCreateRagdoll or meta.CreateRagdoll
 function meta:CreateRagdoll()
 	local status = self.status_overridemodel
 	if status and status:IsValid() then
@@ -490,6 +479,8 @@ function meta:DropWeaponByType(class)
 		local ent = ents.Create("prop_weapon")
 		if ent:IsValid() then
 			ent:SetWeaponType(class)
+			ent.ZSCrafter = wep.ZSCrafter
+			ent.ZSForgeLevel = GAMEMODE:GetWeaponForgeLevel(wep)
 			ent:Spawn()
 
 			if wep.AmmoIfHas then
@@ -606,24 +597,38 @@ function meta:TakeTokens(pts)
 end
 
 function meta:UpdateAllZombieClasses()
-	for _, pl in pairs(player.GetAll()) do
+	if self:IsBot() then return end
+	local entries, count = {}, 0
+	local function SendBatch()
+		net.Start("zs_zclass_snapshot")
+		net.WriteUInt(count, 8)
+		for i = 1, count * 2, 2 do
+			net.WriteUInt(entries[i]:UserID(), 32)
+			net.WriteUInt(entries[i + 1], 8)
+		end
+		net.Send(self)
+		count = 0
+	end
+	for _, pl in player.Iterator() do
 		if pl ~= self and pl:Team() == TEAM_UNDEAD then
 			local id = pl:GetZombieClass()
 			if id and 0 < id then
-				net.Start("zs_zclass")
-					net.WriteEntity(pl)
-					net.WriteUInt(id, 8)
-				net.Send(self)
+				count = count + 1
+				entries[count * 2 - 1], entries[count * 2] = pl, id
+				if count == 128 then SendBatch() end
 			end
 		end
 	end
+	if count > 0 then SendBatch() end
 end
 
 function meta:CreateAmbience(class)
 	class = "status_"..class
+	local current = self[class]
+	if IsValid(current) and not current:IsMarkedForDeletion() and current:GetOwner() == self then return end
 
-	for _, ent in pairs(ents.FindByClass(class)) do
-		if ent:GetOwner() == self then return end
+	for _, ent in ipairs(GAMEMODE:GetZSEquipmentEntities(class, true)) do
+		if IsValid(ent) and not ent:IsMarkedForDeletion() and ent:GetOwner() == self then return end
 	end
 
 	local ent = ents.Create(class)
@@ -638,8 +643,9 @@ end
 
 function meta:SetZombieClass(cl, onlyupdate, filter)
 	if onlyupdate then
+		if filter == self and self:IsBot() then return end
 		net.Start("zs_zclass")
-			net.WriteEntity(self)
+			net.WriteUInt(self:UserID(), 32)
 			net.WriteUInt(cl, 8)
 		if filter then
 			net.Send(filter)
@@ -654,6 +660,10 @@ function meta:SetZombieClass(cl, onlyupdate, filter)
 
 	local classtab = GAMEMODE.ZombieClasses[cl]
 	if classtab then
+		if self.Class ~= cl then
+			GAMEMODE:ResetZombieAnimation(self)
+			GAMEMODE:ClearZombieSpawnVariants(self)
+		end
 		self.Class = cl
 		if self:Team() == TEAM_UNDEAD then
 			self:DoHulls(cl)
@@ -661,7 +671,7 @@ function meta:SetZombieClass(cl, onlyupdate, filter)
 		self:CallZombieFunction("SwitchedTo")
 
 		net.Start("zs_zclass")
-			net.WriteEntity(self)
+			net.WriteUInt(self:UserID(), 32)
 			net.WriteUInt(cl, 8)
 		if filter then
 			net.Send(filter)
@@ -761,8 +771,11 @@ function meta:Redeem()
 end
 
 function meta:RedeemNextFrame()
+	if self.ZSRedeemPending then return end
+	self.ZSRedeemPending = true
 	timer.Simple(0, function()
 		if IsValid(self) then
+			self.ZSRedeemPending = nil
 			self:CheckRedeem(true)
 		end
 	end)
@@ -782,11 +795,13 @@ end
 meta.GetBrains = meta.Frags
 
 function meta:CheckRedeem(instant)
-	if not self:IsValid() or self:Team() ~= TEAM_UNDEAD
-	or GAMEMODE:GetRedeemBrains() <= 0 or self:GetBrains() < GAMEMODE:GetRedeemBrains()
-	or GAMEMODE.NoRedeeming or self.NoRedeeming or self:GetZombieClassTable().Boss then return end
-
-	if GAMEMODE:GetWave() ~= GAMEMODE:GetNumberOfWaves() or not GAMEMODE.ObjectiveMap and GAMEMODE:GetNumberOfWaves() == 1 and CurTime() < GAMEMODE:GetWaveEnd() - 300 then
+	if not self:IsValid() or self:Team() ~= TEAM_UNDEAD then return end
+	local gm = GAMEMODE
+	local required = gm:GetRedeemBrains()
+	if required <= 0 or self:GetBrains() < required
+	or gm.NoRedeeming or self.NoRedeeming or self:GetZombieClassTable().Boss then return end
+	local waves = gm:GetNumberOfWaves()
+	if gm:GetWave() ~= waves or not gm.ObjectiveMap and waves == 1 and CurTime() < gm:GetWaveEnd() - 300 then
 		if instant then
 			self:Redeem()
 		else
@@ -819,6 +834,7 @@ end
 
 function meta:GivePointPenalty(amount)
 	self:SetFrags(self:Frags() - amount)
+	if self:IsBot() then return end
 
 	net.Start("zs_penalty")
 		net.WriteUInt(amount, 16)
@@ -832,75 +848,8 @@ function meta:ReflectDamage(damage)
 	end
 end
 
-function meta:GiveWeaponByType(weapon, plyr, ammo)
-	local wep = self:GetActiveWeapon()
-	if not wep or not wep:IsValid() then return end
-
-	if wep.NoTransfer then return end
-
-	if ammo or wep.AmmoIfHas then
-		if not wep.Primary then return end
-
-		local ammotype = wep:ValidPrimaryAmmo()
-		local ammocount = wep:GetPrimaryAmmoCount()
-		if ammotype and ammocount then
-			local desiredgive = math.min(ammocount, math.ceil((GAMEMODE.AmmoCache[ammotype] or wep.Primary.ClipSize) * (ammo and 5 or 1)))
-			if desiredgive >= 1 then
-				wep:TakeCombinedPrimaryAmmo(desiredgive)
-				plyr:GiveAmmo(desiredgive, ammotype)
-
-				net.Start("zs_ammogive")
-					net.WriteUInt(desiredgive, 16)
-					net.WriteString(ammotype)
-					net.WriteEntity(plyr)
-				net.Send(self)
-
-				net.Start("zs_ammogiven")
-					net.WriteUInt(desiredgive, 16)
-					net.WriteString(ammotype)
-					net.WriteEntity(self)
-				net.Send(plyr)
-
-				self:PlayGiveAmmoSound()
-				self:RestartGesture(ACT_GMOD_GESTURE_ITEM_GIVE)
-			end
-		end
-	end
-
-	local primary = wep:ValidPrimaryAmmo()
-	if primary and 0 < wep:Clip1() then
-		self:GiveAmmo(wep:Clip1(), primary, true)
-		wep:SetClip1(0)
-	end
-	local secondary = wep:ValidSecondaryAmmo()
-	if secondary and 0 < wep:Clip2() then
-		self:GiveAmmo(wep:Clip2(), secondary, true)
-		wep:SetClip2(0)
-	end
-
-	self:StripWeapon(weapon:GetClass())
-	self:UpdateAltSelectedWeapon()
-
-	local wep2 = plyr:Give(weapon:GetClass())
-	if wep2 and wep2:IsValid() then
-		if wep2.Primary then
-			primary = wep2:ValidPrimaryAmmo()
-			if primary then
-				wep2:SetClip1(0)
-				plyr:RemoveAmmo(math.max(0, wep2.Primary.DefaultClip - wep2.Primary.ClipSize), primary)
-			end
-		end
-		if wep2.Secondary then
-			secondary = wep2:ValidSecondaryAmmo()
-			if secondary then
-				wep2:SetClip2(0)
-				plyr:RemoveAmmo(math.max(0, wep2.Secondary.DefaultClip - wep2.Secondary.ClipSize), secondary)
-			end
-		end
-	end
-end
-
 function meta:UpdateAltSelectedWeapon()
+	if self:IsBot() then return end
 	net.Start("zs_updatealtselwep")
 	net.Send(self)
 end
@@ -917,7 +866,8 @@ function meta:Gib()
 
 	self.Gibbed = CurTime()
 
-	timer.Simple(0, function() GAMEMODE:CreateGibs(pos, pos2) end)
+	GAMEMODE:ReturnZombieGib(self, pos)
+	timer.Simple(0, function() GAMEMODE:CreateGibs(pos, headoffset) end)
 end
 
 function meta:GetLastAttacker()
@@ -940,10 +890,10 @@ function meta:SetLastAttacker(ent)
 	end
 end
 
-meta.OldUnSpectate = meta.UnSpectate
+meta.OldUnSpectate = meta.OldUnSpectate or meta.UnSpectate
 function meta:UnSpectate()
 	if self:GetObserverMode() ~= OBS_MODE_NONE then
-		self:OldUnSpectate(obsm)
+		self:OldUnSpectate()
 	end
 end
 
@@ -980,8 +930,9 @@ function meta:PlayZombieDeathSound()
 end
 
 function meta:PlayPainSound()
-	if CurTime() < self.NextPainSound then return end
-	self.NextPainSound = CurTime() + 0.5
+	local now = CurTime()
+	if now < self.NextPainSound then return end
+	self.NextPainSound = now + 0.5
 
 	local rf = RecipientFilter()
 	rf:AddPAS(self:GetPos())
@@ -992,8 +943,9 @@ function meta:PlayPainSound()
 end
 
 function meta:PlayZombiePainSound()
-	if CurTime() < self.NextPainSound then return end
-	self.NextPainSound = CurTime() + 0.5
+	local now = CurTime()
+	if now < self.NextPainSound then return end
+	self.NextPainSound = now + 0.5
 
 	local rf = RecipientFilter()
 	rf:AddPAS(self:GetPos())

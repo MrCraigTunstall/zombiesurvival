@@ -1,72 +1,33 @@
 include("shared.lua")
 
+function ENT:BindPackOwner()
+ local owner = self:GetOwner()
+ if not IsValid(owner) then return end
+ self.PackOwner = owner
+ self.Owner = owner
+ local data = owner:GetTable()
+ data.PackUp = self
+ data.status_packup = self
+end
+
 function ENT:Initialize()
-	self:DrawShadow(false)
-	self:SetRenderBounds(Vector(-40, -40, -18), Vector(40, 40, 80))
-
-	if self:GetStartTime() == 0 then
-		self:SetStartTime(CurTime())
-	end
-
-	self:GetOwner().PackUp = self
+ self:DrawShadow(false)
+ self:SetRenderBounds(Vector(-40, -40, -18), Vector(40, 40, 80))
+ self:BindPackOwner()
 end
 
 function ENT:OnRemove()
+ local owner = self.PackOwner or self:GetOwner()
+ self.PackOwner = nil
+ if not IsValid(owner) then return end
+ local data = owner:GetTable()
+ if data.PackUp == self then data.PackUp = nil end
+ if data.status_packup == self then data.status_packup = nil end
 end
 
 function ENT:Think()
+ if not IsValid(self.PackOwner) then self:BindPackOwner() end
 end
 
 function ENT:Draw()
-
 end
-
-hook.Add("HUDPaint", "HUDPaint_Packup", function()
-	local packup = LocalPlayer().PackUp
-	if packup and packup:IsValid() then
-		DrawPackUpBar(ScrW() * 0.5, ScrH() * 0.55, 1 - packup:GetTimeRemaining() / packup:GetMaxTime(), packup:GetNotOwner(), BetterScreenScale())
-	end
-end)
-
-local colPackUp = Color(20, 255, 20, 220)
-local colPackUpNotOwner = Color(255, 240, 10, 220)
-function DrawPackUpBar(x, y, fraction, notowner, screenscale)
-	local col = notowner and colPackUpNotOwner or colPackUp
-
-	local maxbarwidth = 270 * screenscale
-	local barheight = 11 * screenscale
-	local barwidth = maxbarwidth * math.Clamp(fraction, 0, 1)
-	local startx = x - maxbarwidth * 0.5
-
-	surface.SetDrawColor(0, 0, 0, 220)
-	surface.DrawRect(startx, y, maxbarwidth, barheight)
-	surface.SetDrawColor(col)
-	surface.DrawRect(startx + 3, y + 3, barwidth - 6, barheight - 6)
-	surface.DrawOutlinedRect(startx, y, maxbarwidth, barheight)
-
-	draw.SimpleText(notowner and CurTime() % 2 < 1 and translate.Format("requires_x_people", 4) or notowner and translate.Get("packing_others_object") or translate.Get("packing"), "ZSHUDFontSmall", x, y - draw.GetFontHeight("ZSHUDFontSmall") - 2, col, TEXT_ALIGN_CENTER)
-end
-
---local colPackUp = Color(20, 255, 20, 220)
---local colPackUpNotOwner = Color(255, 240, 10, 220)
---function GM:DrawPackUpBar(x, y, fraction, notowner, screenscale)
---	local col = notowner and colPackUpNotOwner or colPackUp
---
---	local maxbarwidth = 270 * screenscale
---	local barheight = 11 * screenscale
---	local barwidth = maxbarwidth * math.Clamp(fraction, 0, 1)
---	local startx = x - maxbarwidth * 0.5
---
---	surface_SetDrawColor(0, 0, 0, 220)
---	surface_DrawRect(startx, y, maxbarwidth, barheight)
---	surface_SetDrawColor(col)
---	surface_DrawRect(startx + 3, y + 3, barwidth - 6, barheight - 6)
---	surface_DrawOutlinedRect(startx, y, maxbarwidth, barheight)
---
---	draw_SimpleText(notowner and CurTime() % 2 < 1 and translate.Format("requires_x_people", 4) or notowner and translate.Get("packing_others_object") or translate.Get("packing"), "ZSHUDFontSmall", x, y - draw_GetFontHeight("ZSHUDFontSmall") - 2, col, TEXT_ALIGN_CENTER)
---end
-
---local packup = MySelf.PackUp
---if packup and packup:IsValid() then
---	self:DrawPackUpBar(w * 0.5, h * 0.55, 1 - packup:GetTimeRemaining() / packup:GetMaxTime(), packup:GetNotOwner(), screenscale)
---end

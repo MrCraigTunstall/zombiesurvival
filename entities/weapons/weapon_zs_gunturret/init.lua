@@ -40,11 +40,8 @@ function SWEP:PrimaryAttack()
 
 	local status = owner.status_ghost_gunturret
 	if not (status and status:IsValid()) then return end
-	status:RecalculateValidity()
-	if not status:GetValidPlacement() then return end
-
 	local pos, ang = status:RecalculateValidity()
-	if not pos or not ang then return end
+	if not pos or not ang or not status:GetValidPlacement() then return end
 
 	self:SetNextPrimaryAttack(CurTime() + self.Primary.Delay)
 
@@ -93,5 +90,6 @@ function SWEP:PrimaryAttack()
 		if self:GetPrimaryAmmoCount() <= 0 then
 			owner:StripWeapon(self:GetClass())
 		end
+		GAMEMODE:ReturnEquipmentRisk(owner, ent)
 	end
 end

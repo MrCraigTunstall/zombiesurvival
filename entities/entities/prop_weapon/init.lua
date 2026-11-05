@@ -103,6 +103,9 @@ function ENT:GiveToActivator(activator, caller)
 	if not self.PlacedInMap or not GAMEMODE.MaxWeaponPickups or (activator.WeaponPickups or 0) < GAMEMODE.MaxWeaponPickups or team.NumPlayers(TEAM_HUMAN) <= 1 then
 		local wep = (self.PlacedInMap and not self.Empty) and activator:Give(weptype) or activator:GiveEmptyWeapon(weptype)
 		if wep and wep:IsValid() and wep:GetOwner():IsValid() then
+			wep.ZSCrafter = self.ZSCrafter
+			local level = self.ZSForgeLevel
+			if level and level > 0 and GAMEMODE:ApplyWeaponForge(wep, level) then wep:SetNWInt("ZSForgeLevel", level) end
 			if self:GetShouldRemoveAmmo() then
 				wep:SetClip1(self:GetClip1())
 				wep:SetClip2(self:GetClip2())

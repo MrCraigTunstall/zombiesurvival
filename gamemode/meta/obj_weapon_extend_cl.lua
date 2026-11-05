@@ -7,22 +7,103 @@ function meta:DrawWeaponCrosshair()
 	self:DrawCrosshairDot()
 end
 
+function meta:DrawCrosshair()
+	if GetConVarNumber("zs_crosshair") ~= 0 then return end
+
+	self:DrawCrosshairCross()
+	self:DrawCrosshairDot()
+end
+
 local ironsightscrosshair = CreateClientConVar("zs_ironsightscrosshair", "0", true, false):GetBool()
 cvars.AddChangeCallback("zs_ironsightscrosshair", function(cvar, oldvalue, newvalue)
 	ironsightscrosshair = tonumber(newvalue) == 1
 end)
 
---local CrossHairScale = 1
+local CrossHairScale = 1
 local matGrad = Material("VGUI/gradient-r")
 local function DrawLine(x, y, rot)
-	local thickness = GAMEMODE.CrosshairThickness
-
 	rot = 270 - rot
 	surface.SetMaterial(matGrad)
-	surface.SetDrawColor(0, 0, 0, GAMEMODE.CrosshairColor.a)
-	surface.DrawTexturedRectRotated(x, y, 14, math.max(4 * thickness, 2 + 2 * thickness), rot)
+	surface.SetDrawColor(0, 0, 0, 220)
+	surface.DrawTexturedRectRotated(x, y, 14, 4, rot)
 	surface.SetDrawColor(GAMEMODE.CrosshairColor)
-	surface.DrawTexturedRectRotated(x, y, 12, 2 * thickness, rot)
+	surface.DrawTexturedRectRotated(x, y, 12, 2, rot)
+end
+
+function meta:DrawCrosshairCross()
+	local ironsights = self.GetIronsights and self:GetIronsights()
+	local cone = self:GetCone()
+	if cone <= 0 or ironsights and not ironsightscrosshair then return end
+	local pl = LocalPlayer()
+	if not IsValid(pl) then return end
+	local x, y = ScrW() * 0.5, ScrH() * 0.5
+	if self.useThirdPerson or GAMEMODE.PlayerThirdPerson then
+		local start = pl:GetShootPos()
+		local tr = util.TraceLine({start = start, endpos = start + pl:GetAimVector() * 9999, filter = pl})
+		local pos = tr.HitPos:ToScreen()
+		x, y = pos.x, pos.y
+	end
+
+	cone = ScrH() / 76.8 * cone
+	CrossHairScale = math.Approach(CrossHairScale, cone, FrameTime() * math.max(5, math.abs(CrossHairScale - cone) * 0.02))
+	local midarea = 40 * CrossHairScale
+	local ang = Angle(0, 0, 0)
+	for i = 0, 359, 360 / 4 do
+		ang.roll = i
+		local p = ang:Up() * midarea
+		DrawLine(math.Round(x + p.y), math.Round(y + p.z), ang.roll)
+	end
+end
+
+function meta:DrawCrosshairDot()
+	local pl = LocalPlayer()
+	if not IsValid(pl) then return end
+	local thirdperson = self.useThirdPerson or GAMEMODE.PlayerThirdPerson or pl:CallZombieFunction("ShouldDrawLocalPlayer")
+	local x, y = ScrW() * 0.5, ScrH() * 0.5
+	if thirdperson then
+		local start = pl:GetShootPos()
+		local tr = util.TraceLine({start = start, endpos = start + pl:GetAimVector() * 9999, filter = pl})
+		local pos = tr.HitPos:ToScreen()
+		x, y = pos.x, pos.y
+	end
+
+	surface.SetDrawColor(GAMEMODE.CrosshairColor2)
+	surface.DrawRect(x - 2, y - 2, 4, 4)
+	surface.SetDrawColor(0, 0, 0, 220)
+	surface.DrawOutlinedRect(x - 2, y - 2, 4, 4)
+end
+
+function meta:DrawHitMarkerDots()
+	if GetConVarNumber("zs_hitmarkers") ~= 0 then return end
+	local pl = LocalPlayer()
+	if not IsValid(pl) then return end
+	local wep = pl:GetActiveWeapon()
+	if not IsValid(wep) or not wep.Markers then return end
+	local markers = wep.Markers
+	local count = #markers
+	if count == 0 then return end
+	local fade = FrameTime() * 240
+	local write = 1
+	for read = 1, count do
+		local marker = markers[read]
+		if marker.alpha >= 5 then
+			markers[write] = marker
+			write = write + 1
+			local pos = marker.pos:ToScreen()
+			surface.SetDrawColor(0, 160, 255, marker.alpha)
+			surface.DrawLine(pos.x - 2, pos.y - 2, pos.x - 5, pos.y - 5)
+			surface.DrawLine(pos.x + 2, pos.y + 2, pos.x + 5, pos.y + 5)
+			surface.DrawLine(pos.x - 2, pos.y + 2, pos.x - 5, pos.y + 5)
+			surface.DrawLine(pos.x + 2, pos.y - 2, pos.x + 5, pos.y - 5)
+			marker.alpha = marker.alpha - fade
+		end
+	end
+	local last = #markers
+	for read = count + 1, last do
+		markers[write] = markers[read]
+		write = write + 1
+	end
+	for index = write, last do markers[index] = nil end
 end
 
 local texGradientU = Material("vgui/gradient-u")

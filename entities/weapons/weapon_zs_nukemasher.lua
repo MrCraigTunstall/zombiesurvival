@@ -26,6 +26,7 @@ SWEP.DamageType = DMG_CLUB
 SWEP.ViewModel = "models/weapons/v_sledgehammer/v_sledgehammer.mdl"
 SWEP.WorldModel = "models/weapons/w_sledgehammer.mdl"
 
+SWEP.ExplosionDamage = 800
 SWEP.MeleeDamage = 1000
 SWEP.MeleeRange = 75
 SWEP.MeleeSize = 4
@@ -54,32 +55,12 @@ end
 
 function SWEP:OnMeleeHit(hitent, hitflesh, tr)
 	local effectdata = EffectData()
-		effectdata:SetOrigin(tr.HitPos)
-		effectdata:SetNormal(tr.HitNormal)
-	util.Effect("skyhammer3", effectdata)
-end
-
-
-local function BlastDamage2NoSelf(inflictor, attacker, epicenter, radius, damage)
-    for _, ent in pairs(ents.FindInSphere(epicenter, radius)) do
-        if ent and ent:IsValid() and ent != attacker then
-            local nearest = ent:NearestPoint(epicenter)
-            if TrueVisibleFilters(epicenter, nearest, inflictor, ent) then
-                ent:TakeSpecialDamage(((radius - nearest:Distance(epicenter)) / radius) * damage, DMG_BLAST, attacker, inflictor, nearest)
-            end
-        end
-    end
-end
-
-
-function SWEP:OnMeleeHit(hitent, hitflesh, tr)
-    local effectdata = EffectData()
-        effectdata:SetOrigin(tr.HitPos)
-        effectdata:SetNormal(tr.HitNormal)
-    if IsFirstTimePredicted() then
-        util.Effect("skyhammer3", effectdata) 
-    end
-    BlastDamage2NoSelf(self, self.Owner, tr.HitPos, 650, 800)
-	self.Owner:SetGroundEntity(NULL)
-    self.Owner:SetVelocity(-420 * 1 * self.Owner:GetAimVector())
+	effectdata:SetOrigin(tr.HitPos)
+	effectdata:SetNormal(tr.HitNormal)
+	if IsFirstTimePredicted() then util.Effect("skyhammer3", effectdata) end
+	local owner = self:GetOwner()
+	if not IsValid(owner) then return end
+	if IsFirstTimePredicted() then owner:SetGroundEntity(NULL); owner:SetVelocity(owner:GetAimVector() * -420) end
+	if not SERVER then return end
+	util.BlastDamageNoAttacker(self, owner, tr.HitPos, 650, self.ExplosionDamage)
 end

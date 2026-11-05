@@ -82,6 +82,16 @@ local function viewpunch(ent, power)
 	end
 end
 
+local function QueueViewPunch(ent, power)
+	local gm = GAMEMODE
+	gm.ZSWraithPunchSerial = (gm.ZSWraithPunchSerial or 0) + 1
+	local pulse = 0
+	timer.Create("ZS.WraithPunch." .. gm.ZSWraithPunchSerial, 0.15, 5, function()
+		pulse = pulse + 1
+		viewpunch(ent, power - pulse * 0.125)
+	end)
+end
+
 function SWEP:DoAlert()
 	local owner = self.Owner
 
@@ -95,13 +105,11 @@ function SWEP:DoAlert()
 	for _, ent in pairs(ents.FindInSphere(screampos, 92)) do
 		if ent and ent:IsValid() and ent:IsPlayer() and ent:Team() == TEAM_HUMAN then
 			local entearpos = ent:EyePos()
-			local dist = screampos:Distance(entearpos)
-			if dist <= 92 and TrueVisible(entearpos, screampos) then
-				local power = (92 / dist - 1) * 2
+			local distanceSquared = screampos:DistToSqr(entearpos)
+			if distanceSquared <= 8464 and TrueVisible(entearpos, screampos) then
+				local power = (92 / math.max(1, math.sqrt(distanceSquared)) - 1) * 2
 				viewpunch(ent, power)
-				for i=1, 5 do
-					timer.Simple(0.15 * i, function() viewpunch(ent, power - i * 0.125) end)
-				end
+				QueueViewPunch(ent, power)
 			end
 		end
 	end
