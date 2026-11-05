@@ -1,7 +1,9 @@
+SWEP.PrintNameTranslation = "weapon_python"
 AddCSLuaFile()
      
     if CLIENT then
             SWEP.PrintName = translate.Get("weapon_python")
+            SWEP.TranslatedPrintName = SWEP.PrintName
             SWEP.Author     = ""
             SWEP.ViewModelFlip = false
 	SWEP.Slot = 1

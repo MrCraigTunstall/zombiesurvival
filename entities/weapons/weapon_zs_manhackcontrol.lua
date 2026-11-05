@@ -1,8 +1,12 @@
+SWEP.PrintNameTranslation = "wn_manhackcontroll"
+SWEP.DescriptionTranslation = "wn_manhackcontrolldes"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("wn_manhackcontroll")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.Description = translate.Get("wn_manhackcontrolldes")
+	SWEP.TranslatedDescription = SWEP.Description
 
 	SWEP.ViewModelFOV = 50
 

@@ -99,7 +99,7 @@ function GM:OpenGuildMenu(list, maximum, cost, adminOnly)
 	if IsValid(frame.btnMinim)then frame.btnMinim:SetVisible(false)end
 	if IsValid(frame.btnMaxim)then frame.btnMaxim:SetVisible(false)end
 	local header=vgui.Create("DLabel",frame)
-	header:SetPos(U(16),U(26));header:SetSize(U(560),U(28));header:SetText("Survivor guilds");header:SetFont("ZSMenuScaledTitle");header:SetTextColor(color_white)
+	header:SetPos(U(16),U(26));header:SetSize(U(560),U(28));header:SetText(translate.Get("guild_title"));header:SetFont("ZSMenuScaledTitle");header:SetTextColor(color_white)
 	frame.Header=header
 	frame.GuildRows={}
 	frame.OnRemove=function(panel)
@@ -111,7 +111,7 @@ function GM:OpenGuildMenu(list, maximum, cost, adminOnly)
 	status:Dock(TOP); status:DockMargin(U(12), U(10), U(12), U(6)); status:SetTall(U(42)); status:SetWrap(true); status:SetFont("ZSMenuScaledBody"); status:SetTextColor(accent)
 	frame.Status = status
 	local search = vgui.Create("DTextEntry", frame)
-	search:Dock(TOP); search:DockMargin(U(12), 0, U(12), U(8)); search:SetTall(U(30)); search:SetPlaceholderText("Search guilds");search:SetFont("ZSMenuScaledBody");frame.Search=search;StyleEntry(search)
+	search:Dock(TOP); search:DockMargin(U(12), 0, U(12), U(8)); search:SetTall(U(30)); search:SetPlaceholderText(translate.Get("guild_search"));search:SetFont("ZSMenuScaledBody");frame.Search=search;StyleEntry(search)
 	local controls = vgui.Create("DPanel", frame)
 	controls:Dock(BOTTOM); controls:DockMargin(U(12), U(4), U(12), U(12)); controls:SetTall(U(114)); controls.Paint = function()end
 	frame.EntryRows={}
@@ -126,23 +126,23 @@ function GM:OpenGuildMenu(list, maximum, cost, adminOnly)
   frame.EntryRows[#frame.EntryRows+1]={row,button,entry}
 		return entry, button
 	end
-	frame.CreateEntry, frame.CreateButton = EntryRow("New guild name (3 to 32 bytes)", "Create", "create")
-	frame.InviteEntry, frame.InviteButton = EntryRow("Exact player name or numeric user ID", "Invite", "invite")
+	frame.CreateEntry, frame.CreateButton = EntryRow(translate.Get("guild_new_name"), translate.Get("guild_create"), "create")
+	frame.InviteEntry, frame.InviteButton = EntryRow(translate.Get("guild_invite_target"), translate.Get("guild_invite"), "invite")
 	local footer = vgui.Create("DPanel", controls)
 	footer:Dock(TOP); footer:SetTall(U(36)); footer.Paint = function()end
 	local leave = vgui.Create("DButton", footer)
-	leave:Dock(LEFT); leave:SetWide(U(100)); leave:SetText("Leave guild");self:StyleShopButton(leave,false,true); leave.DoClick = function() frame:SendAction("leave") end
+	leave:Dock(LEFT); leave:SetWide(U(100)); leave:SetText(translate.Get("guild_leave"));self:StyleShopButton(leave,false,true); leave.DoClick = function() frame:SendAction("leave") end
 	frame.LeaveButton = leave
 	local refresh = vgui.Create("DButton", footer)
-	refresh:Dock(RIGHT); refresh:SetWide(U(100)); refresh:SetText("Refresh");self:StyleShopButton(refresh,false,true); refresh.DoClick = function() frame:SendAction("list") end
+	refresh:Dock(RIGHT); refresh:SetWide(U(100)); refresh:SetText(translate.Get("guild_refresh"));self:StyleShopButton(refresh,false,true); refresh.DoClick = function() frame:SendAction("list") end
 	local help = vgui.Create("DLabel", footer)
-	help:Dock(FILL); help:SetText("  !g <message> for human guild chat"); help:SetTextColor(muted); help:SetWrap(true);help:SetFont("ZSMenuScaledSmall")
+	help:Dock(FILL); help:SetText(translate.Get("guild_chat_hint")); help:SetTextColor(muted); help:SetWrap(true);help:SetFont("ZSMenuScaledSmall")
 	local pager = vgui.Create("DPanel", frame)
 	pager:Dock(BOTTOM); pager:DockMargin(U(12), U(4), U(12), U(4)); pager:SetTall(U(28)); pager.Paint = function()end
 	local previous = vgui.Create("DButton", pager)
-	previous:Dock(LEFT); previous:SetWide(U(80)); previous:SetText("Previous");self:StyleShopButton(previous,false,true);frame.Previous=previous
+	previous:Dock(LEFT); previous:SetWide(U(80)); previous:SetText(translate.Get("mm_model_previous"));self:StyleShopButton(previous,false,true);frame.Previous=previous
 	local nextPage = vgui.Create("DButton", pager)
-	nextPage:Dock(RIGHT); nextPage:SetWide(U(80)); nextPage:SetText("Next");self:StyleShopButton(nextPage,false,true);frame.NextPage=nextPage
+	nextPage:Dock(RIGHT); nextPage:SetWide(U(80)); nextPage:SetText(translate.Get("mm_model_next"));self:StyleShopButton(nextPage,false,true);frame.NextPage=nextPage
 	local page = vgui.Create("DLabel", pager)
 	page:Dock(FILL); page:SetContentAlignment(5); page:SetTextColor(muted);page:SetFont("ZSMenuScaledSmall")
 	local rows = vgui.Create("DScrollPanel", frame)
@@ -154,10 +154,10 @@ function GM:OpenGuildMenu(list, maximum, cost, adminOnly)
 	 if IsValid(button)then button.Paint=function(control,width,height)draw.RoundedBox(4,0,0,width,height,control:IsHovered()and GAMEMODE.ShopColors.hover or muted)end end
 	end
 	frame.Empty=vgui.Create("DLabel",rows:GetCanvas())frame.Empty:Dock(TOP)frame.Empty:SetTall(U(44))frame.Empty:SetWrap(true)
-	frame.Empty:SetFont("ZSMenuScaledBody")frame.Empty:SetTextColor(muted)frame.Empty:SetText("No guilds match your search.")
+	frame.Empty:SetFont("ZSMenuScaledBody")frame.Empty:SetTextColor(muted)frame.Empty:SetText(translate.Get("guild_empty"))
 	function frame:SendAction(action, text)
 		if self.Pending then return end
-		if type(text) == "string" and #text > 64 then self.Feedback = "Keep names within 64 bytes."; return end
+		if type(text) == "string" and #text > 64 then self.Feedback = translate.Get("guild_input_length"); return end
 		if Request(action, text) then self.Pending = RealTime() + 3;self.Feedback=nil;self.NextRefresh=0 end
 	end
 	function frame:RebuildGuildRows()
@@ -183,7 +183,7 @@ function GM:OpenGuildMenu(list, maximum, cost, adminOnly)
 				button.DoClick=function(control)if control.Guild then self:SendAction("join",control.Guild.name)end end
 				self.GuildRows[index]=button
 			end
-			local caption=guild.name.."   "..guild.members.."/"..self.Maximum.." members"..(guild.owner and "   OWNER" or "")
+			local caption=translate.Format("guild_members",guild.name,guild.members,self.Maximum)..(guild.owner and "   "..translate.Get("guild_owner_badge") or "")
 			if button.Caption~=caption then button.Caption=caption;button:SetText(caption);button:SetTooltip(caption)end
 			button.Guild=guild;if not button:IsVisible()then button:SetVisible(true)end
 		end
@@ -205,18 +205,34 @@ function GM:OpenGuildMenu(list, maximum, cost, adminOnly)
 		if now < (panel.NextRefresh or 0) then return end
 		panel.NextRefresh = now + 0.1
 		if not IsValid(MySelf) then panel:Remove(); return end
-		if panel.Pending and now >= panel.Pending then panel.Pending = nil; panel.Feedback = "No response. Try again." end
+		if panel.Pending and now >= panel.Pending then panel.Pending = nil; panel.Feedback = translate.Get("quest_no_response") end
 		local id, human, owner = GAMEMODE:GetGuildID(MySelf), MySelf:Team() == TEAM_HUMAN, false
 		local available = not panel.Pending and now >= nextRequest
 		local guild=panel.GuildByID[id];owner=guild and guild.owner or false
-		if panel.CreateCost~=panel.Cost then panel.CreateCost=panel.Cost;panel.CreateButton:SetText("Create (" .. panel.Cost .. ")")end
+		if panel.CreateCost~=panel.Cost then panel.CreateCost=panel.Cost;panel.CreateButton:SetText(translate.Format("guild_create_cost",panel.Cost))end
 		Enable(panel.CreateButton,human and id == 0 and available and MySelf:GetPoints() >= panel.Cost and (not panel.AdminOnly or MySelf:IsAdmin()))
 		Enable(panel.InviteButton,human and owner and available)
 		Enable(panel.LeaveButton,id > 0 and available)
 		Enable(refresh,available)
 		for _,button in ipairs(panel.GuildRows)do if button.Guild then Enable(button,human and id==0 and button.Guild.members<panel.Maximum and available)end end
-		local caption=panel.Feedback or panel.Pending and "Waiting for server..." or #panel.Guilds.." guilds. Select one to request membership; the owner must approve with an invitation."
+		local caption=panel.Feedback or panel.Pending and translate.Get("guild_waiting") or translate.Format("guild_list_help",#panel.Guilds)
 		if panel.StatusCaption~=caption then panel.StatusCaption=caption;status:SetText(caption)end
+	end
+	function frame:RefreshLanguage()
+		header:SetText(translate.Get("guild_title"))
+		search:SetPlaceholderText(translate.Get("guild_search"))
+		self.CreateEntry:SetPlaceholderText(translate.Get("guild_new_name"))
+		self.InviteEntry:SetPlaceholderText(translate.Get("guild_invite_target"))
+		self.CreateButton:SetText(translate.Format("guild_create_cost", self.Cost))
+		self.InviteButton:SetText(translate.Get("guild_invite"))
+		leave:SetText(translate.Get("guild_leave"))
+		refresh:SetText(translate.Get("guild_refresh"))
+		help:SetText(translate.Get("guild_chat_hint"))
+		previous:SetText(translate.Get("mm_model_previous"))
+		nextPage:SetText(translate.Get("mm_model_next"))
+		self.Empty:SetText(translate.Get("guild_empty"))
+		self.CreateCost, self.StatusCaption, self.NextRefresh = nil, nil, 0
+		self:RebuildGuildRows()
 	end
 	function frame:ApplyScale()
   if self.AppliedScale==GAMEMODE.MenuScale then return end
@@ -239,6 +255,11 @@ function GM:OpenGuildMenu(list, maximum, cost, adminOnly)
  RememberGuildData(frame);frame:RebuildGuildRows(); Show(frame)
 	return frame
 end
+
+hook.Add("ZSLanguageChanged", "ZSGuildMenuLanguage", function()
+	local frame = GAMEMODE and GAMEMODE.ZSGuildFrame
+	if IsValid(frame) then frame:RefreshLanguage() end
+end)
 
 hook.Add("OnScreenSizeChanged","ZSGuildMenuLayout",function()local frame=GAMEMODE.ZSGuildFrame if IsValid(frame)then Layout(frame)end end)
 

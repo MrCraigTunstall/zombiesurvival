@@ -1,6 +1,9 @@
+SWEP.PrintNameTranslation = "wn_claws"
 include("shared.lua")
 
 SWEP.PrintName = translate.Get("wn_claws")
+
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.ViewModelFOV = 60
 SWEP.DrawCrosshair = false
 

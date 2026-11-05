@@ -1,7 +1,9 @@
+SWEP.PrintNameTranslation = "worth_meathook"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("worth_meathook")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 
 	SWEP.ViewModelFlip = false
 	SWEP.ViewModelFOV = 60

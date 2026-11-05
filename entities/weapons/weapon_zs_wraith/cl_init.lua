@@ -1,6 +1,9 @@
+SWEP.PrintNameTranslation = "wn_wraith"
 include("shared.lua")
 
 SWEP.PrintName = translate.Get("wn_wraith")
+
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.ViewModelFOV = 47
 
 --[[function SWEP:Holster()

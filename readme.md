@@ -8,6 +8,8 @@ The overhaul adds a redesigned, resolution-scaled HUD and menus; server-authorit
 
 See [the update notes](docs/update-2026-11.md) for changes, installation details and the scope of the existing verification. This repository update does not update the Steam Workshop items automatically.
 
+All ten supported languages cover the current 1,418 English entries. The [translation guide](docs/translations.md) covers language settings, placeholders and catalogue updates.
+
 ## Helpful links
 
 * [Discord](https://discord.gg/0n9FJ3xt1jN7i3ZU) - Official support

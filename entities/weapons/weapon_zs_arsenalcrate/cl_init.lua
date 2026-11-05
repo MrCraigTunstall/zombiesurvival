@@ -1,7 +1,12 @@
+SWEP.PrintNameTranslation = "worth_arsenalcrate"
+SWEP.DescriptionTranslation = "ars_desk"
 include("shared.lua")
 
 SWEP.PrintName = translate.Get("worth_arsenalcrate")
+
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = translate.Get("ars_desk")
+SWEP.TranslatedDescription = SWEP.Description
 SWEP.DrawCrosshair = false
 
 SWEP.Slot = 4

@@ -1,7 +1,12 @@
+SWEP.PrintNameTranslation = "wn_detpack"
+SWEP.DescriptionTranslation = "detpack_desk"
 include("shared.lua")
 
 SWEP.PrintName = translate.Get("wn_detpack")
+
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = translate.Get("detpack_desk")
+SWEP.TranslatedDescription = SWEP.Description
 SWEP.DrawCrosshair = false
 
 SWEP.Slot = 4

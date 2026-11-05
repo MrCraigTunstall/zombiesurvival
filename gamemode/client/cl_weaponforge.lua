@@ -38,8 +38,8 @@ function GM:OpenWeaponForge()
  frame.Paint=function(_,width,height)
   draw.RoundedBox(8,0,0,width,height,background);draw.RoundedBox(8,0,0,width,U(72),colors.header)
   surface.SetDrawColor(colors.accent);surface.DrawRect(U(16),U(70),width-U(32),U(2))
-  draw.SimpleText("Weapon Forge","ZSMenuScaledTitle",U(16),U(14),color_white)
-  draw.SimpleText("Upgrade the weapon you are holding","ZSMenuScaledSmall",U(16),U(44),colors.muted)
+  draw.SimpleText(translate.Get("forge_title"),"ZSMenuScaledTitle",U(16),U(14),color_white)
+  draw.SimpleText(translate.Get("forge_subtitle"),"ZSMenuScaledSmall",U(16),U(44),colors.muted)
  end
  if IsValid(frame.btnMinim)then frame.btnMinim:SetVisible(false)end
  if IsValid(frame.btnMaxim)then frame.btnMaxim:SetVisible(false)end
@@ -85,32 +85,34 @@ function GM:OpenWeaponForge()
 		local price = GAMEMODE:GetWeaponForgePrice(level)
   if frame.Pending then
    if weapon~=frame.Pending.weapon or level~=frame.Pending.level then frame.Pending=nil;frame.Feedback=nil;frame.FeedbackUntil=nil
-   elseif now>=frame.Pending.untiltime then frame.Pending=nil;frame.Feedback="No upgrade confirmed. Try again.";frame.FeedbackUntil=now+2 end
+   elseif now>=frame.Pending.untiltime then frame.Pending=nil;frame.Feedback=translate.Get("forge_no_confirmation");frame.FeedbackUntil=now+2 end
   end
   if frame.FeedbackUntil and now>=frame.FeedbackUntil then frame.Feedback,frame.FeedbackUntil=nil,nil end
   local near=eligible and price~=nil and pl:NearArsenalCrate()or false
   local busy=eligible and price~=nil and (pl:GetBarricadeGhosting()or pl:IsHolding()or weapon.reloading or weapon.WeaponForgeReload=="heat"and weapon:GetGunState()~=0 or weapon:GetNextPrimaryFire()>now or weapon:GetNextReload()>now)or false
 		local points = IsValid(pl) and pl:GetPoints() or 0
-		local name = IsValid(weapon) and (weapon.PrintName or weapon:GetClass()) or "No active weapon"
+		local name = IsValid(weapon) and (weapon.PrintName or weapon:GetClass()) or translate.Get("forge_no_weapon")
 		local melee = IsValid(weapon) and weapon.IsMelee
-		local reload = IsValid(weapon) and weapon.WeaponForgeReload == "heat" and "Cooling / venting" or "Reload speed"
+		local reload = IsValid(weapon) and weapon.WeaponForgeReload == "heat" and translate.Get("forge_cooling") or translate.Get("forge_reload_speed")
 		if frame.ContentWeapon ~= weapon or frame.ContentName ~= name or frame.ContentLevel ~= level or frame.ContentPoints ~= points
 			or frame.ContentPending ~= frame.Pending or frame.ContentEligible ~= eligible or frame.ContentMelee ~= melee or frame.ContentReload ~= reload
-			or frame.ContentPrice~=price or frame.ContentMax~=GAMEMODE.WeaponForgeMaxLevel or frame.ContentNear~=near or frame.ContentBusy~=busy or frame.ContentFeedback~=frame.Feedback then
+			or frame.LanguageRevision~=translate.GetRevision() or frame.ContentPrice~=price or frame.ContentMax~=GAMEMODE.WeaponForgeMaxLevel or frame.ContentNear~=near or frame.ContentBusy~=busy or frame.ContentFeedback~=frame.Feedback then
 			frame.ContentWeapon, frame.ContentName, frame.ContentLevel, frame.ContentPoints = weapon, name, level, points
 			frame.ContentPending, frame.ContentEligible, frame.ContentMelee, frame.ContentReload = frame.Pending, eligible, melee, reload
 			frame.ContentPrice,frame.ContentMax,frame.ContentNear,frame.ContentBusy,frame.ContentFeedback=price,GAMEMODE.WeaponForgeMaxLevel,near,busy,frame.Feedback
+			frame.LanguageRevision=translate.GetRevision()
+			close:SetText(translate.Get("close"))
 			local nextlevel = math.min(level + 1, GAMEMODE.WeaponForgeMaxLevel)
 			local missing = price and math.ceil(price - points) or 0
-			local action=frame.Feedback or frame.Pending and "Applying upgrade..." or not eligible and "Equip a supported human weapon to upgrade."
-				or not price and "This weapon has reached the maximum tier."or not near and "Move within reach of an arsenal crate."or busy and "Finish your current action before upgrading."or points < price and "You need " .. missing .. " more " .. (missing == 1 and "point." or "points.")
-				or "Use an arsenal crate. Upgrades stay with this weapon."
-			local content = name .. "\nTier " .. level .. " / " .. GAMEMODE.WeaponForgeMaxLevel .. "     |     " .. math.floor(points) .. " points"
-				.. "\n\nDamage: " .. Bonus(level, nextlevel, 10, price) .. "\nAttack speed: " .. Bonus(level, nextlevel, 12, price)
+			local action=frame.Feedback or frame.Pending and translate.Get("forge_applying") or not eligible and translate.Get("forge_equip_supported")
+				or not price and translate.Get("forge_maximum_reached")or not near and translate.Get("forge_feedback_arsenal")or busy and translate.Get("forge_busy_help")or points < price and translate.Format(missing == 1 and "forge_point_missing" or "forge_points_missing",missing)
+				or translate.Get("forge_help")
+			local content = translate.Format("forge_summary",name,level,GAMEMODE.WeaponForgeMaxLevel,math.floor(points))
+				.. "\n\n" .. translate.Get("forge_damage") .. ": " .. Bonus(level, nextlevel, 10, price) .. "\n" .. translate.Get("forge_attack_speed") .. ": " .. Bonus(level, nextlevel, 12, price)
 				.. (melee and "" or "\n" .. reload .. ": " .. Bonus(level, nextlevel, 15, price)) .. "\n\n" .. action
 			if frame.Content ~= content then label:SetText(content); frame.Content = content end
 		end
-		local text = frame.Pending and "Waiting for upgrade..." or not eligible and "Select a supported weapon" or not price and "Fully forged"or not near and "Find an arsenal crate"or busy and "Finish your current action"or "Upgrade for " .. price .. " points"
+		local text = frame.Pending and translate.Get("forge_waiting") or not eligible and translate.Get("forge_select_weapon") or not price and translate.Get("forge_fully_upgraded")or not near and translate.Get("forge_find_arsenal")or busy and translate.Get("forge_finish_action")or translate.Format("forge_upgrade_cost",price)
 		if frame.ButtonText ~= text then button:SetText(text); frame.ButtonText = text end
   local enabled=not not(eligible and price~=nil and points>=price and near and not busy and not frame.Pending)
   if frame.ButtonEnabled~=enabled then frame.ButtonEnabled=enabled;button:SetEnabled(enabled)end

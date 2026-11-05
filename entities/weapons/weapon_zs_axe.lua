@@ -1,7 +1,9 @@
+SWEP.PrintNameTranslation = "worth_axe"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("worth_axe")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 
 	SWEP.ViewModelFOV = 55
 	SWEP.ViewModelFlip = false

@@ -453,7 +453,7 @@ function GM:OpenPointsShop()
 	bottomspace:SetTall(y + lab:GetTall() + U(34))
 	bottomspace:AlignBottom(U(8))
 	bottomspace:CenterHorizontal()
-	local forge = EasyButton(bottomspace, "Weapon Forge", U(8), U(4))
+	local forge = EasyButton(bottomspace, translate.Get("forge_title"), U(8), U(4))
 	forge:SetPos(U(8), y + lab:GetTall() + U(8))
 	forge.DoClick = function() frame:Close(); GAMEMODE:OpenWeaponForge() end
 	GAMEMODE:StyleShopButton(forge, false, true)

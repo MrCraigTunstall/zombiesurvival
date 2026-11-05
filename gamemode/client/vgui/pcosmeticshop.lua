@@ -18,6 +18,17 @@ local function RefreshActions(frame)
 	end
 end
 
+local function RefreshLanguage(frame)
+	frame.Title:SetText(translate.Get("mm_cosmetics"))
+	frame.Subtitle:SetText(translate.Get("mm_cosmetics_description"))
+	frame.Search:SetPlaceholderText(translate.Get("cosmetic_search"))
+	frame.Empty:SetText(translate.Get("cosmetic_empty"))
+	frame.Previous:SetText(translate.Get("mm_model_previous"))
+	frame.NextPage:SetText(translate.Get("mm_model_next"))
+	frame.BackButton:SetText(translate.Get("mm_back"))
+	frame.CloseButton:SetText(translate.Get("mm_close"))
+end
+
 local function Layout(frame)
  GAMEMODE:RefreshMenuScale()
  local width,height=math.min(U(940),ScrW()-32),math.min(U(600),ScrH()-64)
@@ -176,6 +187,7 @@ function GM:OpenCosmeticMenu(owned, equipped, message, show)
 		frame.OnRemove = function(panel) if GAMEMODE.ZSCosmeticFrame == panel then GAMEMODE.ZSCosmeticFrame = nil end end
 	end
 	frame.Owned, frame.Equipped, frame.Feedback, frame.Pending = owned, equipped, message, nil
+	RefreshLanguage(frame)
 	frame.NextRefresh = 0
 	if show ~= false then
 		Layout(frame)
@@ -184,3 +196,13 @@ function GM:OpenCosmeticMenu(owned, equipped, message, show)
 	if frame:IsVisible() then frame:RebuildRows() end
 	return frame
 end
+
+hook.Add("ZSLanguageChanged", "ZSCosmeticMenuLanguage", function()
+	local gm = GAMEMODE
+	local frame = gm and gm.ZSCosmeticFrame
+	if not IsValid(frame) or not frame:IsVisible() then return end
+	gm:RefreshCatalogueTranslations()
+	RefreshLanguage(frame)
+	frame.Query = nil
+	frame:RebuildRows()
+end)

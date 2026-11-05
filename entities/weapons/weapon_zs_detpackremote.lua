@@ -1,3 +1,5 @@
+SWEP.PrintNameTranslation = "wn_detpackremote"
+SWEP.DescriptionTranslation = "wn_detpackremotedes"
 AddCSLuaFile()
 
 if CLIENT then
@@ -5,7 +7,9 @@ if CLIENT then
 	SWEP.BobScale = 0.5
 	SWEP.SwayScale = 0.5
 	SWEP.PrintName = translate.Get("wn_detpackremote")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.Description = translate.Get("wn_detpackremotedes")
+	SWEP.TranslatedDescription = SWEP.Description
 
 	SWEP.Slot = 4
 	SWEP.SlotPos = 0

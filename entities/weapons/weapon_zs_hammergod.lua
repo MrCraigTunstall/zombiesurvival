@@ -1,7 +1,9 @@
+SWEP.PrintNameTranslation = "craft_hammergod"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("craft_hammergod")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 
 	SWEP.VElements = {
 		["base2"] = { type = "Model", model = "models/props_lab/teleportring.mdl", bone = "ValveBiped.Bip01", rel = "base", pos = Vector(0, -1, 0), angle = Angle(0, 180, 0), size = Vector(0.08, 0.08, 0.08), color = Color(255, 255, 255, 255), surpresslightning = false, material = "", skin = 0, bodygroup = {} },

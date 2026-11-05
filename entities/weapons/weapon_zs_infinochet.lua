@@ -1,7 +1,9 @@
+SWEP.PrintNameTranslation = "craft_infinochet"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("craft_infinochet")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.Slot = 1
 	SWEP.SlotPos = 0
 

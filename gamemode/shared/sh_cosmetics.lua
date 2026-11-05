@@ -9,10 +9,16 @@ function GM:AddCosmetic(signature,name,description,category,team,cost,data)
 	self.Cosmetics[item.ID]=item;self.CosmeticLookup[signature]=item
 	return item
 end
-GM:AddCosmetic('human_hat_1','Roadwork crown','A traffic-cone hat for survivors.',COSMETICCAT_HATS,TEAM_HUMAN,50,{model='models/props_junk/TrafficCone001a.mdl',scale=0.3,lift=5})
-GM:AddCosmetic('human_pot_hat','Tin guardian','A metal-can hat for survivors.',COSMETICCAT_HATS,TEAM_HUMAN,50,{model='models/props_junk/garbage_metalcan001a.mdl',scale=0.45,lift=5})
-GM:AddCosmetic('human_azure_halo','Azure halo','A subtle blue orbit around your shoulders.',COSMETICCAT_EFFECTS,TEAM_HUMAN,75,{color=Color(105,185,255),radius=17})
-GM:AddCosmetic('zombie_bloody_aura','Bloody aura','A crimson orbit for the undead.',COSMETICCAT_EFFECTS,TEAM_UNDEAD,75,{color=Color(210,30,45),radius=22})
+function GM:AddLocalizedCosmetic(signature,name,description,...)
+	local item=self:AddCosmetic(signature,translate.Get(name),translate.Get(description),...)
+	item.NameTranslation,item.DescriptionTranslation=name,description
+	item.TranslatedName,item.TranslatedDescription=item.Name,item.Description
+	return item
+end
+GM:AddLocalizedCosmetic('human_hat_1','cosmetic_human_hat_1','cosmetic_human_hat_1_desc',COSMETICCAT_HATS,TEAM_HUMAN,50,{model='models/props_junk/TrafficCone001a.mdl',scale=0.3,lift=5})
+GM:AddLocalizedCosmetic('human_pot_hat','cosmetic_human_pot_hat','cosmetic_human_pot_hat_desc',COSMETICCAT_HATS,TEAM_HUMAN,50,{model='models/props_junk/garbage_metalcan001a.mdl',scale=0.45,lift=5})
+GM:AddLocalizedCosmetic('human_azure_halo','cosmetic_human_azure_halo','cosmetic_human_azure_halo_desc',COSMETICCAT_EFFECTS,TEAM_HUMAN,75,{color=Color(105,185,255),radius=17})
+GM:AddLocalizedCosmetic('zombie_bloody_aura','cosmetic_zombie_bloody_aura','cosmetic_zombie_bloody_aura_desc',COSMETICCAT_EFFECTS,TEAM_UNDEAD,75,{color=Color(210,30,45),radius=22})
 function GM:GetCosmeticBalance(pl)
 	if pl:Team()==TEAM_UNDEAD then return pl:GetTokens()end
 	return pl:GetPoints()

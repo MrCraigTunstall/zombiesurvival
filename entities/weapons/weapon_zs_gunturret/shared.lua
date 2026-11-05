@@ -1,8 +1,13 @@
+SWEP.PrintNameTranslation = "wn_turret"
+SWEP.DescriptionTranslation = "worth_turret2"
 SWEP.ViewModel = "models/weapons/v_pistol.mdl"
 SWEP.WorldModel = "models/Combine_turrets/Floor_turret.mdl"
 
 SWEP.PrintName = translate.Get("wn_turret")
+
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = translate.Get("worth_turret2")
+SWEP.TranslatedDescription = SWEP.Description
 
 SWEP.AmmoIfHas = true
 

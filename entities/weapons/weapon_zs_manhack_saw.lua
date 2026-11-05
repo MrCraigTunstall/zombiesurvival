@@ -1,8 +1,12 @@
+SWEP.PrintNameTranslation = "wn_manhacksaw"
+SWEP.DescriptionTranslation = "wn_manhacksawdes"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("wn_manhacksaw")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.Description = translate.Get("wn_manhacksawdes")
+	SWEP.TranslatedDescription = SWEP.Description
 end
 
 SWEP.Base = "weapon_zs_manhack"

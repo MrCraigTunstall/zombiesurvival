@@ -22,10 +22,10 @@ translate.AddLanguage("en", "English")
 LANGUAGE.minute_points_added						= "No damage received for a whole minute! Added %d points."
 LANGUAGE.infliction_reached_class_unlocked			= "%d%% infliction has been reached! %s unlocked!"
 LANGUAGE.infliction_reached							= "%d%% of humans have died!"
-LANGUAGE.disconnect_killed							= "%s was disconnect killed by %s."
+LANGUAGE.disconnect_killed							= "%s disconnected; kill credit went to %s."
 LANGUAGE.nail_removed_by							= "%s removed a nail belonging to %s."
 LANGUAGE.removed_your_nail = "%s removed your nail."
-LANGUAGE.banned_for_life_warning					= "You're banned for life so you can't purchase anything!"
+LANGUAGE.banned_for_life_warning					= "The Banned for Life return prevents point purchases."
 LANGUAGE.need_to_be_near_arsenal_crate				= "You need to be near an Arsenal Crate to purchase items!"
 LANGUAGE.cant_purchase_right_now					= "You can't purchase anything right now."
 LANGUAGE.dont_have_enough_points					= "You don't have enough points."
@@ -91,7 +91,7 @@ LANGUAGE.escape_from_the_zombies					= "Escape from the zombies!"
 LANGUAGE.too_close_to_another_nail					= "Too close to another nail."
 LANGUAGE.object_too_damaged_to_be_used				= "That object is too damaged to be used anymore."
 LANGUAGE.thanks_for_being_a_fan_of_zs				= "Thanks for being a fan of Zombie Survival!"
-LANGUAGE.cant_remove_nails_of_superior_player		= "You can't remove the nails of a player doing so much better than you."
+LANGUAGE.cant_remove_nails_of_superior_player		= "You need a score of 75 to remove these protected nails."
 LANGUAGE.x_turned_on_noclip							= "%s turned on noclip."
 LANGUAGE.x_turned_off_noclip						= "%s turned off noclip."
 LANGUAGE.unlocked_on_wave_x							= "Unlocked on wave %d"
@@ -241,36 +241,36 @@ LANGUAGE.class_night_stalker                        = "Night Stalker"
 
 -- Class descriptions
 LANGUAGE.description_zombie							= "The basic zombie is very durable and has powerful claws.\nIt's hard to keep down, especially if not shot in the head."
-LANGUAGE.description_poison_zombie					= "This mutated zombie is not only extremely durable but has abnormal strength.\nIts body is extremely toxic and will even tear out and toss its own flesh at things too far away to hit."
-LANGUAGE.description_fast_zombie					= "This bony cadaver is much faster than other zombies.\nThey aren't much of a threat by themselves but can reach nearly any area by climbing with their razor sharp claws\nThey also have no problem hunting down weak or hurt humans."
-LANGUAGE.description_bloated_zombie					= "Their body is comprised of volatile, toxic chemicals.\nAlthough they move slower, they can take slightly more of a beating."
+LANGUAGE.description_poison_zombie					= "This mutated zombie combines exceptional durability and strength.\nIt tears toxic flesh from its own body and throws it at distant humans."
+LANGUAGE.description_fast_zombie					= "This skeletal zombie moves faster than most infected.\nIts sharp claws let it climb walls and reach distant survivors.\nIt is especially dangerous when pursuing injured humans."
+LANGUAGE.description_bloated_zombie					= "Its body is filled with volatile, toxic chemicals.\nIt moves slowly but can withstand more punishment than an ordinary zombie."
 LANGUAGE.description_ghoul							= "This zombie has highly toxic flesh.\nIt's slightly weaker than other zombies but makes up for it with its debilitating attacks.\nIts claws can debuff a human for a short time, causing increased damage from other attacks."
 LANGUAGE.description_headcrab						= "Headcrabs are what caused the initial infection.\nNo one knows where they truly came from.\nTheir method of attack is lunging with the sharp beaks on their belly."
-LANGUAGE.description_fast_headcrab					= "The male headcrab is considerably faster but less beefy than the female.\nEither way, it's equally as annoying and deadly in groups."
+LANGUAGE.description_fast_headcrab					= "This agile headcrab is faster but less durable than the ordinary headcrab.\nIt is particularly dangerous in groups."
 LANGUAGE.description_poison_headcrab				= "This Headcrab is full of deadly neurotoxins.\nOne bite is usually enough to kill an adult human.\nIt also has the ability to spit a less potent version of its poisons.\nThe spit is just as deadly if its victim is hit in the face."
 LANGUAGE.description_the_tickle_monster				= "Said to be the monster that hides in your closet at night to drag you from your bed.\nThe Tickle Monster's almost elastic arms make it extremely hard to outrun and they also make it an ideal barricade destroyer."
-LANGUAGE.description_nightmare						= "An extremely rare mutation gives the Nightmare its abnormal abilities.\nStronger than the every day zombie in almost every way, the Nightmare is a force to be reckoned with.\nOne swipe of its claws is enough to put down almost any person."
-LANGUAGE.description_pukepus						= "The rotting body of the Puke Pus is comprised entirely of organs used for the generation of poison.\nIt is capable of vomiting gallons of poison puke at a time making it extremely dangerous."
-LANGUAGE.description_bonemesh						= "Disfigured and mangled, the Bonemesh is capable of tossing blood bombs.\nEach bomb is comprised of bones and flesh that damages humans while giving precious food to other zombies."
+LANGUAGE.description_nightmare						= "A rare mutation gives the Nightmare exceptional strength.\nIts powerful claws make it a serious threat at close range."
+LANGUAGE.description_pukepus						= "The Pukepus produces large quantities of poison.\nIts poisonous vomit makes it dangerous to clustered survivors."
+LANGUAGE.description_bonemesh						= "Disfigured and mangled, Bonemesh throws bombs made of blood, flesh and bone.\nThey damage humans and provide food for other zombies."
 LANGUAGE.description_crow							= "Carrion Crows are more of a pest than they were before the infection.\nThey feed on infected flesh and become 'carriers' for the undead.\nWhy would you ever make this class not hidden?\nWhat is wrong with you?"
 LANGUAGE.description_wilowisp						= "Sometimes referred to as spirits of the dead."
 LANGUAGE.description_zombie_torso					= "You shouldn't even be seeing this."
 LANGUAGE.description_zombie_legs					= "You shouldn't even be seeing this."
 LANGUAGE.description_wraith							= "A zombie or an apparition?\nNot much is known about it besides the fact that it uses its\nunique stealth ability and sharp claws to cut things to ribbons."
 LANGUAGE.description_fast_zombie_legs				= "You shouldn't even be seeing this."
-LANGUAGE.description_chem_zombie					= "The Chem Zombie body is comprised of volatile, toxic chemicals.\nIt has no other means of attack besides being killed in hopes of blowing up next to any nearby humans."
+LANGUAGE.description_chem_zombie					= "The Chem Zombie is filled with volatile, toxic chemicals.\nIts death releases a dangerous explosion near surrounding humans."
 LANGUAGE.description_shade							= "This spectral boss resists human attacks while dark.\nAim flashlights or spotlamps at it to burn it and weaken its protection.\nIt can lift and throw movable props. Bright light breaks its grip."
 LANGUAGE.description_butcher						= "A crazed, undead butcher. It isn't very tough but anyone unlucky enough to be near it will most likely be torn to shreds."
 LANGUAGE.description_flesh_creeper					= "Flesh Creepers possess the ability to create nests.\nFrom these nests, other zombified creatures emerge.\nThe way this works is unknown but it is imperative to destroy any nests or creepers."
 LANGUAGE.description_gore_child						= "Once zombified, an unborn child becomes infected as well.\nPossessing no special abilities, their strength comes from their numbers."
-LANGUAGE.description_giga_gore_child				= "The result of a Gore Child which has been left unchecked for too long.\nA horror to behold, their massive body is the result of zombified stem cells.\nThey also become a host for Gore Children which can always be found in tow with it."
-LANGUAGE.description_reaper							= "Fast as hell an can scare the shit out of humans\n Run your foes down an eat those brains!"
-LANGUAGE.description_bastardzine                    = "Once nuggets began to roam the earth, they found hosts just like their lower headcrab kin.\n This new breed of zombie is a hybrid of mass chaos, crazy fast and deadly."
-LANGUAGE.description_burster                        = "This infected can explode if he killed."
-LANGUAGE.description_zombine						= "When a head-crab infects a Combine Soldier this horrid zombie is created.\nThis zombie is a threat to barricades mostly an is only unlocked on later waves."
-LANGUAGE.description_undertaker						= "Risen from the grave Undertaker. \nThings didn't change for him - he's still trying to put you into a tomb."
-LANGUAGE.description_night_stalker					= "The shadowed version of bastardzine. \nThis unseen entity can ambush humans and knock them back, when leaping at them. \nBut when standing still or attacking and leaping, it can be visible \nBut when moving it becomes invisible. Which make this creature a dangerous threat in darkness and shadow"
-LANGUAGE.description_boss_inferno                   = "The pits of hell an back, this zombie utilizes fire as a strength.\n Everything is touchs with its claws burst to flames.\n Most infernos near death will erupt in a big explosion."
+LANGUAGE.description_giga_gore_child				= "A Gore Child that has grown into a massive infected creature.\nIt carries smaller Gore Children and can throw them at humans."
+LANGUAGE.description_reaper							= "A fast, axe-wielding undead hunter.\nClose the distance and strike before the humans can escape."
+LANGUAGE.description_bastardzine                    = "A fast and deadly hybrid formed when a Nugget finds a host.\nIts speed makes isolated humans especially vulnerable."
+LANGUAGE.description_burster                        = "This infected creature can detonate a poison bomb and also explodes on death."
+LANGUAGE.description_zombine						= "An infected Combine soldier armed with powerful claws and a live grenade.\nReload toggles a sprint; taking damage stops it unless Zombie Guard protects the sprint.\nThe grenade must be armed while grounded, after the initial spawn delay."
+LANGUAGE.description_undertaker						= "An undead undertaker who still wants to put you in a grave.\nIts darts can heal zombies or injure humans."
+LANGUAGE.description_night_stalker					= "A stealthy relative of Bastardzine.\nIt becomes invisible while moving, but standing still, attacking or leaping reveals it.\nIts leap can ambush humans and knock them back."
+LANGUAGE.description_boss_inferno                   = "This fiery zombie uses incendiary claws to set its victims alight.\nA near-death Inferno can erupt in a powerful explosion."
 
 
 -- Class control schemes
@@ -295,10 +295,10 @@ LANGUAGE.controls_gore_child						= "> PRIMARY: Claws"
 LANGUAGE.controls_giga_gore_child					= "> PRIMARY: Smash\n> SECONDARY: Throw Gore Child"
 LANGUAGE.controls_reaper							= "> PRIMARY: Axe\n> RELOAD: Moan"
 LANGUAGE.controls_burster                           = "> PRIMARY: Poison Bomb\n> ON DEATH: Poison Bomb"
-LANGUAGE.controls_zombine							= "> PRIMARY: Claws\n> SECONDARY: Grenade"	
-LANGUAGE.controls_undertaker						= "> PRIMARY: Hit\n> SECONDARY: Throw dart, that can heal zombies and damage humans."
-LANGUAGE.controls_night_stalker                     = "> PRIMARY: Claws\n> SECONDARY: Lunge / Climb (next to wall)\n> RELOAD: Scream \n> INVISIBILITY WHEN MOVING"
-LANGUAGE.controls_boss_inferno                      = "> PRIMARY: Incendiary Claws\n> SECONDARY: N/A\n> RELOAD: Moan\n> SPRINT: Regenerate"
+LANGUAGE.controls_zombine							= "> PRIMARY: Claws\n> SECONDARY: Arm grenade while grounded\n> RELOAD: Toggle sprint"	
+LANGUAGE.controls_undertaker						= "> PRIMARY: Strike\n> SECONDARY: Fire a dart that heals zombies or damages humans"
+LANGUAGE.controls_night_stalker                     = "> PRIMARY: Claws\n> SECONDARY: Lunge / climb beside a wall\n> RELOAD: Scream\n> INVISIBLE WHILE MOVING"
+LANGUAGE.controls_boss_inferno                      = "> PRIMARY: Incendiary claws\n> RELOAD: Moan\n> SPRINT: Regenerate"
 
 -- The help file... Quite big! I wouldn't blame you if you didn't translate this part.
 LANGUAGE.help_cat_introduction						= "Introduction"
@@ -306,105 +306,39 @@ LANGUAGE.help_cat_survival							= "Survival"
 LANGUAGE.help_cat_barricading						= "Barricading"
 LANGUAGE.help_cat_upgrades							= "Upgrades"
 LANGUAGE.help_cat_being_a_zombie					= "Being a Zombie"
-LANGUAGE.help_cont_introduction						= [[<p>    Welcome to Zombie Survival, the (zombie) survival simulator. ZS allows you to fight zombie attacks, create barricades, and even be part of the undead horde.</p>
-
-<p>There are two teams: the survivors and the zombies. The humans win if they survive every wave. Some levels have special objectives to be completed, which may be optional or required to win.
-If a human is killed then they'll come back as a zombie, which makes it even more difficult for the remaining humans.</p>
-
-<p>The goal for the zombies is to kill all of the humans, making them all zombies and causing everyone to lose the round.
-Zombies can earn redemption by meeting the server's kill requirement. When the current mode allows it, redemption offers a chance to return to the human team.
-The humans win by surviving the round or completing the map's escape objectives. The zombies win by eliminating the surviving humans.</p>
-
-<p>A certain amount of people are chosen (or volunteer) for being the starting zombies. The number of starting zombies is shown before the round starts.</p>
-
-<p><b>Use the buttons up top to get help on more specific things.</b></p>
-
-<p>Tips for this section:
-<ul><li>If you leave the game as a human then you'll rejoin as a zombie.</li>
-<li>After a certain amount of time has gone by, even new players will spawn as zombies.</li>
-<li>Use TEAM CHAT when needed. The default key is U and allows you to speak to only your team.</li>
-</ul></p>
-]]
-LANGUAGE.help_cont_survival							= [[<p>Tips for this section:
-<ul><li>Holding the ZOOM key (default: Z) allows you to move freely through barricades while walking extremely slow.</li>
-<li>Use an Arsenal Crate or the mode's trader to buy equipment. Intermissions can offer discounts; shop access depends on the mode. You can also recover supplies from fallen teammates.</li>
-<li>If a human is directly killed by a zombie then they will rise again wherever they stand. Make sure you end their misery before they give you any.</li>
-<li>You're only given a certain amount of Worth to play with so think carefully what you should get!</li>
-<li>You can create, save, load, delete, and mark as default carts by pressing F2. This saves a ton of time which could be better spent setting up barricades or creating game plans.</li>
-<li>A spot that feels safe one moment may be a death trap with more or different types of zombies roaming around. Always allow extra space and a "Plan B" if things get ugly.</li>
-<li>You're useless to your team if you're not doing anything to help. You're even more useless to yourself since you're not getting any points or bigger weapons!</li>
-<li>By holding your SPRINT key for about ten seconds while looking at deployed objects that you own, you can pack them up for later use.</li>
-<li>Turrets without owners (a blue light) can be claimed by pressing USE on them. Ownerless turrets will not scan for targets!</li>
-<li>Props that aren't nailed to something don't make very good barricades unless they're really heavy.</li>
-<li>With enough punishment, doors can be thrown off their hinges.</li>
-<li>Most props will become red with more and more damage.</li>
-<li>Zombies can spawn on top of each other if no humans are around to witness it.</li>
-<li>Most melee weapons have a longer reach than zombie claws. Use this to your advantage if you insist on defending with a melee weapon.</li>
-<li>Players on the same team do not damage or collide with each other and can freely shoot and swing through each other.</li>
-<li>Make sure you use a barricade to your advantage and stay behind it a good distance away from the zombies. Guns generally outrange zombie claws. Keep your distance while defending.</li>
-<li>Poison damage will heal over time but enough of it can still kill you.</li>
-<li>Your team members aren't always right, don't be a sheep! Zombies like to kill sheep.</li>
-<li>Zombies can see your health, even through walls. Make sure to fall back when hurt as zombies will most likely try to pick you off.</li>
-<li>Don't hide, zombies can sense you through walls and in complete darkness.</li>
-<li>The Horde Meter shows your damage and knockback resistance. Stay close to other zombies when attacking strongholds.</li>
-<li>If you don't have enough zombies to take down a barricade, try hunting for new "team mates" elsewhere.</li>
-<li>Don't shoot zombies in the green gas! It quickly heals them and you're only wasting ammunition!</li>
-<li>Zombies are resistant to damage in the chest and even more so in the arms and legs. Make sure you're aiming for the head as some zombies have the ability to get up again if you don't!</li>
-<li>Although zombies take less damage in the legs, shooting them there will slow them down for a short time, enough to allow you or a team member to escape.</li>
-</ul></p>
-]]
-LANGUAGE.help_cont_barricading						= [[<p>Barricading is an extremely important part of survival. It may seem like the undead aren't a threat early on but eventually they'll be powerful enough to kill your entire team in a few seconds.</p>
-
-<p>The only thing keeping the zombies out is a well-built and well-maintained barricade.</p>
-
-<p>There are a couple of tools that give you the ability to set this up. The one most useful tool is the hammer and nails. This allows you to nail down props which then must have the nails destroyed in order for the zombies to get to you.
-Position the prop you want to nail by pressing USE on it to pick it up. You can hold SPRINT while holding it to lock it in place. Then take your hammer and right click where you want the nail to go. It's a good idea to nail the prop to a sturdy object such as a wall instead of other props.
-Remember, when a prop is nailed it will forward the damage it takes to the nails themselves. You can repair nails by hitting them with the hammer but eventually they'll become too damaged to repair anymore. You can hold SHIFT with the hammer out to get a view of every single nail deployed on your screen as well as the owner.
-If you think a nail is in a bad place or you'd like to reposition a prop, you can remove nails by pointing at it and pressing RELOAD. Be warned, if you take a nail that doesn't belong to you then you will be given a point penalty.
-One more thing to remember: nails take less damage when they're nailed to bigger props. The bigger the size of the prop, the less damage its nails take and the other way around.</p>
-
-<p>One other tool is the 'Aegis' Barricade Kit. This quick-deploying tool allows you to place boards on any surface or deploy them between two walls. It doesn't even need props. To use it, you need to position a board in a spot that is legal. The ghost will turn from red to green to let you know.
-Deploy a board by pressing PRIMARY ATTACK. Rotate the board by using SECONDARY ATTACK and RELOAD. It uses boards for ammunition so boards you have from the Board Pack work as extra ammunition! You can pack up boards you've deployed by pressing SPRINT while pointing at it.</p>
-
-<p>Another tool worth noting is the Turret. This tosses bullets at any zombie that gets in the way of its laser. Its only downside is that it requires ammunition. You can refill ammunition by pressing USE on it. This will give you bonus points for helping the team.
-To deploy the turret, position it in a way so that the ghost is green. It must be on a solid surface (no props!). Rotate the turret with SECONDARY ATTACK and RELOAD. If you mess up, you can always pack the turret back up by pressing SPRINT while pointing at it. Remember, the turret will only fire at zombies that cross its tracking beam.</p>
-
-<p>Tips for this section:
-<ul>
-<li>You get a 25% point bonus for killing zombies that are attacking a barricade!</li>
-<li>Use bigger props for barricades. The nails take less damage and the prop has room for more nails. In addition to that, it even acts as cover from projectiles.</li>
-</ul></p>]]
-LANGUAGE.help_cont_upgrades							= [[<p>Points are obtained through killing zombies, healing team mates, and building defenses.
-Use them at an Arsenal Crate or the mode's trader to buy weapons, ammunition and equipment.
-Intermission discounts can stretch your points further.</p>
-
-<p>Tips for this section:
-<ul>
-<li>Try planning ahead. Buy extra pistol ammunition in the Worth menu so you have plenty to spare once you get your first upgrade.</li>
-<li>You still get points for assists. The greater half of the points goes to the killer and the lesser half goes to the one who assisted in the kill.</li>
-<li>Worth and Points are separate. Make sure you spend all of your Worth!</li>
-<li>Arsenal Crates are extremely valuable and prime targets for zombie attacks.</li>
-</ul></p>]]
-LANGUAGE.help_cont_being_a_zombie					= [[<p>Tips for this section:
-<ul>
-<li>You have an unlimited amount of lives, the humans only have one each. Don't be afraid to attack, attack, attack!</li>
-<li>The regular Zombie class has the ability of durability. The only way to kill you for sure is to get shot in the head or be killed by a melee weapon. You don't need your legs.</li>
-<li>Zombies can spawn on top of each other if no humans are around to see it. Check the eyes of the skull on the bottom of your screen. If they're green then you are a valid spawn point!</li>
-<li>With enough practice, you can use props to slam them in to humans from a distance.</li>
-<li>Destroy deployables such as turrets and especially Arsenal Crates to cripple the humans.</li>
-<li>With enough punishment, doors can be thrown off their hinges.</li>
-<li>Most props will become red with more and more damage.</li>
-<li>The Wraith is completely invisible while standing still or at a distance.</li>
-<li>The Fast Zombie's lunge attack damage scales by how long you're in the air. The more air time you get, the larger the damage. Use your claw attack when in close range!</li>
-<li>In addition to being extremely tough, the Poison Zombie can rip out chunks of its own poison flesh and throw them at humans by pressing SECONDARY ATTACK.</li>
-<li>Most zombie claws have two chances to hit their target. If you "hit" your target when you click your mouse button then you're guaranteed a hit as long as they remain in range.</li>
-<li>The Poison Headcrab's spit projectile can confuse humans if it hits them in the head.</li>
-<li>Go for the humans with low health! Other zombies are also attracted to them so they should be the easiest targets.</li>
-<li>The Horde Meter shows your damage and knockback resistance. Stay close to other zombies when attacking strongholds.</li>
-<li>If you don't have enough zombies to take down a barricade, try hunting for new "team mates" elsewhere.</li>
-<li>If an area is too dark, try pressing your FLASHLIGHT button to toggle night vision.</li>
-</ul></p>
-]]
+LANGUAGE.help_cont_introduction						= [[<p>Welcome to Zombie Survival. Fight the infected, build barricades and support your team, or join the undead horde.</p>
+<p>Humans win by surviving the round or completing the map's objectives. Zombies win by eliminating the surviving humans. A human killed during the round normally joins the infected.</p>
+<p>Starting zombies are selected before the round begins. You can volunteer when the server allows it. Redemption follows the server's kill requirement and the current mode's rules.</p>
+<p>Use the other guide sections to learn about survival, barricading, equipment and zombie classes. Team chat helps you coordinate with your allies.</p>]]
+LANGUAGE.help_cont_survival							= [[<p>Prepare your loadout before the round starts. Worth is separate from combat points; choose equipment that complements your team.</p>
+<ul><li>Open the Worth menu with your shop shortcut. Save useful loadouts and select a default for later rounds. Configure shortcuts in F1 > Options > Keys.</li>
+<li>Use Arsenal Crates or the current mode's trader for supplies. Shop availability and discounts depend on the mode and wave.</li>
+<li>Hold Zoom to pass slowly through eligible barricades. Release it after moving clear. Some traits or server rules change this ability.</li>
+<li>Heal teammates, repair barricades and share ammunition. Deployed equipment can be packed by holding Sprint while looking at it.</li>
+<li>Keep an escape route. Zombie abilities, projectiles and numbers can make a previously safe position dangerous.</li>
+<li>Friendly collision, damage and bandit behavior follow the current mode's rules. Avoid assuming that every armed player is friendly.</li></ul>]]
+LANGUAGE.help_cont_barricading						= [[<p>Strong barricades need secure attachments, repair capacity and room for teammates to move.</p>
+<ul><li>Pick up a movable prop with Use. Hold Sprint while carrying it to lock its position, then place it against a suitable surface.</li>
+<li>With the Carpenter's Hammer, use secondary attack to place a nail. Attach props to a stable surface where possible.</li>
+<li>Primary attack repairs a nailed prop while repair capacity remains. Sprint reveals nail information. Reload removes an eligible nail under your aim.</li>
+<li>Other owners' nails can have removal restrictions or penalties. Barricade Expert can protect them from players below the owner's level.</li>
+<li>The Aegis Barricade Kit deploys boards when its preview shows a valid position. Secondary attack and Reload rotate deployable previews in opposite directions.</li>
+<li>Place turrets on valid solid ground and refill them with Use. An ownerless turret can be reclaimed with Use. Hold Sprint while looking at owned equipment to pack it up.</li>
+<li>Repair field tools use the barricade's remaining repair capacity. Overlapping repair fields do not bypass that limit.</li></ul>]]
+LANGUAGE.help_cont_upgrades							= [[<p>Earn points by damaging and killing infected, healing teammates and repairing defenses. Spend them at an Arsenal Crate or the current mode's trader.</p>
+<ul><li>Damage rewards and kill or assist credit follow server rules. You can receive credit without landing the final hit.</li>
+<li>Worth is used for the starting loadout; combat points buy supplies during the round. Mutation damage tokens are a separate zombie currency.</li>
+<li>Check weapon ammunition before buying. A weapon purchase may not include spare ammunition.</li>
+<li>Traits, returns, weapon tiers and Forge upgrades can change your options. Read their descriptions and remember that availability depends on the mode.</li>
+<li>Protect Arsenal Crates and other support equipment: losing them can cut off your team's supplies.</li></ul>]]
+LANGUAGE.help_cont_being_a_zombie					= [[<p>Choose a class suited to the humans' defenses and coordinate with the horde.</p>
+<ul><li>Read each class's abilities and controls in the class menu. Stronger classes unlock according to the wave and server rules.</li>
+<li>Eligible zombies can serve as spawn points when humans cannot see them. The spawn indicator shows whether you are currently eligible.</li>
+<li>Attack together. The horde's nearby allies improve resistance, and different classes can support one another.</li>
+<li>Destroy support equipment and pressure weak points instead of attacking a well-defended entrance alone.</li>
+<li>Use your class's mobility, ranged attacks or special abilities to reach vulnerable humans. Class behavior varies; check the description.</li>
+<li>Toggle zombie vision with your vision shortcut when the area is dark. Configure shortcuts in F1 > Options > Keys.</li>
+<li>Zombie Escape and special modes can use different objectives, respawn rules and class restrictions.</li></ul>]]
 
 -- Place any custom stuff below here...
 
@@ -425,7 +359,7 @@ LANGUAGE.redeemer_kill								= "STAY AS A BANDIT AND CHOOSE TO HELP OR KILL THE
 -- Worth Menu
 
 LANGUAGE.worth_title								= "Select Your Survival Loadout"
-LANGUAGE.worth_close								= "Press F2 to re-open the Worth Menu."
+LANGUAGE.worth_close								= "Use your shop shortcut to reopen the Worth menu. Configure shortcuts in Keys."
 LANGUAGE.worth_worth								= "Worth: %s"
 LANGUAGE.worth_worth_cost							= "%s Worth"
 LANGUAGE.worth_favtab								= "Favorites"
@@ -436,13 +370,13 @@ LANGUAGE.worth_favremove							= "Remove this cart as your default."
 LANGUAGE.worth_favdelete							= "Delete this saved cart."
 LANGUAGE.worth_favdefault							= "Make this cart your default."
 LANGUAGE.worth_checkout								= "Checkout"
-LANGUAGE.worth_checkouttooltip						= "Self-Explanatory."
+LANGUAGE.worth_checkouttooltip						= "Confirm your selected loadout and spend the required Worth."
 LANGUAGE.worth_random								= "Random Loadout"
-LANGUAGE.worth_randomtooltip						= "Using this will randomly give you a set of items instead of normal checkout.\n Also use this to close the worth menu."
+LANGUAGE.worth_randomtooltip						= "Choose a random loadout within your Worth budget."
 LANGUAGE.worth_clear								= "Clear Loadout"
 LANGUAGE.worth_cleartooltip							= "Clears all items out of your cart."
 LANGUAGE.worth_saveload								= "Save Loadout"
-LANGUAGE.worth_saveloadtooltip						= "Use this to save your current cart(s) for easy checkout later."
+LANGUAGE.worth_saveloadtooltip						= "Save the current loadout for quick selection in a future round."
 LANGUAGE.worth_github								= "GitHub"
 LANGUAGE.worth_githubtooltip						= "This will take you to the modified Zombie Survival GitHub page."
 LANGUAGE.worth_forum								= "Forum"
@@ -462,7 +396,7 @@ LANGUAGE.the_pointshop                              = "The Points Shop"
 LANGUAGE.for_allapocalypse                          = "For all of your zombie apocalypse needs!"
 LANGUAGE.pts_tospend                                = "Points to spend: %s"
 LANGUAGE.ars_discount                               = "%s%% discount for buying between waves!"
-LANGUAGE.ars_tooltip                                = "This shop is armed with the QUIK - Anti-zombie backstab device.\nMove your mouse outside of the shop to quickly close it!"
+LANGUAGE.ars_tooltip                                = "Move the pointer outside to close the shop when mouse-exit closing is enabled. Change this and its delay in Options."
 LANGUAGE.ars_worth                                  = "Worth Menu"
 LANGUAGE.ars_purchase                               = "Purchase"  
 LANGUAGE.ars_purchaseammo                           = "Purchase ammunition"
@@ -569,7 +503,7 @@ LANGUAGE.worth_regen2                               = "If you drop below 50% hea
 LANGUAGE.worth_muscular                             = "Muscular"
 LANGUAGE.worth_muscular2                            = "You do 20% extra damage with melee weapons and you can carry heavy objects instead of dragging them."
 LANGUAGE.worth_carpenter                            = "Carpenter"
-LANGUAGE.worth_carpenter2                           = "50% Decreased delay in using hammers."
+LANGUAGE.worth_carpenter2                           = "Reduces the delay between hammer actions by 50%."
 LANGUAGE.worth_cannibal                             = "Cannibalism"
 LANGUAGE.worth_cannibal2                            = "You can now eat gore giblets from zombies and humans to regain health.\n Simply touch the gore gibs to eat them."
 LANGUAGE.worth_ghostmode                            = "Ghost Mode"
@@ -579,7 +513,7 @@ LANGUAGE.worth_fastresupply2                        = "Resupply boxes recharge m
 LANGUAGE.worth_fastteleport                         = "Teleporter"
 LANGUAGE.worth_fastteleport2                        = "You teleport nearly instantly."
 LANGUAGE.worth_crateshare                           = "Crate Share"
-LANGUAGE.worth_crateshare2                          = "Allows to buy from crates on another client's back."
+LANGUAGE.worth_crateshare2                          = "Buy from an Arsenal Crate carried by another player."
 LANGUAGE.worth_crateshare3                          = "You're missing the Crate Share trait!"
 LANGUAGE.worth_allergic                             = "Allergic"
 LANGUAGE.worth_allergic2                            = "Poison does twice as much damage in exchange for Worth."
@@ -598,7 +532,7 @@ LANGUAGE.worth_clumsy2                              = "Makes you extremely easy 
 LANGUAGE.worth_wideload                             = "Wide Load"
 LANGUAGE.worth_wideload2                            = "Prevents you from ghosting through props in exchange for Worth."
 LANGUAGE.worth_noodlearms                           = "Noodle Arms"
-LANGUAGE.worth_noodlearms2                          = "Disallows picking up of objects in exchange for Worth."
+LANGUAGE.worth_noodlearms2                          = "Prevents you from picking up props in exchange for Worth."
 
 -- Shop Items (arsenal crate) 
 
@@ -644,7 +578,7 @@ LANGUAGE.ars_50meds2                                = "50 extra power for the Me
 LANGUAGE.ars_grenade                                = "Grenade"
 LANGUAGE.ars_detpack                                = "Detonation Pack"
 LANGUAGE.ars_mednade                                = "Medic Cloud Bomb"
-LANGUAGE.ars_mednade_desc                           = "Explodes in to a cloud of healing gas. Heals 2HP, every second, for 10 seconds."
+LANGUAGE.ars_mednade_desc                           = "Creates a healing gas cloud that restores 2 HP each second for 10 seconds."
 LANGUAGE.ars_molotov                                = "Molotov"
 LANGUAGE.ars_molotov2                               = "Molotov Cocktail"
 LANGUAGE.ars_molotov_desc                           = "A highly flammable concoction.\nThrow at your own risk."
@@ -1090,7 +1024,7 @@ LANGUAGE.crosshair_dot = "Dot"
 LANGUAGE.crosshair_open_cross = "Open cross"
 
 LANGUAGE.ze_weapon_menu = "Zombie Escape weapons"
-LANGUAGE.ze_weapon_help = "Choose your primary weapon with F2. You can exchange it once before the round starts. Your choice is saved for future spawns; changing weapons preserves your ammo budget."
+LANGUAGE.ze_weapon_help = "Choose your primary weapon using the shop shortcut. You can exchange it once before the round starts. Your choice is saved for future spawns; changing weapons preserves your ammo budget."
 LANGUAGE.ze_weapon_unavailable = "Choose a weapon while alive before the Zombie Escape round starts."
 LANGUAGE.ze_weapon_invalid = "That weapon is not available on this server."
 LANGUAGE.ze_weapon_wait = "Please wait before choosing again."
@@ -1250,7 +1184,7 @@ LANGUAGE.cosmetic_unequip = "Unequip"
 LANGUAGE.cosmetic_buy = "Buy - %s"
 LANGUAGE.cosmetic_timeout = "The request timed out. Try again."
 LANGUAGE.cosmetic_balance_points = "%s points - Purchases stay in your profile."
-LANGUAGE.cosmetic_balance_tokens = "%s brain tokens - Purchases stay in your profile."
+LANGUAGE.cosmetic_balance_tokens = "%s damage tokens - Purchases stay in your profile."
 
 LANGUAGE.spectator_cooldown = "You can leave spectator mode in %s"
 
@@ -1432,3 +1366,281 @@ LANGUAGE.weapon_tier_label = "Tier %d"
 
 LANGUAGE.options_pointshop_autoclose = "Close the point shop when the pointer leaves"
 LANGUAGE.options_pointshop_close_delay = "Point shop close delay (seconds; 0 = instant)"
+
+LANGUAGE.trait_marksman = "Marksman"
+LANGUAGE.trait_marksman_desc = "Weapon spread is reduced by 10%."
+LANGUAGE.trait_chosenone = "Chosen One"
+LANGUAGE.trait_chosenone_desc = "Deal 5% extra damage to zombie bosses."
+LANGUAGE.trait_strongfeet = "Strong Feet"
+LANGUAGE.trait_strongfeet_desc = "You cannot be knocked down."
+LANGUAGE.trait_thickskin = "Thick Skin"
+LANGUAGE.trait_thickskin_desc = "Take 20% less damage from zombie slash and club melee attacks."
+LANGUAGE.trait_acrobatic = "Acrobatic"
+LANGUAGE.trait_acrobatic_desc = "Jump 20% higher, including while ghosting through barricades."
+LANGUAGE.trait_kleiner = "Just Kleiner"
+LANGUAGE.trait_kleiner_desc = "Using the Kleiner model grants 2.5% extra zombie damage and 2.5% resistance to zombie damage."
+LANGUAGE.trait_venomimmunity = "Venom Immunity"
+LANGUAGE.trait_venomimmunity_desc = "Poison and acid cannot damage you or trigger their poison effects."
+LANGUAGE.trait_steady = "Steady"
+LANGUAGE.trait_steady_desc = "Low health and Palsy do not shake your aim."
+LANGUAGE.trait_butcher = "Butcher"
+LANGUAGE.trait_butcher_desc = "Successful melee hits against infected heal 1 to 3 HP, without exceeding maximum health."
+LANGUAGE.trait_sniper = "Sniper"
+LANGUAGE.trait_sniper_desc = "Sniper bullets deal 20% extra damage while grounded and crouching or standing still."
+LANGUAGE.trait_swordsman = "Swordsman"
+LANGUAGE.trait_swordsman_desc = "Holding a melee weapon gives a 40% chance to block normal zombie melee damage."
+LANGUAGE.trait_sticky = "Sticky"
+LANGUAGE.trait_sticky_desc = "A zombie that damages you with a normal melee attack moves 10% slower for three seconds."
+LANGUAGE.trait_highnoon = "High Noon"
+LANGUAGE.trait_highnoon_desc = "Pistol bullet headshots deal 20% extra damage to infected."
+LANGUAGE.trait_kenjutsu = "Kenjutsu"
+LANGUAGE.trait_kenjutsu_desc = "Katana melee damage and attack speed improve by 10%, with 5% extra movement speed while wielding it."
+LANGUAGE.trait_punisher = "Punisher"
+LANGUAGE.trait_punisher_desc = "Deal 7.5% extra damage to infected who killed a human this round."
+LANGUAGE.trait_divinegift = "Divine Gift"
+LANGUAGE.trait_divinegift_desc = "Completed sigil teleports restore 10 HP, without exceeding maximum health."
+LANGUAGE.trait_merchant = "Merchant"
+LANGUAGE.trait_merchant_desc = "Other survivors using your arsenal receive 5% off during waves and 10% off between waves."
+LANGUAGE.trait_belovedcustomer = "Beloved Customer"
+LANGUAGE.trait_belovedcustomer_desc = "Arsenal purchases cost 5% less, including from your own crate."
+LANGUAGE.trait_gunman = "Gunman"
+LANGUAGE.trait_gunman_desc = "Reload weapons and vent the Helios 10% faster."
+LANGUAGE.trait_experiencedhunter = "Experienced Hunter"
+LANGUAGE.trait_experiencedhunter_desc = "Rifles and shotguns reload 5% faster and deal 5% extra bullet damage to infected."
+LANGUAGE.trait_demolitionist = "Demolitionist"
+LANGUAGE.trait_demolitionist_desc = "Grenades and C4 cost 30% less. Your explosives cannot hurt other humans, and human explosions damage you 50% less."
+LANGUAGE.trait_bigbang = "Big Bang Theory"
+LANGUAGE.trait_bigbang_desc = "Each explosive weapon blast has a 50% chance to deal 25% extra damage."
+LANGUAGE.trait_combinefellow = "Combine Fellow"
+LANGUAGE.trait_combinefellow_desc = "Owned automatic turrets, manhacks, Adonis, Owens, Tosser and Z9000 deal 10% extra damage to infected."
+LANGUAGE.trait_crafty = "Crafty"
+LANGUAGE.trait_crafty_desc = "Weapons you craft deal 10% extra damage while you use them, including their projectiles and deployed manhacks."
+LANGUAGE.trait_pyrotechnics = "Pyrotechnics"
+LANGUAGE.trait_pyrotechnics_desc = "Craft a Molotov cocktail from a newspaper and a glass bottle."
+LANGUAGE.trait_mysteriousstranger = "Mysterious Stranger"
+LANGUAGE.trait_mysteriousstranger_desc = "Each wave intermission gives a 25% chance of a random pistol with a loaded magazine and extra ammunition."
+LANGUAGE.trait_technicalaim = "Technical Aim"
+LANGUAGE.trait_technicalaim_desc = "Your automatic turrets seek the nearest visible undead within their firing arc and range."
+LANGUAGE.trait_cheerleader = "Cheerleader"
+LANGUAGE.trait_cheerleader_desc = "Other living survivors within 256 units move 5% faster. Multiple Cheerleaders do not stack."
+LANGUAGE.trait_glutton = "Glutton"
+LANGUAGE.trait_glutton_desc = "Eat melons and fruit or drink milk from props to recover health."
+LANGUAGE.trait_junkyard = "Junkyard"
+LANGUAGE.trait_junkyard_desc = "Convert discarded boots, cans, plastic bottles and other rubbish props into ammunition for your held firearm."
+LANGUAGE.trait_gravethief = "Gravethief"
+LANGUAGE.trait_gravethief_desc = "Zombie kills have a 10% chance to drop one or two random ammo boxes. Boss kills have a 50% chance to drop two or four."
+LANGUAGE.trait_luckycrates = "Lucky Crates"
+LANGUAGE.trait_luckycrates_desc = "Breaking wooden crates has a 20% chance to reveal a random weapon, with low-cost weapons more common. Otherwise find two or three random ammo boxes."
+LANGUAGE.trait_headcrabconnoisseur = "Headcrab Connoisseur"
+LANGUAGE.trait_headcrabconnoisseur_desc = "Eat headcrab ragdolls with Use to restore up to 10 HP."
+LANGUAGE.trait_deathmark = "Death Mark"
+LANGUAGE.trait_deathmark_desc = "Consecutive sniper hits against the same infected build 5% extra damage per hit, up to 30%. A failed hit resets the streak."
+LANGUAGE.trait_drunktard = "Drunktard"
+LANGUAGE.trait_drunktard_desc = "Consume glass bottles for health or ammunition, with a rare weapon reward. Your view sways slightly for ten seconds."
+LANGUAGE.trait_dronepilot = "Drone Pilot"
+LANGUAGE.trait_dronepilot_desc = "Reload your manhack controller to attach a gun. While controlling it, secondary fire uses one SMG round per shot."
+LANGUAGE.trait_tonguelover = "Tongue Lover"
+LANGUAGE.trait_tonguelover_desc = "Grow allied barnacles on ceilings with a cultivator. Two per survivor, a 30-second cooldown, double bite damage and improved resistance."
+LANGUAGE.trait_explosivetouch = "Explosive Touch"
+LANGUAGE.trait_explosivetouch_desc = "Your nailed props and deployable equipment explode like a grenade when destroyed by zombies."
+LANGUAGE.trait_parkour = "Parkour Expert"
+LANGUAGE.trait_parkour_desc = "With fists, hold Reload in the air to grip a wall. Forward climbs up to 96 units; Jump pushes off. Three seconds per grip, reset by landing."
+LANGUAGE.trait_alientrainer = "Alien Trainer"
+LANGUAGE.trait_alientrainer_desc = "Start with three Snark charges. Three active companions per survivor, twelve-second lifespan, and removal after two seconds without nearby zombies. Snarks only damage infected."
+LANGUAGE.return_punchbag = "Punchbag"
+LANGUAGE.return_punchbag_desc = "Zombie melee attacks deal 20% more damage to you."
+LANGUAGE.return_weakling = "Weakling"
+LANGUAGE.return_weakling_desc = "All damage to you is increased by 40%."
+LANGUAGE.return_inexperienced = "Inexperienced Shooter"
+LANGUAGE.return_inexperienced_desc = "Your weapon spread is 10% wider, even when healthy."
+LANGUAGE.return_hallucinations = "Hallucinations"
+LANGUAGE.return_hallucinations_desc = "Zombie damage has a 20% chance to cause brief poison-like hallucinations."
+LANGUAGE.return_weakbody = "Weak Body"
+LANGUAGE.return_weakbody_desc = "Zombie damage has a 20% chance to infect you for six seconds, losing 1 HP per second."
+LANGUAGE.return_weakheart = "Weak Heart"
+LANGUAGE.return_weakheart_desc = "First sight of each boss during a life has a 5% chance to cause a fatal heart attack."
+LANGUAGE.return_unlucky = "Unlucky"
+LANGUAGE.return_unlucky_desc = "Placing or packing equipment and lifting heavy props has a 5% chance to hurt you for 3 HP."
+LANGUAGE.return_obese = "Morbidly Obese"
+LANGUAGE.return_obese_desc = "Your movement speed is reduced by 25% and your belly is enlarged."
+LANGUAGE.return_divinehatred = "Divine Hatred"
+LANGUAGE.return_divinehatred_desc = "You cannot teleport using sigils."
+LANGUAGE.return_fleshytreat = "Fleshy Treat"
+LANGUAGE.return_fleshytreat_desc = "Zombies that damage you heal for 10% of the damage, rounded up and capped at 5 HP per hit and their maximum health."
+LANGUAGE.return_weakstomach = "Weak Stomach"
+LANGUAGE.return_weakstomach_desc = "Nearby infected gibs have a 25% chance to make you vomit, losing 3 HP and shaking your view."
+LANGUAGE.return_nightmares = "Nightmares"
+LANGUAGE.return_nightmares_desc = "First sight of each boss during a life causes a mild hallucination."
+LANGUAGE.return_careless = "Careless"
+LANGUAGE.return_careless_desc = "Zombies deal 25% extra damage when two or more living infected are within 192 units."
+LANGUAGE.cosmetic_human_hat_1 = "Roadwork crown"
+LANGUAGE.cosmetic_human_hat_1_desc = "A traffic-cone hat for survivors."
+LANGUAGE.cosmetic_human_pot_hat = "Tin guardian"
+LANGUAGE.cosmetic_human_pot_hat_desc = "A metal-can hat for survivors."
+LANGUAGE.cosmetic_human_azure_halo = "Azure halo"
+LANGUAGE.cosmetic_human_azure_halo_desc = "A subtle blue orbit around your shoulders."
+LANGUAGE.cosmetic_zombie_bloody_aura = "Bloody aura"
+LANGUAGE.cosmetic_zombie_bloody_aura_desc = "A crimson orbit for the undead."
+LANGUAGE.quest_hold_line = "Hold the line"
+LANGUAGE.quest_hold_line_desc = "Stay within 200 units and protect this survivor during an active wave."
+LANGUAGE.quest_medical = "Medical emergency"
+LANGUAGE.quest_medical_desc = "Find the marked medicine, pick it up with Use, then return it here with Use."
+LANGUAGE.quest_arm = "Arm the survivors"
+LANGUAGE.quest_arm_desc = "Donate each requested weapon with Use. Donations consume the weapon and its loaded ammunition."
+LANGUAGE.quest_completed_round = "Completed for this round"
+LANGUAGE.quest_previous_failed = "Previous attempt failed. You can try again."
+LANGUAGE.quest_available = "Available"
+LANGUAGE.quest_other_survivor = "Another survivor has accepted this quest."
+LANGUAGE.quest_protection_progress = "%s / %s active-wave seconds"
+LANGUAGE.quest_medicine_ready = "Medicine collected. Deliver it here."
+LANGUAGE.quest_find_medicine = "Find the marked medicine and press Use."
+LANGUAGE.quest_bring_weapon = "Bring %s."
+LANGUAGE.quest_deliveries_finished = "Deliveries finished. Collect your reward."
+LANGUAGE.quest_request = "Survivor request"
+LANGUAGE.quest_no_response = "No response. Try again."
+LANGUAGE.quest_waiting = "Waiting..."
+LANGUAGE.quest_deliver_reward = "Deliver / collect reward"
+LANGUAGE.quest_completed = "Completed"
+LANGUAGE.quest_accept = "Accept quest"
+LANGUAGE.quest_protect_duration = "Protect for %s seconds."
+LANGUAGE.quest_deadline = "Complete within three minutes."
+LANGUAGE.quest_reward_weapon = "Reward: %s (60 points if already owned or unavailable)"
+LANGUAGE.quest_reward_points = "Reward: 60 points"
+LANGUAGE.quest_medicine_marker = "MEDICINE"
+LANGUAGE.quest_failed = "Quest failed. Return to the survivor to try again."
+LANGUAGE.quest_timed_out = "Quest timed out."
+LANGUAGE.quest_timed_out_retry = "Quest timed out. Return to the survivor to try again."
+LANGUAGE.quest_medicine_lost = "The medicine was lost. Return to the survivor to try again."
+LANGUAGE.quest_complete_reward = "Quest complete! Reward: %s"
+LANGUAGE.quest_points = "60 points"
+LANGUAGE.quest_unavailable = "This quest is unavailable."
+LANGUAGE.quest_active_wave = "Protection quests start during an active wave."
+LANGUAGE.quest_no_medicine_location = "There is no safe medicine location. Try again later."
+LANGUAGE.quest_medicine_place_failed = "Medicine could not be placed. Try again later."
+LANGUAGE.quest_accepted_title = "Quest accepted: %s"
+LANGUAGE.quest_accepted = "Quest accepted."
+LANGUAGE.quest_medicine_collected = "Medicine collected. Return to the survivor and press Use."
+LANGUAGE.quest_accept_again = "Quest timed out. Accept it again to retry."
+LANGUAGE.quest_delivery_wait = "Please wait before delivering again."
+LANGUAGE.quest_collect_first = "Find and collect the marked medicine first."
+LANGUAGE.quest_donation_failed = "The weapon could not be donated."
+LANGUAGE.quest_donation_next = "Weapon donated. Next: %s."
+LANGUAGE.quest_stay_close = "Stay close and protect the survivor during the wave."
+LANGUAGE.quest_complete = "Quest complete!"
+LANGUAGE.quest_reward_retry = "Reward unavailable. Press Use again to retry."
+LANGUAGE.quest_world_accept = "Use to accept a quest"
+LANGUAGE.quest_world_active = "Quest in progress"
+LANGUAGE.quest_world_complete = "Quest complete"
+LANGUAGE.quest_world_retry = "Use to try again"
+LANGUAGE.quest_survivor_killed = "The survivor was killed. Quest failed."
+LANGUAGE.quest_collect_medicine = "Use to collect medicine"
+
+LANGUAGE.cosmetic_humans_only = "Cosmetics are available to human-controlled players."
+LANGUAGE.cosmetic_disabled = "Cosmetics are disabled on this server."
+LANGUAGE.cosmetic_busy = "A purchase is already in progress."
+LANGUAGE.cosmetic_profile_failed = "Your cosmetic profile could not be loaded."
+LANGUAGE.cosmetic_choose_team = "Choose a cosmetic for your current team."
+LANGUAGE.cosmetic_unknown_action = "Unknown cosmetic action."
+LANGUAGE.cosmetic_invalid_price = "Invalid cosmetic price."
+LANGUAGE.cosmetic_wrong_team = "This cosmetic is for a different team."
+LANGUAGE.cosmetic_asset_unavailable = "This cosmetic asset is unavailable."
+LANGUAGE.cosmetic_already_owned = "You already own this cosmetic."
+LANGUAGE.cosmetic_buy_first = "Buy this cosmetic before equipping it."
+LANGUAGE.cosmetic_save_failed = "The purchase could not be saved. Your balance was restored."
+LANGUAGE.cosmetic_unequipped = "Cosmetic unequipped."
+LANGUAGE.cosmetic_purchased_equipped = "Purchased and equipped %s."
+LANGUAGE.cosmetic_equipped = "Equipped %s."
+LANGUAGE.guild_create_humans_only = "Only living humans can create guilds."
+LANGUAGE.guild_profile_failed = "Your guild profile could not be loaded. Try again."
+LANGUAGE.guild_name_rules = "Choose a guild name of 3 to 32 bytes, without control characters."
+LANGUAGE.guild_leave_first = "Leave your current guild first."
+LANGUAGE.guild_name_taken = "That guild name is already taken."
+LANGUAGE.guild_server_limit = "The server has reached its guild limit."
+LANGUAGE.guild_admin_create = "An admin must create this guild."
+LANGUAGE.guild_action_busy = "Finish your current guild action first."
+LANGUAGE.guild_charge_failed = "The guild charge could not be completed. Try again."
+LANGUAGE.guild_create_failed = "Guild creation failed. Your points were refunded."
+LANGUAGE.guild_invite_human = "Invite another human player."
+LANGUAGE.guild_owner_invite = "Only the guild owner can invite members."
+LANGUAGE.guild_target_member = "That player already belongs to a guild."
+LANGUAGE.guild_own_full = "Your guild is full."
+LANGUAGE.guild_invite_wait = "Please wait before inviting again."
+LANGUAGE.guild_join_humans_only = "Only humans can join guilds."
+LANGUAGE.guild_already_member = "You already belong to a guild."
+LANGUAGE.guild_invalid_name = "Use a valid guild name."
+LANGUAGE.guild_join_help = "Use !gjoin <guild name> to request membership, or !gjoin to accept an invitation."
+LANGUAGE.guild_target_full = "That guild is full."
+LANGUAGE.guild_owner_offline = "The guild owner must be online as a human to approve your request."
+LANGUAGE.guild_request_pending = "Your request is already awaiting approval."
+LANGUAGE.guild_requests_full = "That guild has too many pending requests. Try again later."
+LANGUAGE.guild_membership_requested = "Membership requested. The owner must invite you before you can join."
+LANGUAGE.guild_membership_failed = "Membership could not be saved. Try again."
+LANGUAGE.guild_not_member = "You do not belong to a guild."
+LANGUAGE.guild_chat_humans_only = "Guild chat is only available to humans."
+LANGUAGE.guild_chat_join_first = "Join a guild before using guild chat."
+LANGUAGE.guild_chat_length = "Guild messages must be at most 240 bytes."
+LANGUAGE.guild_chat_help = "Use !g <message> to talk to your guild."
+LANGUAGE.guild_chat_wait = "Please wait before sending another message."
+LANGUAGE.guild_chat_none = "No human guild members are online."
+LANGUAGE.guild_disabled = "Guilds are disabled on this server."
+LANGUAGE.guild_storage_failed = "Guild storage is unavailable. Try again later."
+LANGUAGE.guild_refresh_wait = "Please wait before refreshing the guild list."
+LANGUAGE.guild_create_wait = "Wait %s seconds before creating another guild."
+LANGUAGE.guild_need_points = "You need %s human points."
+LANGUAGE.guild_created = "Created %s for %s points."
+LANGUAGE.guild_invite_received = "%s invited you to %s. Type !gjoin to accept within 60 seconds."
+LANGUAGE.guild_invite_sent = "Invitation sent to %s."
+LANGUAGE.guild_join_request_received = "%s requested to join %s. Type !ginvite %s to approve."
+LANGUAGE.guild_joined = "Joined %s."
+LANGUAGE.guild_left = "Left %s."
+LANGUAGE.guild_target_ambiguous = "That name is ambiguous. Use the player's numeric user ID."
+LANGUAGE.guild_target_missing = "No matching human player. Use an exact name or numeric user ID."
+LANGUAGE.forge_tier_upgraded = "Weapon Forge: tier %s"
+LANGUAGE.forge_feedback_unavailable = "Weapon Forge is unavailable."
+LANGUAGE.forge_feedback_busy = "Finish your current action first."
+LANGUAGE.forge_feedback_weapon = "This weapon cannot be forged."
+LANGUAGE.forge_feedback_arsenal = "Move within reach of an arsenal crate."
+LANGUAGE.forge_feedback_changed = "Weapon changed. Refresh the forge."
+LANGUAGE.forge_feedback_maximum = "This weapon is fully forged."
+LANGUAGE.forge_feedback_points = "Not enough points for this upgrade."
+LANGUAGE.forge_feedback_failed = "The upgrade could not be applied."
+
+LANGUAGE.team_redeemers = "Redeemers"
+LANGUAGE.guild_title = "Survivor guilds"
+LANGUAGE.guild_search = "Search guilds"
+LANGUAGE.guild_new_name = "New guild name (3 to 32 bytes)"
+LANGUAGE.guild_create = "Create"
+LANGUAGE.guild_invite_target = "Exact player name or numeric user ID"
+LANGUAGE.guild_invite = "Invite"
+LANGUAGE.guild_leave = "Leave guild"
+LANGUAGE.guild_refresh = "Refresh"
+LANGUAGE.guild_chat_hint = "!g <message> for human guild chat"
+LANGUAGE.guild_empty = "No guilds match your search."
+LANGUAGE.guild_input_length = "Keep names within 64 bytes."
+LANGUAGE.guild_members = "%s   %s/%s members"
+LANGUAGE.guild_owner_badge = "OWNER"
+LANGUAGE.guild_create_cost = "Create (%s)"
+LANGUAGE.guild_waiting = "Waiting for server..."
+LANGUAGE.guild_list_help = "%s guilds. Select one to request membership; the owner must approve with an invitation."
+LANGUAGE.forge_title = "Weapon Forge"
+LANGUAGE.forge_subtitle = "Upgrade the weapon you are holding"
+LANGUAGE.forge_no_confirmation = "No upgrade confirmed. Try again."
+LANGUAGE.forge_no_weapon = "No active weapon"
+LANGUAGE.forge_cooling = "Cooling / venting"
+LANGUAGE.forge_reload_speed = "Reload speed"
+LANGUAGE.forge_applying = "Applying upgrade..."
+LANGUAGE.forge_equip_supported = "Equip a supported human weapon to upgrade."
+LANGUAGE.forge_maximum_reached = "This weapon has reached the maximum tier."
+LANGUAGE.forge_busy_help = "Finish your current action before upgrading."
+LANGUAGE.forge_point_missing = "You need %s more point."
+LANGUAGE.forge_points_missing = "You need %s more points."
+LANGUAGE.forge_help = "Use an arsenal crate. Upgrades stay with this weapon."
+LANGUAGE.forge_summary = "%s\nTier %s / %s     |     %s points"
+LANGUAGE.forge_damage = "Damage"
+LANGUAGE.forge_attack_speed = "Attack speed"
+LANGUAGE.forge_waiting = "Waiting for upgrade..."
+LANGUAGE.forge_select_weapon = "Select a supported weapon"
+LANGUAGE.forge_fully_upgraded = "Fully forged"
+LANGUAGE.forge_find_arsenal = "Find an arsenal crate"
+LANGUAGE.forge_finish_action = "Finish your current action"
+LANGUAGE.forge_upgrade_cost = "Upgrade for %s points"

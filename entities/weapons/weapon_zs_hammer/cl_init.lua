@@ -1,7 +1,12 @@
+SWEP.PrintNameTranslation = "worth_hammer"
+SWEP.DescriptionTranslation = "carpenderhm_desk"
 include("shared.lua")
 
 SWEP.PrintName = translate.Get("worth_hammer")
+
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = translate.Get("carpenderhm_desk")
+SWEP.TranslatedDescription = SWEP.Description
 
 SWEP.ViewModelFOV = 75
 

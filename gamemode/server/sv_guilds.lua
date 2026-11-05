@@ -1,3 +1,7 @@
+local function LocalizedText(pl, key, ...)
+	if IsValid(pl) and pl:IsPlayer() then return translate.ClientFormat(pl, key, ...) end
+	return translate.Format(key, ...)
+end
 GM.GuildEnabled = CreateConVar("zs_guilds", "1", FCVAR_ARCHIVE + FCVAR_NOTIFY, "Enable persistent human guilds", 0, 1)
 GM.GuildCreateCost = CreateConVar("zs_guild_create_cost", "100", FCVAR_ARCHIVE + FCVAR_NOTIFY, "Human points required to create a guild", 0, 100000)
 GM.GuildCreateCooldown = CreateConVar("zs_guild_create_cooldown", "300", FCVAR_ARCHIVE, "Account cooldown between guild creations", 0, 86400)
@@ -100,26 +104,26 @@ function GM:GetGuildMembers(name)
 end
 
 function GM:CreateGuild(pl, name)
-	if not Eligible(pl) or not pl:Alive() or self.RoundEnded then return false, "Only living humans can create guilds." end
-	if not self:LoadGuildPlayer(pl) then return false, "Your guild profile could not be loaded. Try again." end
+	if not Eligible(pl) or not pl:Alive() or self.RoundEnded then return false, LocalizedText(pl, "guild_create_humans_only") end
+	if not self:LoadGuildPlayer(pl) then return false, LocalizedText(pl, "guild_profile_failed") end
 	local key = Key(pl)
 	local display, namekey = self:NormalizeGuildName(name)
-	if not display then return false, "Choose a guild name of 3 to 32 bytes, without control characters." end
-	if state.memberships[key] then return false, "Leave your current guild first." end
-	if state.names[namekey] then return false, "That guild name is already taken." end
-	if state.count >= 128 then return false, "The server has reached its guild limit." end
-	if self.GuildAdminCreate:GetBool() and not pl:IsAdmin() then return false, "An admin must create this guild." end
+	if not display then return false, LocalizedText(pl, "guild_name_rules") end
+	if state.memberships[key] then return false, LocalizedText(pl, "guild_leave_first") end
+	if state.names[namekey] then return false, LocalizedText(pl, "guild_name_taken") end
+	if state.count >= 128 then return false, LocalizedText(pl, "guild_server_limit") end
+	if self.GuildAdminCreate:GetBool() and not pl:IsAdmin() then return false, LocalizedText(pl, "guild_admin_create") end
 	local epoch = os.time()
-	if epoch < (pl.ZSNextGuildCreate or 0) then return false, "Wait " .. math.ceil(pl.ZSNextGuildCreate - epoch) .. " seconds before creating another guild." end
+	if epoch < (pl.ZSNextGuildCreate or 0) then return false, LocalizedText(pl, "guild_create_wait", math.ceil(pl.ZSNextGuildCreate - epoch)) end
 	local cost, points = self.GuildCreateCost:GetInt(), pl:GetPoints()
-	if type(points) ~= "number" or points ~= points or math.abs(points) == math.huge or points < cost then return false, "You need " .. cost .. " human points." end
-	if pl.ZSGuildBusy then return false, "Finish your current guild action first." end
+	if type(points) ~= "number" or points ~= points or math.abs(points) == math.huge or points < cost then return false, LocalizedText(pl, "guild_need_points", cost) end
+	if pl.ZSGuildBusy then return false, LocalizedText(pl, "guild_action_busy") end
 	pl.ZSGuildBusy = true
 	local spent = pcall(pl.SetPoints, pl, points - cost)
 	if not spent or pl:GetPoints() ~= points - cost then
 		pl.ZSGuildBusy = nil
 		pcall(pl.SetPoints, pl, points)
-		return false, "The guild charge could not be completed. Try again."
+		return false, LocalizedText(pl, "guild_charge_failed")
 	end
 	local untilTime = epoch + self.GuildCreateCooldown:GetInt()
 	local ok, id = Transaction(function()
@@ -130,61 +134,61 @@ function GM:CreateGuild(pl, name)
 		return index
 	end)
 	pl.ZSGuildBusy = nil
-	if not ok then pl:SetPoints(pl:GetPoints() + cost); return false, "Guild creation failed. Your points were refunded." end
+	if not ok then pl:SetPoints(pl:GetPoints() + cost); return false, LocalizedText(pl, "guild_create_failed") end
 	state.guilds[id] = {id = id, name = display, owner = key, created = epoch, members = {[key] = true}, count = 1, requests = {}}
 	state.names[namekey], state.memberships[key], state.count, state.list = id, id, state.count + 1, nil
 	pl.ZSNextGuildCreate = untilTime; Changed(pl, id)
-	return true, "Created " .. display .. " for " .. cost .. " points."
+	return true, LocalizedText(pl, "guild_created", display, cost)
 end
 
 function GM:InviteToGuild(pl, target)
-	if not Eligible(pl) or not Eligible(target) or pl == target then return false, "Invite another human player." end
+	if not Eligible(pl) or not Eligible(target) or pl == target then return false, LocalizedText(pl, "guild_invite_human") end
 	local guild, key = GuildFor(pl)
 	local targetKey = Key(target)
-	if not guild or guild.owner ~= key then return false, "Only the guild owner can invite members." end
-	if state.memberships[targetKey] then return false, "That player already belongs to a guild." end
-	if guild.count >= self.GuildMaxMembers:GetInt() then return false, "Your guild is full." end
+	if not guild or guild.owner ~= key then return false, LocalizedText(pl, "guild_owner_invite") end
+	if state.memberships[targetKey] then return false, LocalizedText(pl, "guild_target_member") end
+	if guild.count >= self.GuildMaxMembers:GetInt() then return false, LocalizedText(pl, "guild_own_full") end
 	local now = CurTime()
-	if now < (pl.ZSNextGuildInvite or 0) then return false, "Please wait before inviting again." end
+	if now < (pl.ZSNextGuildInvite or 0) then return false, LocalizedText(pl, "guild_invite_wait") end
 	pl.ZSNextGuildInvite = now + self.GuildInviteCooldown:GetInt()
 	target.ZSGuildInvite = {id = guild.id, owner = key, expires = now + 60}
 	guild.requests[targetKey] = nil
-	Notice(target, pl:Nick() .. " invited you to " .. guild.name .. ". Type !gjoin to accept within 60 seconds.")
-	return true, "Invitation sent to " .. target:Nick() .. "."
+	Notice(target, LocalizedText(target, "guild_invite_received", pl:Nick(), guild.name))
+	return true, LocalizedText(pl, "guild_invite_sent", target:Nick())
 end
 
 function GM:JoinGuild(pl, name)
-	if not Eligible(pl) then return false, "Only humans can join guilds." end
-	if not self:LoadGuildPlayer(pl) then return false, "Your guild profile could not be loaded. Try again." end
+	if not Eligible(pl) then return false, LocalizedText(pl, "guild_join_humans_only") end
+	if not self:LoadGuildPlayer(pl) then return false, LocalizedText(pl, "guild_profile_failed") end
 	local key = Key(pl)
-	if state.memberships[key] then return false, "You already belong to a guild." end
+	if state.memberships[key] then return false, LocalizedText(pl, "guild_already_member") end
 	local invite = pl.ZSGuildInvite
 	local _, namekey = self:NormalizeGuildName(name or "")
-	if name and string.Trim(name) ~= "" and not namekey then return false, "Use a valid guild name." end
+	if name and string.Trim(name) ~= "" and not namekey then return false, LocalizedText(pl, "guild_invalid_name") end
 	local guild = namekey and state.guilds[state.names[namekey]] or invite and state.guilds[invite.id]
-	if not guild then return false, "Use !gjoin <guild name> to request membership, or !gjoin to accept an invitation." end
-	if guild.count >= self.GuildMaxMembers:GetInt() then return false, "That guild is full." end
+	if not guild then return false, LocalizedText(pl, "guild_join_help") end
+	if guild.count >= self.GuildMaxMembers:GetInt() then return false, LocalizedText(pl, "guild_target_full") end
 	if not invite or invite.id ~= guild.id or invite.owner ~= guild.owner or CurTime() >= invite.expires then
 		local owner = state.online[guild.owner]
-		if not Eligible(owner) then return false, "The guild owner must be online as a human to approve your request." end
+		if not Eligible(owner) then return false, LocalizedText(pl, "guild_owner_offline") end
 		local count, now = 0, CurTime()
 		for applicant, expires in pairs(guild.requests) do if expires <= now then guild.requests[applicant] = nil else count = count + 1 end end
-		if guild.requests[key] then return false, "Your request is already awaiting approval." end
-		if count >= 32 then return false, "That guild has too many pending requests. Try again later." end
+		if guild.requests[key] then return false, LocalizedText(pl, "guild_request_pending") end
+		if count >= 32 then return false, LocalizedText(pl, "guild_requests_full") end
 		guild.requests[key] = now + 60
-		Notice(owner, pl:Nick() .. " requested to join " .. guild.name .. ". Type !ginvite " .. pl:UserID() .. " to approve.")
-		return true, "Membership requested. The owner must invite you before you can join."
+		Notice(owner, LocalizedText(owner, "guild_join_request_received", pl:Nick(), guild.name, pl:UserID()))
+		return true, LocalizedText(pl, "guild_membership_requested")
 	end
-	if Query("INSERT INTO zs_guild_members (steamid, guildid) VALUES (" .. sql.SQLStr(key) .. ", " .. guild.id .. ")") == false then return false, "Membership could not be saved. Try again." end
+	if Query("INSERT INTO zs_guild_members (steamid, guildid) VALUES (" .. sql.SQLStr(key) .. ", " .. guild.id .. ")") == false then return false, LocalizedText(pl, "guild_membership_failed") end
 	guild.members[key], guild.count, state.memberships[key], state.list = true, guild.count + 1, guild.id, nil
 	guild.requests[key], pl.ZSGuildInvite = nil, nil
 	Changed(pl, guild.id)
-	return true, "Joined " .. guild.name .. "."
+	return true, LocalizedText(pl, "guild_joined", guild.name)
 end
 
 function GM:LeaveGuild(pl)
 	local guild, key = GuildFor(pl)
-	if not self.GuildEnabled:GetBool() or not state.ready or not guild then return false, "You do not belong to a guild." end
+	if not self.GuildEnabled:GetBool() or not state.ready or not guild then return false, LocalizedText(pl, "guild_not_member") end
 	local owner = guild.owner
 	if key == owner then
 		owner = nil
@@ -196,27 +200,27 @@ function GM:LeaveGuild(pl)
 		if owner ~= guild.owner then return Query("UPDATE zs_guilds SET owner = " .. sql.SQLStr(owner) .. " WHERE id = " .. guild.id) end
 		return true
 	end)
-	if not ok then return false, "Membership could not be saved. Try again." end
+	if not ok then return false, LocalizedText(pl, "guild_membership_failed") end
 	guild.members[key], guild.requests[key], state.memberships[key], state.list = nil, nil, nil, nil
 	guild.count = guild.count - 1
 	if guild.count == 0 then state.guilds[guild.id] = nil; state.names[string.lower(guild.name)] = nil; state.count = state.count - 1 else guild.owner = owner end
 	pl.ZSGuildInvite = nil; Changed(pl, 0)
-	return true, "Left " .. guild.name .. "."
+	return true, LocalizedText(pl, "guild_left", guild.name)
 end
 
 function GM:SendGuildChat(pl, message)
-	if not Eligible(pl) then return false, "Guild chat is only available to humans." end
+	if not Eligible(pl) then return false, LocalizedText(pl, "guild_chat_humans_only") end
 	local guild = GuildFor(pl)
-	if not guild then return false, "Join a guild before using guild chat." end
-	if type(message) ~= "string" or #message > 240 then return false, "Guild messages must be at most 240 bytes." end
+	if not guild then return false, LocalizedText(pl, "guild_chat_join_first") end
+	if type(message) ~= "string" or #message > 240 then return false, LocalizedText(pl, "guild_chat_length") end
 	message = string.Trim(message:gsub("%c", ""))
-	if message == "" then return false, "Use !g <message> to talk to your guild." end
+	if message == "" then return false, LocalizedText(pl, "guild_chat_help") end
 	local now = CurTime()
-	if now < (pl.ZSNextGuildChat or 0) then return false, "Please wait before sending another message." end
+	if now < (pl.ZSNextGuildChat or 0) then return false, LocalizedText(pl, "guild_chat_wait") end
 	pl.ZSNextGuildChat = now + 1
 	local recipients = {}
 	for key in pairs(guild.members) do local member = state.online[key]; if Eligible(member) then recipients[#recipients + 1] = member end end
-	if #recipients == 0 then return false, "No human guild members are online." end
+	if #recipients == 0 then return false, LocalizedText(pl, "guild_chat_none") end
 	net.Start("zs_guild_chat"); net.WriteString(guild.name); net.WriteString(pl:Nick():gsub("%c", ""):sub(1, 64)); net.WriteString(message); net.Send(recipients)
 	return true
 end
@@ -246,17 +250,17 @@ function GM:SendGuildList(pl, force)
 	return true
 end
 
-function GM:FindGuildInviteTarget(text)
+function GM:FindGuildInviteTarget(text, recipient)
 	if type(text) ~= "string" or #text > 64 then return end
 	text = string.lower(string.Trim(text))
 	local candidate
 	for _, pl in player.Iterator() do
 		if Eligible(pl) and (tostring(pl:UserID()) == text or Key(pl) == text or string.lower(pl:Nick()) == text) then
-			if candidate then return nil, "That name is ambiguous. Use the player's numeric user ID." end
+			if candidate then return nil, LocalizedText(recipient, "guild_target_ambiguous") end
 			candidate = pl
 		end
 	end
-	return candidate, "No matching human player. Use an exact name or numeric user ID."
+	return candidate, LocalizedText(recipient, "guild_target_missing")
 end
 
 function GM:HandleGuildAction(pl, action, text)
@@ -265,16 +269,16 @@ function GM:HandleGuildAction(pl, action, text)
 	if now < (pl.ZSNextGuildAction or 0) then return false end
 	pl.ZSNextGuildAction = now + 0.5
 	local ok, message
-	if not self.GuildEnabled:GetBool() then ok, message = false, "Guilds are disabled on this server."
-	elseif not state.ready then ok, message = false, "Guild storage is unavailable. Try again later."
+	if not self.GuildEnabled:GetBool() then ok, message = false, LocalizedText(pl, "guild_disabled")
+	elseif not state.ready then ok, message = false, LocalizedText(pl, "guild_storage_failed")
 	elseif action == "guilds" then
 		if self:SendGuildList(pl) then return true end
-		ok, message = false, "Please wait before refreshing the guild list."
+		ok, message = false, LocalizedText(pl, "guild_refresh_wait")
 	elseif action == "gcreate" then ok, message = self:CreateGuild(pl, text)
 	elseif action == "gjoin" then ok, message = self:JoinGuild(pl, text)
 	elseif action == "gleave" then ok, message = self:LeaveGuild(pl)
 	elseif action == "ginvite" then
-		local target, reason = self:FindGuildInviteTarget(text)
+		local target, reason = self:FindGuildInviteTarget(text, pl)
 		if target then ok, message = self:InviteToGuild(pl, target) else ok, message = false, reason end
 	elseif action == "g" then ok, message = self:SendGuildChat(pl, text)
 	else return false end

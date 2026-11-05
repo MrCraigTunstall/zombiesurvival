@@ -1,7 +1,9 @@
+SWEP.PrintNameTranslation = "craft_nukemasher"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("craft_nukemasher")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.ViewModelFOV = 75
 
 	SWEP.VElements = {

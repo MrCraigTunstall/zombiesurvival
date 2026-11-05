@@ -1,8 +1,12 @@
+SWEP.PrintNameTranslation = "ars_boomstick"
+SWEP.DescriptionTranslation = "boom_desk"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("ars_boomstick")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.Description = translate.Get("boom_desk")
+	SWEP.TranslatedDescription = SWEP.Description
 	SWEP.Slot = 3
 	SWEP.SlotPos = 0
 

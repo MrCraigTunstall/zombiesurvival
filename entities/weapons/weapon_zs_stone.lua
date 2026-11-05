@@ -1,8 +1,12 @@
+SWEP.PrintNameTranslation = "worth_stone"
+SWEP.DescriptionTranslation = "stone_desk"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("worth_stone")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.Description = translate.Get("stone_desk")
+	SWEP.TranslatedDescription = SWEP.Description
 
 	SWEP.ViewModelFlip = false
 	SWEP.ViewModelFOV = 50

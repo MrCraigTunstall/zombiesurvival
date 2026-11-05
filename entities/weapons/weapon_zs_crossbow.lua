@@ -1,8 +1,12 @@
+SWEP.PrintNameTranslation = "ars_crossbow"
+SWEP.DescriptionTranslation = "crossbow_desk"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("ars_crossbow")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.Description = translate.Get("crossbow_desk")
+	SWEP.TranslatedDescription = SWEP.Description
 
 	SWEP.HUD3DBone = "ValveBiped.Crossbow_base"
 	SWEP.HUD3DPos = Vector(1.5, 0.5, 11)

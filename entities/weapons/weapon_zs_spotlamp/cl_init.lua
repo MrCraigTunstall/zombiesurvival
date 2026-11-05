@@ -1,7 +1,12 @@
+SWEP.PrintNameTranslation = "wn_spotlmp"
+SWEP.DescriptionTranslation = "spotlmp_desk"
 include("shared.lua")
 
 SWEP.PrintName = translate.Get("wn_spotlmp")
+
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = translate.Get("spotlmp_desk")
+SWEP.TranslatedDescription = SWEP.Description
 SWEP.DrawCrosshair = false
 
 SWEP.Slot = 4

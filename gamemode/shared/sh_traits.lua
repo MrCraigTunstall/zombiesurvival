@@ -1,44 +1,44 @@
 GM.TraitDefinitions = {
-	{"marksman", "Marksman", "Weapon spread is reduced by 10%.", 20},
-	{"chosenone", "Chosen One", "Deal 5% extra damage to zombie bosses.", 15},
-	{"strongfeet", "Strong Feet", "You cannot be knocked down.", 20},
-	{"thickskin", "Thick Skin", "Take 20% less damage from zombie slash and club melee attacks.", 25},
-	{"acrobatic", "Acrobatic", "Jump 20% higher, including while ghosting through barricades.", 15},
-	{"kleiner", "Just Kleiner", "Using the Kleiner model grants 2.5% extra zombie damage and 2.5% resistance to zombie damage.", 10},
-	{"venomimmunity", "Venom Immunity", "Poison and acid cannot damage you or trigger their poison effects.", 30},
-	{"steady", "Steady", "Low health and Palsy do not shake your aim.", 15},
-	{"butcher", "Butcher", "Successful melee hits against infected heal 1 to 3 HP, without exceeding maximum health.", 25},
-	{"sniper", "Sniper", "Sniper bullets deal 20% extra damage while grounded and crouching or standing still.", 20},
-	{"swordsman", "Swordsman", "Holding a melee weapon gives a 40% chance to block normal zombie melee damage.", 30},
-	{"sticky", "Sticky", "A zombie that damages you with a normal melee attack moves 10% slower for three seconds.", 20},
-	{"highnoon", "High Noon", "Pistol bullet headshots deal 20% extra damage to infected.", 20},
-	{"kenjutsu", "Kenjutsu", "Katana melee damage and attack speed improve by 10%, with 5% extra movement speed while wielding it.", 30},
-	{"punisher", "Punisher", "Deal 7.5% extra damage to infected who killed a human this round.", 20},
-	{"divinegift", "Divine Gift", "Completed sigil teleports restore 10 HP, without exceeding maximum health.", 20},
-	{"merchant", "Merchant", "Other survivors using your arsenal receive 5% off during waves and 10% off between waves.", 25},
-	{"belovedcustomer", "Beloved Customer", "Arsenal purchases cost 5% less, including from your own crate.", 20},
-	{"gunman", "Gunman", "Reload weapons and vent the Helios 10% faster.", 20},
-	{"experiencedhunter", "Experienced Hunter", "Rifles and shotguns reload 5% faster and deal 5% extra bullet damage to infected.", 20},
-	{"demolitionist", "Demolitionist", "Grenades and C4 cost 30% less. Your explosives cannot hurt other humans, and human explosions damage you 50% less.", 35},
-	{"bigbang", "Big Bang Theory", "Each explosive weapon blast has a 50% chance to deal 25% extra damage.", 30},
-	{"combinefellow", "Combine Fellow", "Owned automatic turrets, manhacks, Adonis, Owens, Tosser and Z9000 deal 10% extra damage to infected.", 25},
-	{"crafty", "Crafty", "Weapons you craft deal 10% extra damage while you use them, including their projectiles and deployed manhacks.", 20},
-	{"pyrotechnics", "Pyrotechnics", "Craft a Molotov cocktail from a newspaper and a glass bottle.", 20},
-	{"mysteriousstranger", "Mysterious Stranger", "Each wave intermission gives a 25% chance of a random pistol with a loaded magazine and extra ammunition.", 25},
-	{"technicalaim", "Technical Aim", "Your automatic turrets seek the nearest visible undead within their firing arc and range.", 25},
-	{"cheerleader", "Cheerleader", "Other living survivors within 256 units move 5% faster. Multiple Cheerleaders do not stack.", 20},
-	{"glutton", "Glutton", "Eat melons and fruit or drink milk from props to recover health.", 20},
-	{"junkyard", "Junkyard", "Convert discarded boots, cans, plastic bottles and other rubbish props into ammunition for your held firearm.", 20},
-	{"gravethief", "Gravethief", "Zombie kills have a 10% chance to drop one or two random ammo boxes. Boss kills have a 50% chance to drop two or four.", 25},
-	{"luckycrates", "Lucky Crates", "Breaking wooden crates has a 20% chance to reveal a random weapon, with low-cost weapons more common. Otherwise find two or three random ammo boxes.", 30},
-	{"headcrabconnoisseur", "Headcrab Connoisseur", "Eat headcrab ragdolls with Use to restore up to 10 HP.", 20},
-	{"deathmark", "Death Mark", "Consecutive sniper hits against the same infected build 5% extra damage per hit, up to 30%. A failed hit resets the streak.", 25},
-	{"drunktard", "Drunktard", "Consume glass bottles for health or ammunition, with a rare weapon reward. Your view sways slightly for ten seconds.", 20},
-	{"dronepilot", "Drone Pilot", "Reload your manhack controller to attach a gun. While controlling it, secondary fire uses one SMG round per shot.", 30},
-	{"tonguelover", "Tongue Lover", "Grow allied barnacles on ceilings with a cultivator. Two per survivor, a 30-second cooldown, double bite damage and improved resistance.", 35},
-	{"explosivetouch", "Explosive Touch", "Your nailed props and deployable equipment explode like a grenade when destroyed by zombies.", 35},
-	{"parkour", "Parkour Expert", "With fists, hold Reload in the air to grip a wall. Forward climbs up to 96 units; Jump pushes off. Three seconds per grip, reset by landing.", 30},
-	{"alientrainer", "Alien Trainer", "Start with three genuine Snark charges. Three active companions per survivor, twelve-second lifespan, and removal after two seconds without nearby zombies. Snarks only damage infected.", 35}
+	{"marksman", translate.Get("trait_marksman"), translate.Get("trait_marksman_desc"), 20},
+	{"chosenone", translate.Get("trait_chosenone"), translate.Get("trait_chosenone_desc"), 15},
+	{"strongfeet", translate.Get("trait_strongfeet"), translate.Get("trait_strongfeet_desc"), 20},
+	{"thickskin", translate.Get("trait_thickskin"), translate.Get("trait_thickskin_desc"), 25},
+	{"acrobatic", translate.Get("trait_acrobatic"), translate.Get("trait_acrobatic_desc"), 15},
+	{"kleiner", translate.Get("trait_kleiner"), translate.Get("trait_kleiner_desc"), 10},
+	{"venomimmunity", translate.Get("trait_venomimmunity"), translate.Get("trait_venomimmunity_desc"), 30},
+	{"steady", translate.Get("trait_steady"), translate.Get("trait_steady_desc"), 15},
+	{"butcher", translate.Get("trait_butcher"), translate.Get("trait_butcher_desc"), 25},
+	{"sniper", translate.Get("trait_sniper"), translate.Get("trait_sniper_desc"), 20},
+	{"swordsman", translate.Get("trait_swordsman"), translate.Get("trait_swordsman_desc"), 30},
+	{"sticky", translate.Get("trait_sticky"), translate.Get("trait_sticky_desc"), 20},
+	{"highnoon", translate.Get("trait_highnoon"), translate.Get("trait_highnoon_desc"), 20},
+	{"kenjutsu", translate.Get("trait_kenjutsu"), translate.Get("trait_kenjutsu_desc"), 30},
+	{"punisher", translate.Get("trait_punisher"), translate.Get("trait_punisher_desc"), 20},
+	{"divinegift", translate.Get("trait_divinegift"), translate.Get("trait_divinegift_desc"), 20},
+	{"merchant", translate.Get("trait_merchant"), translate.Get("trait_merchant_desc"), 25},
+	{"belovedcustomer", translate.Get("trait_belovedcustomer"), translate.Get("trait_belovedcustomer_desc"), 20},
+	{"gunman", translate.Get("trait_gunman"), translate.Get("trait_gunman_desc"), 20},
+	{"experiencedhunter", translate.Get("trait_experiencedhunter"), translate.Get("trait_experiencedhunter_desc"), 20},
+	{"demolitionist", translate.Get("trait_demolitionist"), translate.Get("trait_demolitionist_desc"), 35},
+	{"bigbang", translate.Get("trait_bigbang"), translate.Get("trait_bigbang_desc"), 30},
+	{"combinefellow", translate.Get("trait_combinefellow"), translate.Get("trait_combinefellow_desc"), 25},
+	{"crafty", translate.Get("trait_crafty"), translate.Get("trait_crafty_desc"), 20},
+	{"pyrotechnics", translate.Get("trait_pyrotechnics"), translate.Get("trait_pyrotechnics_desc"), 20},
+	{"mysteriousstranger", translate.Get("trait_mysteriousstranger"), translate.Get("trait_mysteriousstranger_desc"), 25},
+	{"technicalaim", translate.Get("trait_technicalaim"), translate.Get("trait_technicalaim_desc"), 25},
+	{"cheerleader", translate.Get("trait_cheerleader"), translate.Get("trait_cheerleader_desc"), 20},
+	{"glutton", translate.Get("trait_glutton"), translate.Get("trait_glutton_desc"), 20},
+	{"junkyard", translate.Get("trait_junkyard"), translate.Get("trait_junkyard_desc"), 20},
+	{"gravethief", translate.Get("trait_gravethief"), translate.Get("trait_gravethief_desc"), 25},
+	{"luckycrates", translate.Get("trait_luckycrates"), translate.Get("trait_luckycrates_desc"), 30},
+	{"headcrabconnoisseur", translate.Get("trait_headcrabconnoisseur"), translate.Get("trait_headcrabconnoisseur_desc"), 20},
+	{"deathmark", translate.Get("trait_deathmark"), translate.Get("trait_deathmark_desc"), 25},
+	{"drunktard", translate.Get("trait_drunktard"), translate.Get("trait_drunktard_desc"), 20},
+	{"dronepilot", translate.Get("trait_dronepilot"), translate.Get("trait_dronepilot_desc"), 30},
+	{"tonguelover", translate.Get("trait_tonguelover"), translate.Get("trait_tonguelover_desc"), 35},
+	{"explosivetouch", translate.Get("trait_explosivetouch"), translate.Get("trait_explosivetouch_desc"), 35},
+	{"parkour", translate.Get("trait_parkour"), translate.Get("trait_parkour_desc"), 30},
+	{"alientrainer", translate.Get("trait_alientrainer"), translate.Get("trait_alientrainer_desc"), 35}
 }
 function GM:BuildTraitCatalog()
 	self.TraitLookup, self.TraitNetKeys = {}, {}
@@ -46,12 +46,15 @@ function GM:BuildTraitCatalog()
 	for word = 1, self.TraitWordCount do self.TraitNetKeys[word] = word == 1 and "zs_traits" or "zs_traits_" .. word end
 	for index, definition in ipairs(self.TraitDefinitions) do
 		local flag = definition[1]
+		definition.NameTranslation = "trait_" .. flag
+		definition.DescriptionTranslation = definition.NameTranslation .. "_desc"
+		definition.TranslatedName, definition.TranslatedDescription = definition[2], definition[3]
 		definition.Word = math.floor((index - 1) / 31) + 1
 		definition.Mask = 2 ^ ((index - 1) % 31)
 		definition.NetKey = self.TraitNetKeys[definition.Word]
 		self.TraitLookup[flag] = definition
 		if not self.ItemsBySignature["trait_" .. flag] then
-			local item = self:AddStartingItem("trait_" .. flag, definition[2], definition[3], ITEMCAT_TRAITS, definition[4], nil,
+			local item = self:AddLocalizedStartingItem("trait_" .. flag, definition.NameTranslation, definition.DescriptionTranslation, ITEMCAT_TRAITS, definition[4], nil,
 				function(pl) if SERVER then GAMEMODE:SetPlayerTrait(pl, flag) end end, "models/healthvial.mdl")
 			item.WorthTrait = flag
 			item.WorthGrantCallback = item.Callback

@@ -1,8 +1,12 @@
+SWEP.PrintNameTranslation = "ars_shovel"
+SWEP.DescriptionTranslation = "shovel_desk"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("ars_shovel")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.Description = translate.Get("shovel_desk")
+	SWEP.TranslatedDescription = SWEP.Description
 
 	SWEP.ViewModelFOV = 60
 

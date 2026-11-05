@@ -1,5 +1,9 @@
+SWEP.PrintNameTranslation = "ars_spinfusor"
+SWEP.DescriptionTranslation = "ars_spinfusor_desc"
 SWEP.PrintName = translate.Get("ars_spinfusor")
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = translate.Get("ars_spinfusor_desc")
+SWEP.TranslatedDescription = SWEP.Description
 
 SWEP.Slot = 3
 SWEP.SlotPos = 0

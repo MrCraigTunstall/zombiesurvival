@@ -1,8 +1,12 @@
+SWEP.PrintNameTranslation = "ars_helios"
+SWEP.DescriptionTranslation = "ars_helios_desc"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("ars_helios")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.Description = translate.Get("ars_helios_desc")
+	SWEP.TranslatedDescription = SWEP.Description
 	SWEP.ViewModelFlip = false
 	SWEP.ViewModelFOV = 58
 	SWEP.OverrideAmmoDisplay = true

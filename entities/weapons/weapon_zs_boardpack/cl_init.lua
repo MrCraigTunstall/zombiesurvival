@@ -1,7 +1,12 @@
+SWEP.PrintNameTranslation = "worth_junkpack"
+SWEP.DescriptionTranslation = "junk_desk"
 include("shared.lua")
 
 SWEP.PrintName = ""..translate.Get("worth_junkpack")
+
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = ""..translate.Get("junk_desk")
+SWEP.TranslatedDescription = SWEP.Description
 SWEP.ViewModelFOV = 45
 SWEP.ViewModelFlip = false
 

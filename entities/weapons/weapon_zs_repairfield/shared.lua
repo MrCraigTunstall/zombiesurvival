@@ -1,6 +1,10 @@
+SWEP.PrintNameTranslation = "weapon_repairfield"
+SWEP.DescriptionTranslation = "weapon_repairfield_desc"
 SWEP.Base = "weapon_zs_base"
 SWEP.PrintName = translate.Get("weapon_repairfield")
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = translate.Get("weapon_repairfield_desc")
+SWEP.TranslatedDescription = SWEP.Description
 SWEP.ViewModel = "models/weapons/c_slam.mdl"
 SWEP.WorldModel = "models/weapons/w_slam.mdl"
 SWEP.UseHands = true

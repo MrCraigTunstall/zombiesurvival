@@ -1,9 +1,11 @@
+SWEP.PrintNameTranslation = "wn_fheadcrab"
 AddCSLuaFile()
 
 SWEP.Base = "weapon_zs_headcrab"
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("wn_fheadcrab")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 end
 
 SWEP.PounceDamage = 6

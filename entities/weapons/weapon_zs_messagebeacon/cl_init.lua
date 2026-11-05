@@ -1,7 +1,12 @@
+SWEP.PrintNameTranslation = "worth_beacon"
+SWEP.DescriptionTranslation = "msgbeacon_desk"
 include("shared.lua")
 
 SWEP.PrintName = ""..translate.Get("worth_beacon")
+
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = ""..translate.Get("msgbeacon_desk")
+SWEP.TranslatedDescription = SWEP.Description
 SWEP.DrawCrosshair = false
 
 SWEP.Slot = 4

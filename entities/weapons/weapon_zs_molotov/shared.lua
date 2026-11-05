@@ -1,5 +1,9 @@
+SWEP.PrintNameTranslation = "ars_molotov2"
+SWEP.DescriptionTranslation = "ars_molotov_desc"
 SWEP.PrintName = translate.Get("ars_molotov2")
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = translate.Get("ars_molotov_desc")
+SWEP.TranslatedDescription = SWEP.Description
 
 SWEP.Base = "weapon_zs_basethrown"
 

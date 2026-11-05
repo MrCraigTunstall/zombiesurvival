@@ -119,7 +119,19 @@ GM.ZombieVolunteers = {}
 
 team.SetUp(TEAM_ZOMBIE, ""..translate.Get("team_zombie"), Color(255, 0, 0, 255))
 team.SetUp(TEAM_SURVIVORS, ""..translate.Get("team_humans"), Color(0, 160, 255, 255))
-team.SetUp(TEAM_REDEEMERS, "Redeemers", Color(255, 154, 0, 255))
+team.SetUp(TEAM_REDEEMERS, translate.Get("team_redeemers"), Color(255, 154, 0, 255))
+
+local teamNameKeys = {[TEAM_ZOMBIE] = "team_zombie", [TEAM_SURVIVORS] = "team_humans", [TEAM_REDEEMERS] = "team_redeemers"}
+local teamNameValues = {}
+for index in pairs(teamNameKeys) do teamNameValues[index] = team.GetName(index) end
+hook.Add("ZSLanguageChanged", "ZSTeamNames", function()
+	local teams = team.GetAllTeams()
+	for index, key in pairs(teamNameKeys) do
+		local value = translate.Get(key)
+		if teams[index] and teams[index].Name == teamNameValues[index] then teams[index].Name = value end
+		teamNameValues[index] = value
+	end
+end)
 
 CVars = {}
 

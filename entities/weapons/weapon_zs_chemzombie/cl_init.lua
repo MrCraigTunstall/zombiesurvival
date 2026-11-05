@@ -1,6 +1,9 @@
+SWEP.PrintNameTranslation = "wn_chem"
 include("shared.lua")
 
 SWEP.PrintName = translate.Get("wn_chem")
+
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.DrawCrosshair = false
 
 function SWEP:Think()

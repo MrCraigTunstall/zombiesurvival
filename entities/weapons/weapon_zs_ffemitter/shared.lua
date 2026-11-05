@@ -1,5 +1,9 @@
+SWEP.PrintNameTranslation = "worth_fieldemiter"
+SWEP.DescriptionTranslation = "worth_fieldemiter_desc"
 SWEP.PrintName = translate.Get("worth_fieldemiter")
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = translate.Get("worth_fieldemiter_desc")
+SWEP.TranslatedDescription = SWEP.Description
 
 SWEP.ViewModel = "models/weapons/v_pistol.mdl"
 SWEP.WorldModel = Model("models/props_lab/lab_flourescentlight002b.mdl")

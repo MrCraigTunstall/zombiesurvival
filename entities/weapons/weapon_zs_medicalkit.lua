@@ -1,8 +1,12 @@
+SWEP.PrintNameTranslation = "worth_medkit"
+SWEP.DescriptionTranslation = "medkit_desk"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("worth_medkit")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.Description = translate.Get("medkit_desk")
+	SWEP.TranslatedDescription = SWEP.Description
 	SWEP.Slot = 4
 	SWEP.SlotPos = 0
 

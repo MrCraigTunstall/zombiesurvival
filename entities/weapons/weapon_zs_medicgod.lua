@@ -1,3 +1,4 @@
+SWEP.PrintNameTranslation = "medkitgod"
 AddCSLuaFile()
 
 SWEP.Base = "weapon_zs_medicalkit"
@@ -19,6 +20,7 @@ SWEP.Secondary.Ammo = "none"
 
 if CLIENT then
  SWEP.PrintName = translate.Get("medkitgod")
+ SWEP.TranslatedPrintName = SWEP.PrintName
  SWEP.MedicalHUDLabel = "medkitgod"
  SWEP.MedicalHUDColor = Color(255, 215, 0)
 end

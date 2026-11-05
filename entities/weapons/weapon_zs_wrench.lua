@@ -1,7 +1,10 @@
+SWEP.PrintNameTranslation = "worth_wrench"
+SWEP.DescriptionTranslation = "wrench_desk"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("worth_wrench")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 
 	SWEP.ViewModelFOV = 55
 	SWEP.ViewModelFlip = false
@@ -16,6 +19,8 @@ if CLIENT then
 	}
 
 	SWEP.Description = translate.Get("wrench_desk")
+
+	SWEP.TranslatedDescription = SWEP.Description
 end
 
 SWEP.Base = "weapon_zs_basemelee"

@@ -1,7 +1,9 @@
+SWEP.PrintNameTranslation = "ars_sledge"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("ars_sledge")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.ViewModelFOV = 75
 end
 

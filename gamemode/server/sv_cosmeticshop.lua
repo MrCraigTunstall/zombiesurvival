@@ -1,3 +1,7 @@
+local function LocalizedText(pl, key, ...)
+	if IsValid(pl) and pl:IsPlayer() then return translate.ClientFormat(pl, key, ...) end
+	return translate.Format(key, ...)
+end
 local enabled=CreateConVar('zs_cosmetics_enabled','1',FCVAR_ARCHIVE,'Enable the built-in cosmetic shop.',0,1)
 local state=GM.ZSCosmeticState or{profiles={},assets={}}
 GM.ZSCosmeticState=state
@@ -47,21 +51,21 @@ local function Asset(item)
 	return state.assets[model]
 end
 function GM:CosmeticAction(pl,action,id)
-	if not Key(pl)then return false,'Cosmetics are available to human-controlled players.'end
-	if not enabled:GetBool()then return false,'Cosmetics are disabled on this server.'end
-	if pl.ZSCosmeticBusy then return false,'A purchase is already in progress.'end
+	if not Key(pl)then return false,LocalizedText(pl, "cosmetic_humans_only")end
+	if not enabled:GetBool()then return false,LocalizedText(pl, "cosmetic_disabled")end
+	if pl.ZSCosmeticBusy then return false,LocalizedText(pl, "cosmetic_busy")end
 	local profile,key=self:LoadPlayerCosmetics(pl)
-	if not profile then return false,'Your cosmetic profile could not be loaded.'end
-	if action==0 then return true,'Choose a cosmetic for your current team.'end
+	if not profile then return false,LocalizedText(pl, "cosmetic_profile_failed")end
+	if action==0 then return true,LocalizedText(pl, "cosmetic_choose_team")end
 	local item=self.Cosmetics[id]
-	if not item or(action~=1 and action~=2)then return false,'Unknown cosmetic action.'end
-	if type(item.Cost)~='number'or item.Cost~=item.Cost or item.Cost<0 or item.Cost>100000 or item.Cost~=math.floor(item.Cost)then return false,'Invalid cosmetic price.'end
-	if not pl:Alive()or item.Team~=pl:Team()then return false,'This cosmetic is for a different team.'end
-	if not Asset(item)then return false,'This cosmetic asset is unavailable.'end
+	if not item or(action~=1 and action~=2)then return false,LocalizedText(pl, "cosmetic_unknown_action")end
+	if type(item.Cost)~='number'or item.Cost~=item.Cost or item.Cost<0 or item.Cost>100000 or item.Cost~=math.floor(item.Cost)then return false,LocalizedText(pl, "cosmetic_invalid_price")end
+	if not pl:Alive()or item.Team~=pl:Team()then return false,LocalizedText(pl, "cosmetic_wrong_team")end
+	if not Asset(item)then return false,LocalizedText(pl, "cosmetic_asset_unavailable")end
 	local balance=self:GetCosmeticBalance(pl)
-	if action==1 and profile.owned[id]then return false,'You already own this cosmetic.'end
-	if action==2 and not profile.owned[id]then return false,'Buy this cosmetic before equipping it.'end
-	if action==1 and(type(balance)~='number'or balance~=balance or balance==math.huge or balance<item.Cost)then return false,'Not enough points.'end
+	if action==1 and profile.owned[id]then return false,LocalizedText(pl, "cosmetic_already_owned")end
+	if action==2 and not profile.owned[id]then return false,LocalizedText(pl, "cosmetic_buy_first")end
+	if action==1 and(type(balance)~='number'or balance~=balance or balance==math.huge or balance<item.Cost)then return false,LocalizedText(pl, pl:Team()==TEAM_UNDEAD and "you_dont_have_enough_btokens" or "dont_have_enough_points")end
 	pl.ZSCosmeticBusy=true
 	local team=pl:Team()
 	local cost=action==1 and item.Cost or 0
@@ -92,11 +96,12 @@ function GM:CosmeticAction(pl,action,id)
 		if charged and cost>0 then if team==TEAM_UNDEAD then pl:SetTokens(balance)else pl:SetPoints(balance)end end
 		pl.ZSCosmeticBusy=nil
 		ErrorNoHalt('[ZS] Cosmetic transaction failed: '..tostring(failure)..'\n')
-		return false,'Purchase could not be saved. Your points were restored.'
+		return false,LocalizedText(pl, "cosmetic_save_failed")
 	end
 	if action==1 then profile.owned[id]=true end
 	profile.equipped[item.Category]=selected;pl.ZSCosmeticBusy=nil;Sync(pl,profile)
-	return true,action==1 and 'Purchased and equipped '..item.Name..'.'or(selected>0 and 'Equipped '..item.Name..'.'or 'Cosmetic unequipped.')
+	local name=item.NameTranslation and translate.ClientGet(pl,item.NameTranslation)or item.Name
+	return true,action==1 and LocalizedText(pl,"cosmetic_purchased_equipped",name)or(selected>0 and LocalizedText(pl,"cosmetic_equipped",name)or LocalizedText(pl,"cosmetic_unequipped"))
 end
 function GM:SendCosmeticData(pl,ok,message,open)
 	if not Key(pl)then return end

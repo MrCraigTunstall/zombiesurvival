@@ -1,7 +1,12 @@
+SWEP.PrintNameTranslation = "ars_aegis"
+SWEP.DescriptionTranslation = "aegis_desk"
 include("shared.lua")
 
 SWEP.PrintName = translate.Get("ars_aegis")
+
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = translate.Get("aegis_desk")
+SWEP.TranslatedDescription = SWEP.Description
 SWEP.DrawCrosshair = false
 SWEP.ViewModelFOV = 70
 SWEP.ViewModelFlip = false

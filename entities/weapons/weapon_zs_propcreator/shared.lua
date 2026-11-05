@@ -1,6 +1,10 @@
+SWEP.PrintNameTranslation = "propcreator_name"
+SWEP.DescriptionTranslation = "propcreator_description"
 SWEP.Base = "weapon_zs_base"
 SWEP.PrintName = translate.Get("propcreator_name")
+SWEP.TranslatedPrintName = SWEP.PrintName
 SWEP.Description = translate.Get("propcreator_description")
+SWEP.TranslatedDescription = SWEP.Description
 SWEP.ViewModel = "models/weapons/v_toolgun.mdl"
 SWEP.WorldModel = "models/weapons/w_toolgun.mdl"
 SWEP.HoldType = "revolver"

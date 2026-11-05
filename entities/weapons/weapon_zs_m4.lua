@@ -1,8 +1,12 @@
+SWEP.PrintNameTranslation = "ars_stalker"
+SWEP.DescriptionTranslation = "stalker_desk"
 AddCSLuaFile()
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("ars_stalker")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 	SWEP.Description = translate.Get("stalker_desk")
+	SWEP.TranslatedDescription = SWEP.Description
 	SWEP.Slot = 2
 	SWEP.SlotPos = 0
 

@@ -74,18 +74,19 @@ end
 
 local function Status(ent)
 	local state, kind = ent:GetQuestState(), ent:GetQuestKind()
-	if state == 2 then return "Completed for this round", false end
-	if state ~= 1 then return state == 3 and "Previous attempt failed. You can try again." or "Available", true end
-	if ent:GetQuestPlayer() ~= MySelf then return "Another survivor has accepted this quest", false end
-	if kind == 1 then return ent:GetQuestProgress() .. " / " .. ent:GetQuestDuration() .. " active-wave seconds", false end
-	if kind == 2 then return ent:GetQuestProgress() == 1 and "Medicine collected. Deliver it here." or "Find the marked medicine and press USE.", ent:GetQuestProgress() == 1 end
+	if state == 2 then return translate.Get("quest_completed_round"), false end
+	if state ~= 1 then return state == 3 and translate.Get("quest_previous_failed") or translate.Get("quest_available"), true end
+	if ent:GetQuestPlayer() ~= MySelf then return translate.Get("quest_other_survivor"), false end
+	if kind == 1 then return translate.Format("quest_protection_progress", ent:GetQuestProgress(), ent:GetQuestDuration()), false end
+	if kind == 2 then return ent:GetQuestProgress() == 1 and translate.Get("quest_medicine_ready") or translate.Get("quest_find_medicine"), ent:GetQuestProgress() == 1 end
 	local list = GAMEMODE.QuestDefinitions[3].weapons
 	local class = list[ent:GetQuestProgress() + 1]
-	return class and "Bring " .. GAMEMODE:GetQuestWeaponName(class) or "Deliveries finished. Collect your reward.", true
+	return class and translate.Format("quest_bring_weapon", GAMEMODE:GetQuestWeaponName(class)) or translate.Get("quest_deliveries_finished"), true
 end
 
 function GM:OpenQuestMenu(ent)
  self:RefreshMenuScale()
+ self:RefreshCatalogueTranslations()
 	if not IsValid(ent) or ent:GetClass() ~= "npc_zs_quest" or not self.QuestDefinitions[ent:GetQuestKind()] then return end
 	local definition = self.QuestDefinitions[ent:GetQuestKind()]
 	local frame = self.ZSQuestFrame
@@ -108,7 +109,7 @@ function GM:OpenQuestMenu(ent)
 	title:SetFont("ZSMenuScaledTitle") title:SetTextColor(color_white)
 	frame.RequestLabel = vgui.Create("DLabel", frame)
 	frame.RequestLabel:SetFont("ZSMenuScaledSmall") frame.RequestLabel:SetTextColor(self.ShopColors.muted)
-	frame.RequestLabel:SetText("Survivor request")
+	frame.RequestLabel:SetText(translate.Get("quest_request"))
 	frame.Details = vgui.Create("DScrollPanel", frame)
  local bar=frame.Details:GetVBar()
  bar.Paint=function(_,width,height)draw.RoundedBox(4,0,0,width,height,colors.row)end
@@ -145,12 +146,12 @@ function GM:OpenQuestMenu(ent)
 			Layout(panel, math.Clamp(panel.Details:GetCanvas():GetTall() + U(156), U(260), U(480)))
 		end
 		if not GAMEMODE:CanReachQuest(MySelf, ent, 180) then panel:Close(); return end
-		if panel.Pending and now >= panel.Pending then panel.Pending = nil; panel.Feedback = "No response. Try again."; panel.FeedbackUntil = now + 2 end
+		if panel.Pending and now >= panel.Pending then panel.Pending = nil; panel.Feedback = translate.Get("quest_no_response"); panel.FeedbackUntil = now + 2 end
 		local text, allowed = Status(ent)
 		if panel.FeedbackUntil and now >= panel.FeedbackUntil then panel.Feedback = nil; panel.FeedbackUntil = nil end
 		text = panel.Feedback or text
 		if panel.LastStatus ~= text then panel.LastStatus = text; SetText(status, text) end
-		local caption = panel.Pending and "Waiting..." or ent:GetQuestState() == 1 and "Deliver / collect reward" or ent:GetQuestState() == 2 and "Completed" or "Accept quest"
+		local caption = panel.Pending and translate.Get("quest_waiting") or ent:GetQuestState() == 1 and translate.Get("quest_deliver_reward") or ent:GetQuestState() == 2 and translate.Get("quest_completed") or translate.Get("quest_accept")
 		if panel.LastCaption ~= caption then panel.LastCaption = caption; action:SetText(caption) end
 		local enabled = not not (allowed and not panel.Pending and (ent:GetQuestState() == 1 or ent:GetQuestKind() ~= 1 or GAMEMODE:GetWaveActive()))
 		if panel.LastEnabled ~= enabled then panel.LastEnabled = enabled; action:SetEnabled(enabled) end
@@ -162,10 +163,11 @@ function GM:OpenQuestMenu(ent)
   frame.QuestNPC,frame.NextRefresh,frame.Pending,frame.Feedback,frame.FeedbackUntil=ent,nil,nil,nil,nil
   frame.LastStatus,frame.LastCaption,frame.LastEnabled=nil,nil,nil
  end
+ SetText(frame.RequestLabel,translate.Get("quest_request"))
  SetText(frame.QuestTitle,definition.title)
  SetText(frame.CloseButton,translate.Get("close"))
- SetDescription(frame,definition.description..(ent:GetQuestKind()==1 and " Protect for "..ent:GetQuestDuration().." seconds."or " Complete within three minutes."))
- SetText(frame.QuestReward,"Reward: "..(ent:GetQuestReward()~=""and self:GetQuestWeaponName(ent:GetQuestReward()).." (60 points if already owned or unavailable)"or "60 points"))
+ SetDescription(frame,definition.description.." "..(ent:GetQuestKind()==1 and translate.Format("quest_protect_duration",ent:GetQuestDuration())or translate.Get("quest_deadline")))
+ SetText(frame.QuestReward,(ent:GetQuestReward()~=""and translate.Format("quest_reward_weapon",self:GetQuestWeaponName(ent:GetQuestReward()))or translate.Get("quest_reward_points")))
  if frame:IsVisible()then
   if changed then frame:Think()end
   return frame
@@ -191,12 +193,17 @@ hook.Add("HUDPaint", "ZSQuestObjective", function()
 			if position then
 				local screen = (position + Vector(0, 0, medicine and 24 or 90)):ToScreen()
 				if screen.visible then
-					local text = medicine and "MEDICINE" or Status(ent)
+					local text = medicine and translate.Get("quest_medicine_marker") or Status(ent)
 					draw.SimpleText(text, "ZSHUDFontTiny", math.Clamp(screen.x, 100, ScrW() - 100), math.Clamp(screen.y, 40, ScrH() - 40), accent, TEXT_ALIGN_CENTER)
 				end
 			end
 		end
 	end
+end)
+
+hook.Add("ZSLanguageChanged", "ZSQuestMenuLanguage", function()
+	local frame = GAMEMODE and GAMEMODE.ZSQuestFrame
+	if IsValid(frame) and frame:IsVisible() then GAMEMODE:OpenQuestMenu(frame.QuestNPC) end
 end)
 
 hook.Add("OnScreenSizeChanged", "ZSQuestMenuLayout", function()

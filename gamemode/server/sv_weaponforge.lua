@@ -35,9 +35,9 @@ concommand.Add("zs_weaponforge", function(pl, command, args)
 	local ok, result = GAMEMODE:PurchaseWeaponForge(pl, weapon, expected)
 	if result == "cooldown" then return end
 	if ok then
-		pl:CenterNotify(COLOR_GREEN, "Weapon Forge: tier " .. result)
+		pl:CenterNotify(COLOR_GREEN, translate.ClientFormat(pl, "forge_tier_upgraded", result))
 	else
-		local messages = {unavailable = "Weapon Forge is unavailable.", busy = "Finish your current action first.", weapon = "This weapon cannot be forged.", arsenal = "Move within reach of an arsenal crate.", changed = "Weapon changed. Refresh the forge.", maximum = "This weapon is fully forged.", points = "Not enough points for this upgrade.", failed = "The upgrade could not be applied."}
-		pl:CenterNotify(COLOR_RED, messages[result] or messages.failed)
+		local messages = {unavailable = "forge_feedback_unavailable", busy = "forge_feedback_busy", weapon = "forge_feedback_weapon", arsenal = "forge_feedback_arsenal", changed = "forge_feedback_changed", maximum = "forge_feedback_maximum", points = "forge_feedback_points", failed = "forge_feedback_failed"}
+		pl:CenterNotify(COLOR_RED, translate.ClientGet(pl, messages[result] or messages.failed))
 	end
 end)

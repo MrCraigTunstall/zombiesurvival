@@ -1,9 +1,11 @@
+SWEP.PrintNameTranslation = "wn_pukepus"
 AddCSLuaFile()
 
 SWEP.Base = "weapon_zs_zombie"
 
 if CLIENT then
 	SWEP.PrintName = translate.Get("wn_pukepus")
+	SWEP.TranslatedPrintName = SWEP.PrintName
 end
 
 SWEP.Primary.Delay = 3.5

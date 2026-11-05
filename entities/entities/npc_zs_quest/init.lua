@@ -29,5 +29,5 @@ function ENT:OnTakeDamage(info)
 	local damage = info:GetDamage()
 	if damage ~= damage or damage <= 0 or damage == math.huge then return end
 	self:SetHealth(math.max(0, self:Health() - damage))
-	if self:Health() <= 0 then GAMEMODE:FailQuest(self, "The survivor was killed. Quest failed.") end
+	if self:Health() <= 0 then GAMEMODE:FailQuest(self, "quest_survivor_killed") end
 end
